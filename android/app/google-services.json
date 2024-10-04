@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "72383589714",
+    "project_id": "rifund-2ad1e",
+    "storage_bucket": "rifund-2ad1e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72383589714:android:be9aa7f2cd83bfa2abde8b",
+        "android_client_info": {
+          "package_name": "com.example.rifund"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDU34s-4h4qKkY5ZD97LOWCcHxSYtfHIGU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
