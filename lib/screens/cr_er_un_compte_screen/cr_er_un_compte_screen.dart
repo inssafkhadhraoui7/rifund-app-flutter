@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // Ensure provider is imported
+import 'package:provider/provider.dart'; // Assurez-vous que provider est importé
+import 'package:firebase_auth/firebase_auth.dart'; // Importer Firebase Auth
+import 'package:cloud_firestore/cloud_firestore.dart'; // Importer Firestore
 
 import '../../core/app_export.dart';
 import '../../core/utils/validation_functions.dart';
@@ -169,33 +171,33 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
       ),
     );
   }
- Widget _buildImageOne(BuildContext context) {
-  return Selector<CrErUnCompteProvider, TextEditingController?>(
-    selector: (context, provider) => provider.imageOneController,
-    builder: (context, imageOneController, child) {
-      return CustomTextFormField(
-        controller: imageOneController,
-        hintText: "lbl_nom".tr,
-        suffix: Container(
-          margin: EdgeInsets.fromLTRB(30.h, 7.v, 10.h, 7.v),
-          child: Icon(Icons.person),
-          height: 17,
-          width: 23,
-        ),
-        suffixConstraints: BoxConstraints(
-          maxHeight: 41.v,
-        ),
-        // Add validation logic
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return "Ce champ ne peut pas être vide".tr; // Custom error message for empty input
-          }
-          return null; // Return null if the input is valid
-        },
-      );
-    },
-  );
-}
+
+  Widget _buildImageOne(BuildContext context) {
+    return Selector<CrErUnCompteProvider, TextEditingController?>(
+      selector: (context, provider) => provider.imageOneController,
+      builder: (context, imageOneController, child) {
+        return CustomTextFormField(
+          controller: imageOneController,
+          hintText: "lbl_nom".tr,
+          suffix: Container(
+            margin: EdgeInsets.fromLTRB(30.h, 7.v, 10.h, 7.v),
+            child: Icon(Icons.person),
+            height: 17,
+            width: 23,
+          ),
+          suffixConstraints: BoxConstraints(
+            maxHeight: 41.v,
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return "Ce champ ne peut pas être vide".tr; 
+            }
+            return null; 
+          },
+        );
+      },
+    );
+  }
 
   Widget _buildEmail(BuildContext context) {
     return Selector<CrErUnCompteProvider, TextEditingController?>(
@@ -248,7 +250,7 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
           ),
           validator: (value) {
             if (value == null || !isValidPassword(value, isRequired: true)) {
-              return "mot de passe est vide".tr;
+              return "Le mot de passe est vide".tr;
             }
             return null;
           },
@@ -282,7 +284,10 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
           ),
           validator: (value) {
             if (value == null || !isValidPassword(value, isRequired: true)) {
-              return "Mot de passe est vide".tr;
+              return "Le mot de passe est vide".tr;
+            }
+            if (value != provider.passwordOneController.text) {
+              return "Les mots de passe ne correspondent pas".tr;
             }
             return null;
           },
@@ -304,21 +309,49 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
         ),
         buttonTextStyle: CustomTextStyles.labelLarge_1,
         onPressed: () {
-           if (_formKey.currentState!.validate()) {
-            // Handle form submission
-      
-          onTapCreateButton(context);
-            }},
+          if (_formKey.currentState!.validate()) {
+            // Gérer la soumission du formulaire
+            onTapCreateButton(context);
+          }
+        },
         alignment: Alignment.center,
       ),
     );
   }
 
-  void onTapImage(BuildContext context) {
-    NavigatorService.pushNamed(AppRoutes.seConnecterScreen);
+  void onTapCreateButton(BuildContext context) async {
+    final provider = Provider.of<CrErUnCompteProvider>(context, listen: false);
+    String name = provider.imageOneController.text; // Récupérer le nom
+    String email = provider.emailController.text;
+    String password = provider.passwordOneController.text;
+
+    try {
+      // Créer un compte utilisateur avec Firebase Authentication
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Optionnel : stocker des informations supplémentaires sur l'utilisateur dans Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'name': name,
+        'email': email,
+      });
+
+      // Naviguez vers l'écran de connexion ou un autre écran après la création
+      NavigatorService.pushNamed(AppRoutes.seConnecterScreen);
+    } catch (e) {
+      // Gérer les erreurs
+      String errorMessage = 'Une erreur est survenue';
+      if (e is FirebaseAuthException) {
+        errorMessage = e.message ?? errorMessage;
+      }
+      // Affichez un message d'erreur à l'utilisateur
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+    }
   }
 
-  void onTapCreateButton(BuildContext context) {
-    NavigatorService.pushNamed(AppRoutes.seConnecterScreen);
+  void onTapImage(BuildContext context) {
+    Navigator.pop(context);
   }
 }
