@@ -1,5 +1,10 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:rifund/screens/admin/admin_cat_gorie_screen/admin_cat_gorie_screen.dart';
+import 'package:rifund/screens/admin/admin_communaut_screen/admin_communaut_screen.dart';
+import 'package:rifund/screens/admin/admin_projet_screen/admin_projet_screen.dart';
+import 'package:rifund/screens/admin/admin_utlisa_page/admin_utlisa_page.dart';
+import 'package:rifund/screens/admin/profile_admin_page/profile_admin_page.dart';
 
 class BottomNavBar extends StatelessWidget {
   @override
@@ -7,30 +12,31 @@ class BottomNavBar extends StatelessWidget {
     return CurvedNavigationBar(
       backgroundColor: Colors.transparent,
       onTap: (index) {
-        switch (index) {
-          case 0:
-            // Navigate to home page
-            Navigator.pushNamed(context, '//admin_projet_screen');
-            break;
-          case 1:
-            // Navigate to add note page
-            Navigator.pushNamed(context, '/admin_utlisa_page');
-            break;
-          case 2:
-            // Navigate to notifications page
-            Navigator.pushNamed(context, '/admin_cat_gorie_screen');
-            break;
-          case 3:
-            // Navigate to notifications page
-            Navigator.pushNamed(context, '/admin_communaut_screen');
-            break;
-          case 4:
-            // Navigate to profile page
-            Navigator.pushNamed(context, '/profile_admin_page');
-            break;
-          default:
-            break;
+        if (index == 0) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const AdminProjetScreen()));
+        } else if (index == 1) {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const AdminUtlisaPage()));
+        } else if (index == 2) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const AdminCatGorieScreen()));
+        } else if (index == 3) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const AdminCommunautScreen()));
+        } else if (index == 4) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const ProfileAdminPage()));
         }
+        setState(() {});
       },
       height: 70,
       color: Colors.lightGreen.shade600,
@@ -63,4 +69,5 @@ class BottomNavBar extends StatelessWidget {
       ],
     );
   }
+  void setState(Null Function() param0) {}
 }
