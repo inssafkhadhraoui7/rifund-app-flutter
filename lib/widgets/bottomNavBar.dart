@@ -1,5 +1,9 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:rifund/screens/acceuil_client_page/acceuil_client_page.dart';
+import 'package:rifund/screens/creationprojet/creationprojet.dart';
+import 'package:rifund/screens/notification_page/notification_page.dart';
+import 'package:rifund/screens/profile_screen/profile_screen.dart';
 
 class BottomNavBar extends StatelessWidget {
   @override
@@ -7,26 +11,26 @@ class BottomNavBar extends StatelessWidget {
     return CurvedNavigationBar(
       backgroundColor: Colors.white,
       onTap: (index) {
-        switch (index) {
-          case 0:
-            // Navigate to home page
-            Navigator.pushNamed(context, '/acceuil_client_page');
-            break;
-          case 1:
-            // Navigate to add note page
-            Navigator.pushNamed(context, '/creationprojet');
-            break;
-          case 2:
-            // Navigate to notifications page
-            Navigator.pushNamed(context, '/notification_page');
-            break;
-          case 3:
-            // Navigate to profile page
-            Navigator.pushNamed(context, '/profile_screen');
-            break;
-          default:
-            break;
+        if (index == 0) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const AcceuilClientPage()));
+        } else if (index == 1) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const CrErProjetScreen()));
+        } else if (index == 2) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const NotificationPage()));
+        } else if (index == 3) {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()));
         }
+        setState(() {});
       },
       height: 70,
       color: Colors.lightGreen.shade600,
@@ -54,4 +58,6 @@ class BottomNavBar extends StatelessWidget {
       ],
     );
   }
+
+  void setState(Null Function() param0) {}
 }
