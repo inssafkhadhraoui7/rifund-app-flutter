@@ -1,17 +1,16 @@
-/// This class is used in the [userprofile_item_widget] screen.
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-// ignore_for_file: must_be_immutable
-class UserprofileItemModel {
-  UserprofileItemModel({this.userName, this.userEmail, this.id}) {
-    userEmail = userEmail ?? "imenmissaoui08@gmail.com";
-    id = id ?? "";
+class CustomUser {
+  final String uid;
+  final String email;
+
+  CustomUser({required this.uid, required this.email});
+
+  factory CustomUser.fromFirestore(DocumentSnapshot doc) {
+    Map data = doc.data() as Map; // Cast the data to Map
+    return CustomUser(
+      uid: doc.id,
+      email: data['email'] ?? 'No Email',
+    );
   }
-
-  String? userName;
-
-  String? userEmail;
-
-  String? id;
-
-  
 }
