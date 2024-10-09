@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rifund/screens/listeprojets/listeprojets.dart';
 
@@ -277,7 +279,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildBudgetValue (context),
+          _buildBudgetValue(context),
           Selector<CrErProjetProvider, CrErProjetModel?>(
             selector: (context, provider) => provider.crErProjetModelObj,
             builder: (context, crErProjetModelObj, child) {
@@ -348,21 +350,40 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
 
   /// Section Widget
   Widget _buildCreateButton(BuildContext context) {
-    return CustomElevatedButton(
-      height: 36.v,
-      width: 114.h,
-      text: "lbl_cr_er".tr,
-      buttonTextStyle: CustomTextStyles.titleLargeInterOnPrimaryContainer,
-      onPressed: () {
-        if (_formKey.currentState?.validate() ?? false) {
-          // Process the form data if validation is successful
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ListeDesProjetsPage()),
-          );
-        }
-      },
-    );
+    return Consumer<CrErProjetProvider>(builder: (context, provider, child) {
+      return CustomElevatedButton(
+        height: 36.v,
+        width: 114.h,
+        text: "lbl_cr_er".tr,
+        buttonTextStyle: CustomTextStyles.titleLargeInterOnPrimaryContainer,
+        onPressed: () async {
+          if (_formKey.currentState?.validate() ?? false) {
+            String title = provider.projectTitleController.text;
+            String description = provider.descriptionValueController.text;
+            String images = provider.projectImagesController.text;
+            double budget = double.parse(provider.budgetValueController.text);
+            String currency = '';
+            DateTime date = DateTime.parse(provider.dateController.text);
+            String accountNumber = provider.compteController.text;
+            String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+            await FirebaseFirestore.instance.collection('projects').add({
+              'title': title,
+              'description': description,
+              'images': images,
+              'budget': budget,
+              'currency': currency,
+              'date': date.toIso8601String(),
+              'accountNumber': accountNumber,
+              'userId': userId,
+            });
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ListeDesProjetsPage()),
+            );
+          }
+        },
+      );
+    });
   }
 
   void onTapArrowleftone(BuildContext context) {

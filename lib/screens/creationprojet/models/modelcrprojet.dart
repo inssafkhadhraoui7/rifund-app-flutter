@@ -6,16 +6,20 @@ class CrErProjetModel {
   List<SelectionPopupModel> dropdownItemList = [
     SelectionPopupModel(
       id: 1,
-      title: "Item One",
+      title: "TND",
       isSelected: true,
     ),
     SelectionPopupModel(
       id: 2,
-      title: "Item Two",
+      title: "USD",
     ),
     SelectionPopupModel(
       id: 3,
-      title: "Item Three",
+      title: "Euro",
+    ),
+    SelectionPopupModel(
+      id: 3,
+      title: "GBP",
     )
   ];
 
