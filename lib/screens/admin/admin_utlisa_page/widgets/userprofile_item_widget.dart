@@ -3,7 +3,7 @@ import '../../../../core/app_export.dart';
 import '../models/userprofile_item_model.dart'; // ignore: must_be_immutable
 
 class UserprofileItemWidget extends StatefulWidget {
-  final UserprofileItemModel userprofileItemModelObj;
+  final CustomUser userprofileItemModelObj;
 
   UserprofileItemWidget(this.userprofileItemModelObj, {Key? key})
       : super(key: key);
@@ -50,7 +50,7 @@ class _UserprofileItemWidgetState extends State<UserprofileItemWidget> {
               top: 13.0, // Top margin of 13.0
             ),
             child: Text(
-              widget.userprofileItemModelObj.userEmail ?? 'No email provided',
+              widget.userprofileItemModelObj.email ?? 'No email provided',
               overflow:
                   TextOverflow.ellipsis, // Use ellipsis to indicate overflow
               maxLines: 1, // Ensure the text is on a single line

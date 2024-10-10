@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SeConnecterProvider with ChangeNotifier {
-  // Controllers
-  TextEditingController? emailController = TextEditingController();
-  TextEditingController? passwordoneController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordoneController = TextEditingController();
 
   bool isShowPassword = true;
 
@@ -14,8 +13,10 @@ class SeConnecterProvider with ChangeNotifier {
 
   @override
   void dispose() {
-    emailController?.dispose();
-    passwordoneController?.dispose();
+    emailController.dispose();
+    passwordoneController.dispose();
     super.dispose();
   }
+
+  void se_connecter_provider(BuildContext context) {}
 }
