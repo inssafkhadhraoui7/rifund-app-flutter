@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 import '../../core/app_export.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
@@ -8,20 +8,17 @@ import '../../widgets/userprofile_item_widget.dart';
 import '../creationprojet/creationprojet.dart';
 import 'models/userprofile_item_model.dart';
 import 'provider/liste_des_projets_provider.dart';
-// ignore_for_file: must_be_immutable
 
+// ignore_for_file: must_be_immutable
 class ListeDesProjetsPage extends StatefulWidget {
-  const ListeDesProjetsPage({Key? key})
-      : super(
-          key: key,
-        );
+  const ListeDesProjetsPage({Key? key}) : super(key: key);
 
   @override
   ListeDesProjetsPageState createState() => ListeDesProjetsPageState();
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => ListeDesProjetsProvider(),
-      child: ListeDesProjetsPage(),
+      child: const ListeDesProjetsPage(),
     );
   }
 }
@@ -30,6 +27,8 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
   @override
   void initState() {
     super.initState();
+    // Load projects when the screen initializes
+    Provider.of<ListeDesProjetsProvider>(context, listen: false).loadUserProjects();
   }
 
   @override
@@ -44,10 +43,7 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
             padding: EdgeInsets.only(top: 34.v),
             child: Container(
               width: SizeUtils.width,
-              padding: EdgeInsets.symmetric(
-                horizontal: 20.h,
-                vertical: 17.v,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 20.h, vertical: 17.v),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -76,14 +72,6 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
                   SizedBox(height: 40.v),
                   _buildUserProfile(context),
                   SizedBox(height: 27.v),
-                  _buildUserProfile(context),
-                  SizedBox(height: 27.v),
-                  _buildUserProfile(context),
-                  SizedBox(height: 27.v),
-                  _buildUserProfile(context),
-                  SizedBox(height: 27.v),
-                  _buildUserProfile(context),
-                  SizedBox(height: 27.v),
                 ],
               ),
             ),
@@ -108,11 +96,7 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
           ),
           AppbarTitle(
             text: "Liste de projets".tr,
-            margin: EdgeInsets.only(
-              left: 80.h,
-              top: 2.v,
-              right: 79.h,
-            ),
+            margin: EdgeInsets.only(left: 80.h, top: 2.v, right: 79.h),
           ),
         ],
       ),
@@ -128,21 +112,15 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
         child: Consumer<ListeDesProjetsProvider>(
           builder: (context, provider, child) {
             return ListView.separated(
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               separatorBuilder: (context, index) {
-                return SizedBox(
-                  height: 20.v,
-                );
+                return SizedBox(height: 20.v);
               },
-              itemCount:
-                  provider.listeDesProjetsModelObj.userprofileItemList.length,
+              itemCount: provider.listeDesProjetsModelObj.userprofileItemList.length,
               itemBuilder: (context, index) {
-                UserprofileItemModel model =
-                    provider.listeDesProjetsModelObj.userprofileItemList[index];
-                return UserprofileItemWidget(
-                  model,
-                );
+                UserprofileItemModel model = provider.listeDesProjetsModelObj.userprofileItemList[index];
+                return UserprofileItemWidget(model);
               },
             );
           },
@@ -152,7 +130,7 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
   }
 
   /// Navigates to the previous screen.
-  onTapArrowleftone(BuildContext context) {
+  void onTapArrowleftone(BuildContext context) {
     NavigatorService.goBack();
   }
 }
