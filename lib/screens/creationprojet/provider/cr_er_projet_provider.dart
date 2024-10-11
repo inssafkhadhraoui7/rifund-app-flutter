@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/modelcrprojet.dart';
 
 /// A provider class for the CrErProjetScreen.
@@ -51,13 +51,19 @@ class CrErProjetProvider extends ChangeNotifier {
   Future<List<String>> uploadImages(List<String> imagePaths) async {
     List<String> imageUrls = [];
     FirebaseStorage storage = FirebaseStorage.instance;
+    
+    // Get the current user's ID
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId == null) {
+      throw Exception('User is not authenticated');
+    }
 
     for (String path in imagePaths) {
       File file = File(path);
       try {
-        // Create a unique name for the image
-        String fileName =
-            'images/${DateTime.now().millisecondsSinceEpoch}_${file.uri.pathSegments.last}';
+        // Create a unique name for the image under the user's ID
+        String fileName = 'users/$userId/images/${DateTime.now().millisecondsSinceEpoch}_${file.uri.pathSegments.last}';
 
         // Upload the file
         TaskSnapshot snapshot = await storage.ref(fileName).putFile(file);
@@ -66,7 +72,7 @@ class CrErProjetProvider extends ChangeNotifier {
         String downloadUrl = await snapshot.ref.getDownloadURL();
         imageUrls.add(downloadUrl);
       } catch (e) {
-        print('Error uploading image: $e');
+        print('Error uploading image: $e'); // Consider better error handling
       }
     }
     return imageUrls;
