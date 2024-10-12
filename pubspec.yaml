@@ -52,8 +52,12 @@ dependencies:
   firebase_core: ^3.4.0
   firebase_auth: ^5.2.0
   cloud_firestore: ^5.4.0
+<<<<<<< HEAD
   google_sign_in: ^6.1.0
   flutter_facebook_auth: ^6.0.0
+=======
+  firebase_storage: ^12.2.0
+>>>>>>> insaf
 
 
 dev_dependencies:
