@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:rifund/screens/cr_er_communaut_screen/cr_er_communaut_screen.dart';
-
+import 'package:provider/provider.dart'; // Importing provider package
+import 'package:rifund/screens/liste_de_communaut_page/models/communitycardsection_item_model.dart';
 import '../../core/app_export.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
-import 'models/communitycardsection_item_model.dart';
-import 'provider/liste_de_communaut_provider.dart';
+import '../liste_de_communaut_page/provider/liste_de_communaut_provider.dart';
 import 'widgets/communitycardsection_item_widget.dart'; // ignore_for_file: must_be_immutable
 
 class ListeDeCommunautPage extends StatefulWidget {
-  const ListeDeCommunautPage({Key? key})
-      : super(
-          key: key,
-        );
+  const ListeDeCommunautPage({Key? key}) : super(key: key);
 
   @override
   ListeDeCommunautPageState createState() => ListeDeCommunautPageState();
+
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => ListeDeCommunautProvider(),
-      child: ListeDeCommunautPage(),
+      child: const ListeDeCommunautPage(),
     );
   }
 }
@@ -28,6 +25,7 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
   @override
   void initState() {
     super.initState();
+    Provider.of<ListeDeCommunautProvider>(context, listen: false).fetchCommunities();
   }
 
   @override
@@ -44,19 +42,19 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
               Expanded(
                 child: SizedBox(
                   width: double.maxFinite,
-                  child: Container(
+                  child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 26.h),
                     child: Column(
                       children: [
                         SizedBox(height: 48.v),
                         _buildRowListedeOneSection(context),
                         SizedBox(height: 17.v),
-                        _buildCommunityCardSection(context)
+                        _buildCommunityCardSection(context),
                       ],
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -70,18 +68,14 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
       title: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
             onPressed: () {
               onTapImage(context);
             },
           ),
           AppbarTitle(
             text: "Liste des Communautés".tr,
-            margin: EdgeInsets.only(
-              left: 50.h,
-              top: 2.v,
-              right: 40.h,
-            ),
+            margin: EdgeInsets.only(left: 50.h, top: 2.v, right: 40.h),
           ),
         ],
       ),
@@ -92,29 +86,14 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
   /// Section Widget
   Widget _buildRowListedeOneSection(BuildContext context) {
     return Row(
-      mainAxisAlignment:
-          MainAxisAlignment.center, // Center the children horizontally
+      mainAxisAlignment: MainAxisAlignment.center, // Center the children horizontally
       children: [
         Padding(
-          padding:
-              EdgeInsets.symmetric(horizontal: 5.h), // Add horizontal margin
+          padding: EdgeInsets.symmetric(horizontal: 5.h), // Add horizontal margin
           child: Text(
             "Liste des Communautés".tr, // Display translated text
             style: theme.textTheme.headlineSmall, // Apply a specific text style
           ),
-        ),
-        SizedBox(width: 0.h), // Add space between Text and IconButton
-        IconButton(
-          icon: const Icon(Icons.add_circle,
-              color: Colors.black), // Display an icon
-          iconSize: 30, // Set the icon size
-          alignment: Alignment.center, // Align the icon to the center
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => CrErCommunautScreen()),
-            );
-          }, // Callback function when IconButton is pressed
         ),
       ],
     );
@@ -124,31 +103,32 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
   Widget _buildCommunityCardSection(BuildContext context) {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.only(
-          left: 3.h,
-          right: 5.h,
-        ),
+        padding: EdgeInsets.only(left: 3.h, right: 5.h),
         child: Consumer<ListeDeCommunautProvider>(
           builder: (context, provider, child) {
-            return ListView.separated(
-              physics: BouncingScrollPhysics(),
-              shrinkWrap: true,
-              separatorBuilder: (context, index) {
-                return SizedBox(
-                  height: 22.v,
-                );
-              },
-              itemCount: provider
-                  .listeDeCommunautModelObj.communitycardsectionItemList.length,
-              itemBuilder: (context, index) {
-                CommunitycardsectionItemModel model = provider
-                    .listeDeCommunautModelObj
-                    .communitycardsectionItemList[index];
-                return CommunitycardsectionItemWidget(
-                  model,
-                );
-              },
-            );
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (provider.errorMessage.isNotEmpty) {
+              return Center(child: Text(provider.errorMessage));
+            }
+           return ListView.builder(
+         itemCount: provider.communities.length,
+         itemBuilder: (context, index) {
+          final community = provider.communities[index] as CommunitycardsectionItemModel;
+          return ListTile(
+          leading: Image.network(
+        community.imageUrl,  // Load image from Firebase Storage
+        width: 50,
+        height: 50,
+        fit: BoxFit.cover,
+      ),
+      title: Text(community.name),
+      subtitle: Text(community.description),
+    );
+  },
+);
+
           },
         ),
       ),

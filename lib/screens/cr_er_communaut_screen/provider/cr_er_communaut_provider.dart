@@ -1,28 +1,29 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../../../core/app_export.dart';
-import '../models/cr_er_communaut_model.dart';
 
-/// A provider class for the CrErCommunautScreen.
-///
-/// This provider manages the state of the CrErCommunautScreen, including the
-/// current crErCommunautModelObj
-// ignore_for_file: must_be_immutable
-
-// ignore_for_file: must_be_immutable
-class CrErCommunautProvider extends ChangeNotifier {
+class CrErCommunautProvider with ChangeNotifier {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   TextEditingController createCommunityController = TextEditingController();
-
   TextEditingController descriptionValueController = TextEditingController();
-
   TextEditingController webUrlController = TextEditingController();
 
-  CrErCommunautModel crErCommunautModelObj = CrErCommunautModel();
+  Future<void> createCommunity(String userId, String projectId) async {
+    try {
+      String communityName = createCommunityController.text;
+      String description = descriptionValueController.text;
+      String webUrl = webUrlController.text;
 
-  @override
-  void dispose() {
-    super.dispose();
-    createCommunityController.dispose();
-    descriptionValueController.dispose();
-    webUrlController.dispose();
+      await _firestore.collection('communities').add({
+        'name': communityName,
+        'description': description,
+        'webUrl': webUrl,
+        'userId': userId,
+        'projectId': projectId,
+      });
+
+      notifyListeners();
+    } catch (e) {
+      throw Exception("Failed to create community: $e");
+    }
   }
 }

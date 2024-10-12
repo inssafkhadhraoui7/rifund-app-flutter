@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Ajout de FirebaseAuth
@@ -310,39 +311,45 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     NavigatorService.pushNamed(AppRoutes.welcomeScreen);
   }
 
-  void onTapSeconnecter(BuildContext context) async {
-    final provider = Provider.of<SeConnecterProvider>(context, listen: false);
-    final String email = provider.emailController?.text.trim() ?? '';
-    final String password = provider.passwordoneController?.text.trim() ?? '';
+ void onTapSeconnecter(BuildContext context) async {
+  final provider = Provider.of<SeConnecterProvider>(context, listen: false);
+  final String email = provider.emailController.text.trim();
+  final String password = provider.passwordoneController.text.trim();
 
-    try {
-      // Vérifier si l'utilisateur existe avec le nom d'utilisateur saisi
-      final userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
+  try {
+    // Sign in the user with Firebase Authentication
+    final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
 
-      if (userCredential.user != null) {
-        // Rediriger vers la page d'accueil si les informations d'identification sont correctes
-        NavigatorService.pushNamed(AppRoutes.acceuilClientPage);
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        // Afficher le message si le compte est invalide
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Compte invalide")),
-        );
-      } else if (e.code == 'wrong-password') {
-        // Afficher le message si le mot de passe est incorrect
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Mot de passe incorrect")),
-        );
-      } else {
-        // Pour tout autre type d'erreur, afficher un message d'erreur générique
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erreur de connexion")),
-        );
-      }
+    if (userCredential.user != null) {
+      // Save user information to Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'email': email,
+        'createdAt': FieldValue.serverTimestamp(),
+        // Add other user data you want to save
+      });
+
+      // Redirect to home page after successful login
+      NavigatorService.pushNamed(AppRoutes.acceuilClientPage);
+    }
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'user-not-found') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Compte invalide")),
+      );
+    } else if (e.code == 'wrong-password') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Mot de passe incorrect")),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erreur de connexion")),
+      );
     }
   }
+}
 
   void onTapTxtMotdepasse(BuildContext context) {
     NavigatorService.pushNamed(AppRoutes.motDePasseOublierScreen);

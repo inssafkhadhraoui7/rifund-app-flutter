@@ -4,7 +4,7 @@ import 'package:rifund/screens/admin/admin_utlisa_page/models/userprofile_item_m
 import 'package:rifund/screens/admin/admin_utlisa_page/provider/admin_utlisa_provider.dart';
 import 'package:rifund/widgets/app_bar/appbar_title.dart';
 import 'package:rifund/widgets/app_bar/custom_app_bar.dart';
-import '../../../widgets/custom_bottom_bar.dart';
+import '../../../../widgets/custom_bottom_bar.dart';
 
 class AdminUtlisaPage extends StatefulWidget {
   const AdminUtlisaPage({Key? key}) : super(key: key);
@@ -15,7 +15,7 @@ class AdminUtlisaPage extends StatefulWidget {
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => AdminUtlisaProvider(),
-      child: AdminUtlisaPage(),
+      child: const AdminUtlisaPage(),
     );
   }
 }
@@ -31,7 +31,7 @@ class AdminUtlisaPageState extends State<AdminUtlisaPage> {
         appBar: _buildAppBar(context),
         body: FutureBuilder<List<CustomUser>>(
           future: adminProvider.getAllUsers(),
-          builder: (context, AsyncSnapshot<List<CustomUser>> snapshot) {
+          builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
@@ -59,7 +59,8 @@ class AdminUtlisaPageState extends State<AdminUtlisaPage> {
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () async {
                           await adminProvider.deleteUser(user.uid);
-                          setState(() {}); // Trigger rebuild after deletion
+                          // Re-fetch users after deletion
+                          setState(() {}); 
                         },
                         tooltip: "Supprimer un utilisateur",
                       ),
@@ -87,9 +88,7 @@ class AdminUtlisaPageState extends State<AdminUtlisaPage> {
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
-            onPressed: () {
-              onTapArrowleftone(context);
-            },
+            onPressed: () => Navigator.of(context).pop(),
           ),
           AppbarTitle(
             text: "Gérer Utilisateurs",
@@ -99,10 +98,5 @@ class AdminUtlisaPageState extends State<AdminUtlisaPage> {
       ),
       styleType: Style.bgFill_1,
     );
-  }
-
-  /// Navigates to the previous screen.
-  void onTapArrowleftone(BuildContext context) {
-    Navigator.of(context).pop();
   }
 }

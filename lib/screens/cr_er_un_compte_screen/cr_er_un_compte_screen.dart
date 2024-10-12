@@ -27,7 +27,7 @@ class CrErUnCompteScreen extends StatefulWidget {
 
 class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool _isAccountCreated = false; // Pour gérer l'état de création de compte
+  bool _isAccountCreated = false; // State to handle success message display
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,9 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
         backgroundColor: appTheme.whiteA700,
         resizeToAvoidBottomInset: false,
         appBar: _buildAppBar(context),
-        body: _isAccountCreated ? _buildSuccessMessage(context) : _buildForm(context),
+        body: _isAccountCreated
+            ? _buildSuccessMessage(context) // Show success message if account is created
+            : _buildForm(context), // Otherwise, show the registration form
       ),
     );
   }
@@ -162,7 +164,7 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
   }
 
   Widget _buildImageOne(BuildContext context) {
-    return Selector<CrErUnCompteProvider, TextEditingController?>( 
+    return Selector<CrErUnCompteProvider, TextEditingController?>(
       selector: (context, provider) => provider.imageOneController,
       builder: (context, imageOneController, child) {
         return CustomTextFormField(
@@ -179,9 +181,9 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return "Ce champ ne peut pas être vide".tr; 
+              return "Ce champ ne peut pas être vide".tr;
             }
-            return null; 
+            return null;
           },
         );
       },
@@ -189,7 +191,7 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
   }
 
   Widget _buildEmail(BuildContext context) {
-    return Selector<CrErUnCompteProvider, TextEditingController?>( 
+    return Selector<CrErUnCompteProvider, TextEditingController?>(
       selector: (context, provider) => provider.emailController,
       builder: (context, emailController, child) {
         return CustomTextFormField(
@@ -275,7 +277,7 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
             if (value == null || !isValidPassword(value, isRequired: true)) {
               return "Le mot de passe est vide".tr;
             }
-            if (value != provider.passwordOneController.text) {
+            if (value != provider.passwordOneController?.text) {
               return "Les mots de passe ne correspondent pas".tr;
             }
             return null;
@@ -299,88 +301,50 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
         buttonTextStyle: CustomTextStyles.labelLarge_1,
         onPressed: () {
           if (_formKey.currentState!.validate()) {
-            // Gérer la soumission du formulaire
+            // Handle form submission
             onTapCreateButton(context);
           }
         },
-        alignment: Alignment.center,
       ),
     );
   }
 
-    void onTapCreateButton(BuildContext context) async {
-    final provider = Provider.of<CrErUnCompteProvider>(context, listen: false);
-
-    try {
-      // Créer un compte avec Firebase Auth
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: provider.emailController.text,
-        password: provider.passwordOneController.text,
-      );
-
-      // Enregistrer les données de l'utilisateur dans Firestore
-      await FirebaseFirestore.instance.collection('users').doc(userCredential.user?.uid).set({
-        'nom': provider.imageOneController.text,
-        'email': provider.emailController.text,
-      });
-
-      // Indiquer que le compte a été créé avec succès
-      setState(() {
-        _isAccountCreated = true; // Changer l'état pour afficher le message de succès
-      });
-
-      // Afficher un message de succès
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Compte ajouté avec succès'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-
-    } on FirebaseAuthException catch (e) {
-      // Gérer les erreurs de création de compte
-      String message;
-      if (e.code == 'weak-password') {
-        message = 'Le mot de passe est trop faible.';
-      } else if (e.code == 'email-already-in-use') {
-        message = 'Un compte existe déjà pour cet e-mail.';
-      } else {
-        message = 'Erreur inconnue: ${e.message}';
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }
-  }
-
   Widget _buildSuccessMessage(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Compte ajouté avec succès',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 20),
-          CustomElevatedButton(
-            text: "Se connecter",
-            onPressed: () {
-              // Naviguer vers la page de connexion
-              Navigator.pop(context);
-            },
-            margin: EdgeInsets.symmetric(horizontal: 40),
-            buttonTextStyle: CustomTextStyles.labelLarge_1,
-          ),
-        ],
+      child: Text(
+        "Compte crée avec succès!",
+        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.green),
       ),
     );
   }
 
   void onTapImage(BuildContext context) {
     Navigator.pop(context);
+  }
+
+  void onTapCreateButton(BuildContext context) async {
+    var provider = Provider.of<CrErUnCompteProvider>(context, listen: false);
+    String error = await provider.createUserAccount(context);
+    if (error.isEmpty) {
+      setState(() {
+        _isAccountCreated = true;
+      });
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Erreur de création de compte"),
+          content: Text(error),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
   }
 }
