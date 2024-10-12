@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
 import '../../core/app_export.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
@@ -27,8 +27,8 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
   @override
   void initState() {
     super.initState();
-    // Load projects when the screen initializes
-    Provider.of<ListeDesProjetsProvider>(context, listen: false).loadUserProjects();
+    Provider.of<ListeDesProjetsProvider>(context, listen: false)
+        .loadUserProjects();
   }
 
   @override
@@ -111,16 +111,28 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
         padding: EdgeInsets.only(right: 1.h),
         child: Consumer<ListeDesProjetsProvider>(
           builder: (context, provider, child) {
+            if (provider.listeDesProjetsModelObj.userprofileItemList.isEmpty) {
+              return Center(
+                  child: Text("Pas des projets")); // Handle empty state
+            }
             return ListView.separated(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               separatorBuilder: (context, index) {
                 return SizedBox(height: 20.v);
               },
-              itemCount: provider.listeDesProjetsModelObj.userprofileItemList.length,
+              itemCount:
+                  provider.listeDesProjetsModelObj.userprofileItemList.length,
               itemBuilder: (context, index) {
-                UserprofileItemModel model = provider.listeDesProjetsModelObj.userprofileItemList[index];
-                return UserprofileItemWidget(model);
+                UserprofileItemModel model =
+                    provider.listeDesProjetsModelObj.userprofileItemList[index];
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [ 
+                    UserprofileItemWidget(
+                        model),
+                  ],
+                );
               },
             );
           },

@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rifund/core/app_export.dart';
 import 'package:rifund/screens/listeprojets/models/userprofile_item_model.dart';
 
-
 class ProjectService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -12,7 +11,7 @@ class ProjectService {
     String? userId = _auth.currentUser?.uid;
 
     if (userId == null) {
-      throw Exception('User is not authenticated');
+      throw Exception('Il faut être connecté');
     }
 
     QuerySnapshot snapshot = await _firestore
@@ -24,14 +23,15 @@ class ProjectService {
     List<UserprofileItemModel> projects = snapshot.docs.map((doc) {
       String title = doc['title'] ?? 'No Title';
       List<String> images = List<String>.from(doc['images'] ?? []);
-      double financedPercentage = (doc['financedPercentage'] ?? 0.0) * 100; // Assume it's a fraction
+      // double financedPercentage = (doc['financedPercentage'] ?? 0.0) * 100;
 
       return UserprofileItemModel(
         titreduprojet: title,
         circleimage: images.isNotEmpty ? images[0] : ImageConstant.imgprofile,
-        seventy: '${financedPercentage.toStringAsFixed(0)} %',
+        // seventy: '${financedPercentage.toStringAsFixed(0)} %',
       );
     }).toList();
+    print('Fetched projects: ${projects.length}');
 
     return projects;
   }
