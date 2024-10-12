@@ -69,5 +69,9 @@ class BottomNavBar extends StatelessWidget {
       ],
     );
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> ahmed
   void setState(Null Function() param0) {}
 }

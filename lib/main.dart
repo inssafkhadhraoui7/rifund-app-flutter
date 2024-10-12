@@ -172,8 +172,6 @@ class MyApp extends StatelessWidget {
                  ChangeNotifierProvider<ModifierCatGorieProvider>(
                 create: (_) => ModifierCatGorieProvider()),
                  ChangeNotifierProvider(create: (_) => AffichageCategorieProvider()),
-
-            // Add more providers here if needed
           ],
           child: Consumer<ThemeProvider>(
             builder: (context, provider, child) {
