@@ -36,7 +36,7 @@ class BottomNavBar extends StatelessWidget {
               MaterialPageRoute(
                   builder: (context) => const ProfileAdminPage()));
         }
-        setState(() {});
+    
       },
       height: 70,
       color: Colors.lightGreen.shade600,
@@ -69,9 +69,4 @@ class BottomNavBar extends StatelessWidget {
       ],
     );
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> ahmed
-  void setState(Null Function() param0) {}
 }
