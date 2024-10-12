@@ -1,23 +1,21 @@
 import '../../../core/app_export.dart';
 
-/// This class is used in the [userprofile_item_widget] screen.
-// ignore_for_file: must_be_immutable
-
 // ignore_for_file: must_be_immutable
 class UserprofileItemModel {
-  UserprofileItemModel(
-      {this.seventy, this.circleimage, this.titreduprojet, this.id}) {
-    seventy = seventy ?? "70 %";
+  UserprofileItemModel({
+    this.seventy,
+    this.circleimage,
+    this.titreduprojet,
+    this.id,
+  }) {
+    seventy = seventy ?? "0 %"; // Default to 0%
     circleimage = circleimage ?? ImageConstant.imgprofile;
-    titreduprojet = titreduprojet ?? "Titre du projet ";
+    titreduprojet = titreduprojet ?? "Titre du projet";
     id = id ?? "";
   }
 
-  String? seventy;
-
-  String? circleimage;
-
-  String? titreduprojet;
-
-  String? id;
+  String? seventy;     // Financing percentage
+  String? circleimage; // First image
+  String? titreduprojet; // Project title
+  String? id;         // Project ID
 }

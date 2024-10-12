@@ -301,17 +301,7 @@ IconButton(
     }
   },
       ),
-      IconButton(
-        icon: const Icon(Icons.add_circle, color: Colors.black),
-        iconSize: 30,
-        alignment: Alignment.center,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CrErCommunautScreen()),
-          );
-        },
-      ),
+     
     ],
   ),
 ),

@@ -1,41 +1,28 @@
-import '../../../core/app_export.dart';
-import '../../../data/models/selectionPopupModel/selection_popup_model.dart'; // ignore_for_file: must_be_immutable
+import '../../../data/models/selectionPopupModel/selection_popup_model.dart';
 
-// ignore_for_file: must_be_immutable
 class CrErProjetModel {
   List<SelectionPopupModel> dropdownItemList = [
-    SelectionPopupModel(
-      id: 1,
-      title: "TND",
-      isSelected: true,
-    ),
-    SelectionPopupModel(
-      id: 2,
-      title: "USD",
-    ),
-    SelectionPopupModel(
-      id: 3,
-      title: "Euro",
-    ),
-    SelectionPopupModel(
-      id: 3,
-      title: "GBP",
-    )
+    SelectionPopupModel(id: 1, title: "TND", isSelected: true),
+    SelectionPopupModel(id: 2, title: "USD"),
+    SelectionPopupModel(id: 3, title: "Euro"),
+    SelectionPopupModel(id: 4, title: "GBP"),
   ];
 
-  List<SelectionPopupModel> dropdownItemList1 = [
-    SelectionPopupModel(
-      id: 1,
-      title: "Item One",
-      isSelected: true,
-    ),
-    SelectionPopupModel(
-      id: 2,
-      title: "Item Two",
-    ),
-    SelectionPopupModel(
-      id: 3,
-      title: "Item Three",
-    )
+  List<SelectionPopupModel> categoryDropdownItemList = [
+    SelectionPopupModel(id: 1, title: "Social", isSelected: true),
+    SelectionPopupModel(id: 2, title: "Economie"),
+    SelectionPopupModel(id: 3, title: "Technologie"),
   ];
+
+  void selectDropdownItem(int id) {
+    for (var item in dropdownItemList) {
+      item.isSelected = item.id == id; 
+    }
+  }
+
+  void selectCategoryItem(int id) {
+    for (var item in categoryDropdownItemList) {
+      item.isSelected = item.id == id; 
+    }
+  }
 }

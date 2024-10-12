@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-
+import 'package:rifund/screens/cr_er_communaut_screen/cr_er_communaut_screen.dart';
 import '../../../core/app_export.dart';
 import '../screens/listeprojets/models/userprofile_item_model.dart';
 import '../screens/modifierscreen/modifierprojetscreen.dart';
-// ignore_for_file: must_be_immutable
 
+// ignore_for_file: must_be_immutable
 class UserprofileItemWidget extends StatelessWidget {
-  UserprofileItemWidget(this.userprofileItemModelObj, {Key? key})
-      : super(
-          key: key,
-        );
+  UserprofileItemWidget(this.userprofileItemModelObj, {Key? key}) : super(key: key);
 
   UserprofileItemModel userprofileItemModelObj;
 
@@ -45,7 +42,7 @@ class UserprofileItemWidget extends StatelessWidget {
                     Text(
                       userprofileItemModelObj.seventy!,
                       style: theme.textTheme.labelMedium,
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -58,9 +55,7 @@ class UserprofileItemWidget extends StatelessWidget {
                 margin: EdgeInsets.only(bottom: 27.v),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary,
-                  borderRadius: BorderRadius.circular(
-                    7.h,
-                  ),
+                  borderRadius: BorderRadius.circular(7.h),
                 ),
               ),
             ),
@@ -75,7 +70,7 @@ class UserprofileItemWidget extends StatelessWidget {
                   borderRadius: BorderRadiusStyle.roundedBorder20,
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(width: 14),
@@ -83,9 +78,7 @@ class UserprofileItemWidget extends StatelessWidget {
                       imagePath: userprofileItemModelObj.circleimage!,
                       height: 58.adaptSize,
                       width: 58.adaptSize,
-                      radius: BorderRadius.circular(
-                        29.h,
-                      ),
+                      radius: BorderRadius.circular(29.h),
                       margin: EdgeInsets.only(
                         top: 3.v,
                         bottom: 17.v,
@@ -119,93 +112,89 @@ class UserprofileItemWidget extends StatelessWidget {
                                       Align(
                                         alignment: Alignment.center,
                                         child: IconButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Text("Confirmation"),
+                                                  content: Text("Voulez-vous supprimer ce projet"),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        // Perform delete operation here
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: Text("Oui"),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: Text("Annuler"),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          },
                                           constraints: BoxConstraints(
                                             minHeight: 32.adaptSize,
                                             minWidth: 32.adaptSize,
                                           ),
                                           padding: EdgeInsets.all(0),
-                                          icon: SizedBox(
-                                            width: 32.adaptSize,
-                                            height: 32.adaptSize,
-                                            child: IconButton(
-                                              icon: const Icon(Icons.delete,
-                                                  color: Colors.red),
-                                              iconSize: 20,
-                                              onPressed: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder:
-                                                      (BuildContext context) {
-                                                    return AlertDialog(
-                                                      title:
-                                                          Text("Confirmation"),
-                                                      content: Text(
-                                                          "Voulez-vous supprimer ce projet"),
-                                                      actions: [
-                                                        TextButton(
-                                                          onPressed: () {
-                                                            // Perform delete operation here
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          },
-                                                          child: Text("Oui"),
-                                                        ),
-                                                        TextButton(
-                                                          onPressed: () {
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          },
-                                                          child:
-                                                              Text("Annuler"),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                          ),
+                                          icon: const Icon(Icons.delete, color: Colors.red),
+                                          iconSize: 20,
                                         ),
-                                      )
+                                      ),
                                     ],
                                   ),
                                 )
                               ],
                             ),
                             SizedBox(height: 11.v),
-                            SizedBox(
-                              height: 32.adaptSize,
-                              width: 32.adaptSize,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit,
-                                        color: Colors.black),
+                            // Organized buttons
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                SizedBox(
+                                  height: 32.adaptSize,
+                                  width: 32.adaptSize,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.edit, color: Colors.black),
                                     iconSize: 20,
                                     onPressed: () {
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ModifierProjetScreen()),
+                                        MaterialPageRoute(builder: (context) => ModifierProjetScreen()),
                                       );
                                     },
                                   ),
-                                ],
-                              ),
-                            )
+                                ),
+                                SizedBox(
+                                  height: 32.adaptSize,
+                                  width: 32.adaptSize,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.group_add, color: Colors.black), // Use community icon here
+                                    iconSize: 20,
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => CrErCommunautScreen()),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

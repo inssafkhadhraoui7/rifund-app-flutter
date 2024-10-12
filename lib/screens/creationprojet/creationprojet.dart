@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:rifund/screens/listeprojets/listeprojets.dart';
 
 import '../../core/app_export.dart';
@@ -11,6 +12,7 @@ import '../../widgets/bottomNavBar.dart';
 import '../../widgets/custom_drop_down.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_text_form_field.dart';
+import '../se_connecter_screen/se_connecter_screen.dart';
 import 'models/modelcrprojet.dart';
 import 'provider/cr_er_projet_provider.dart';
 
@@ -29,12 +31,7 @@ class CrErProjetScreen extends StatefulWidget {
 
 class CrErProjetScreenState extends State<CrErProjetScreen> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  GlobalKey<NavigatorState> navigatorKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +45,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
           child: SingleChildScrollView(
             child: Container(
               width: double.maxFinite,
-              padding: EdgeInsets.symmetric(
-                horizontal: 27.h,
-                vertical: 16.v,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 27.h, vertical: 16.v),
               child: Column(
                 children: [
                   Align(
@@ -90,30 +84,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
                   SizedBox(height: 18.v),
                   _buildDate(context),
                   SizedBox(height: 18.v),
-                  Padding(
-                    padding: EdgeInsets.only(right: 2.h),
-                    child: Selector<CrErProjetProvider, CrErProjetModel?>(
-                      selector: (context, provider) =>
-                          provider.crErProjetModelObj,
-                      builder: (context, crErProjetModelObj, child) {
-                        return CustomDropDown(
-                          icon: Container(
-                            child: CustomImageView(
-                              imagePath: ImageConstant.imgcrprojet,
-                              height: 15.adaptSize,
-                              width: 15.adaptSize,
-                            ),
-                          ),
-                          hintText: "lbl_cat_gorie".tr,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16.h,
-                            vertical: 11.v,
-                          ),
-                          items: crErProjetModelObj?.dropdownItemList1 ?? [],
-                        );
-                      },
-                    ),
-                  ),
+                  _buildCategoryDropdown(context),
                   SizedBox(height: 18.v),
                   _buildCompte(context),
                   SizedBox(height: 18.v),
@@ -128,7 +99,6 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     );
   }
 
-  /// Section Widget
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return CustomAppBar(
       centerTitle: true,
@@ -136,17 +106,11 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
         children: [
           IconButton(
             icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
-            onPressed: () {
-              onTapArrowleftone(context);
-            },
+            onPressed: () => Navigator.pop(context),
           ),
           AppbarTitle(
             text: "Créer projet".tr,
-            margin: EdgeInsets.only(
-              left: 85.h,
-              top: 2.v,
-              right: 79.h,
-            ),
+            margin: EdgeInsets.only(left: 85.h, top: 2.v, right: 79.h),
           ),
         ],
       ),
@@ -154,7 +118,6 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     );
   }
 
-  /// Section Widget
   Widget _buildProjectTitle(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 2.h),
@@ -164,10 +127,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
           return CustomTextFormField(
             controller: projectTitleController,
             hintText: "lbl_titre_du_projet".tr,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.h,
-              vertical: 11.v,
-            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
             validator: validateProjectTitle,
           );
         },
@@ -175,7 +135,6 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     );
   }
 
-  /// Section Widget
   Widget _buildDescriptionValue(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 2.h),
@@ -185,10 +144,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
           return CustomTextFormField(
             controller: descriptionValueController,
             hintText: "lbl_description".tr,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.h,
-              vertical: 11.v,
-            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
             validator: validateDescription,
           );
         },
@@ -196,54 +152,57 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     );
   }
 
-  /// Section Widget
   Widget _buildProjectImages(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 2.h),
       child: Selector<CrErProjetProvider, TextEditingController?>(
         selector: (context, provider) => provider.projectImagesController,
         builder: (context, projectImagesController, child) {
-          return Stack(
+          return Column(
             children: [
-              CustomTextFormField(
-                controller: projectImagesController,
-                hintText: "msg_images_du_projet".tr,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16.h,
-                  vertical: 11.v,
-                ),
-                validator: (value) {
-                  // Custom validation if needed
-                  return null;
-                },
-              ),
-              Positioned(
-                top: 0,
-                right: 0,
-                bottom: 0,
-                child: GestureDetector(
-                  onTap: () async {
-                    FilePickerResult? result =
-                        await FilePicker.platform.pickFiles(
-                      type: FileType.image,
-                      allowMultiple: true,
-                    );
-                    if (result != null) {
-                      List<String> paths =
-                          result.paths.map((path) => path!).toList();
-                      List<String> fileNames =
-                          result.files.map((file) => file.name ?? '').toList();
-                      print('Selected images: $paths');
-                      print('Selected image names: $fileNames');
-                    }
-                  },
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 8.v, horizontal: 10.h),
-                    child: Icon(Icons.add_photo_alternate),
+              Stack(
+                children: [
+                  CustomTextFormField(
+                    controller: projectImagesController,
+                    hintText: "msg_images_du_projet".tr,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
+                    readOnly: true,
+                    validator: (value) {
+                      if (!context.read<CrErProjetProvider>().isImageSelectionValid()) {
+                        return 'Veuillez sélectionner entre 1 et 5 images.';
+                      }
+                      return null;
+                    },
                   ),
-                ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: GestureDetector(
+                      onTap: () async {
+                        FilePickerResult? result = await FilePicker.platform.pickFiles(
+                          type: FileType.image,
+                          allowMultiple: true,
+                        );
+
+                        if (result != null) {
+                          List<String> paths = result.paths.map((path) => path!).toList();
+                          List<String> names = result.files.map((file) => file.name ?? '').toList();
+
+                          context.read<CrErProjetProvider>().updateSelectedImages(paths, names);
+
+                          projectImagesController!.text = names.join(', ');
+                        }
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 8.v, horizontal: 10.h),
+                        child: Icon(Icons.add_photo_alternate),
+                      ),
+                    ),
+                  ),
+                ],
               ),
+              SizedBox(height: 8.v),
             ],
           );
         },
@@ -251,7 +210,6 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     );
   }
 
-  /// Section Widget
   Widget _buildBudgetValue(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 2.h),
@@ -262,10 +220,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
             width: 143.h,
             controller: budgetValueController,
             hintText: "lbl_budget".tr,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.h,
-              vertical: 11.v,
-            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
             validator: validateBudget,
           );
         },
@@ -273,6 +228,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     );
   }
 
+  String selectedCurrency = 'TND'; // Default currency
   Widget _buildDeviseValue(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.h),
@@ -285,19 +241,20 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
             builder: (context, crErProjetModelObj, child) {
               return CustomDropDown(
                 width: 116.h,
-                icon: Container(
-                  child: CustomImageView(
-                    imagePath: ImageConstant.imgcrprojet,
-                    height: 15.adaptSize,
-                    width: 15.adaptSize,
-                  ),
+                icon: CustomImageView(
+                  imagePath: ImageConstant.imgcrprojet,
+                  height: 15.adaptSize,
+                  width: 10.adaptSize,
                 ),
                 hintText: "lbl_devise".tr,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16.h,
-                  vertical: 11.v,
-                ),
-                items: crErProjetModelObj?.dropdownItemList1 ?? [],
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
+                alignment: Alignment.center,
+                items: crErProjetModelObj?.dropdownItemList ?? [],
+                onChanged: (value) {
+                  setState(() {
+                    selectedCurrency = value as String; // Update the selected currency
+                  });
+                },
               );
             },
           )
@@ -306,28 +263,70 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     );
   }
 
-  /// Section Widget
   Widget _buildDate(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 2.h),
       child: Selector<CrErProjetProvider, TextEditingController?>(
         selector: (context, provider) => provider.dateController,
         builder: (context, dateController, child) {
-          return CustomTextFormField(
-            controller: dateController,
-            hintText: "lbl_date".tr,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.h,
-              vertical: 11.v,
-            ),
-            validator: validateDate,
+          return Stack(
+            children: [
+              CustomTextFormField(
+                controller: dateController,
+                hintText: "lbl_date".tr,
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
+                validator: validateDate,
+                readOnly: true,
+              ),
+              Positioned(
+                right: 10,
+                top: 0,
+                child: IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: () async {
+                    final pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(Duration(days: 365)),
+                    );
+
+                    if (pickedDate != null) {
+                      dateController!.text = DateFormat('dd/MM/yyyy').format(pickedDate);
+                    }
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),
     );
   }
 
-  /// Section Widget
+  Widget _buildCategoryDropdown(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 2.h),
+      child: Selector<CrErProjetProvider, CrErProjetModel?>(
+        selector: (context, provider) => provider.crErProjetModelObj,
+        builder: (context, crErProjetModelObj, child) {
+          return CustomDropDown(
+            icon: Container(
+              child: CustomImageView(
+                imagePath: ImageConstant.imgcrprojet,
+                height: 15.adaptSize,
+                width: 15.adaptSize,
+              ),
+            ),
+            hintText: "lbl_cat_gorie".tr,
+            contentPadding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
+            items: crErProjetModelObj?.categoryDropdownItemList ?? [],
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildCompte(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 2.h),
@@ -337,10 +336,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
           return CustomTextFormField(
             controller: compteController,
             hintText: "Numero de compte".tr,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.h,
-              vertical: 11.v,
-            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
             validator: validateAccountNumber,
           );
         },
@@ -348,55 +344,105 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     );
   }
 
-  /// Section Widget
   Widget _buildCreateButton(BuildContext context) {
     return Consumer<CrErProjetProvider>(builder: (context, provider, child) {
       return CustomElevatedButton(
         height: 36.v,
         width: 114.h,
-        text: "lbl_cr_er".tr,
+        text: _isLoading ? 'Loading...' : "lbl_cr_er".tr,
         buttonTextStyle: CustomTextStyles.titleLargeInterOnPrimaryContainer,
-        onPressed: () async {
-          if (_formKey.currentState?.validate() ?? false) {
-            String title = provider.projectTitleController.text;
-            String description = provider.descriptionValueController.text;
-            String images = provider.projectImagesController.text;
-            double budget = double.parse(provider.budgetValueController.text);
-            String currency = '';
-            DateTime date = DateTime.parse(provider.dateController.text);
-            String accountNumber = provider.compteController.text;
-            String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-            await FirebaseFirestore.instance.collection('projects').add({
-              'title': title,
-              'description': description,
-              'images': images,
-              'budget': budget,
-              'currency': currency,
-              'date': date.toIso8601String(),
-              'accountNumber': accountNumber,
-              'userId': userId,
-            });
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ListeDesProjetsPage()),
-            );
-          }
-        },
+        onPressed: _isLoading ? null : () => _handleCreateProject(provider),
       );
     });
   }
 
-  void onTapArrowleftone(BuildContext context) {
-    Navigator.pop(context);
+  Future<void> _handleCreateProject(CrErProjetProvider provider) async {
+    if (_formKey.currentState?.validate() ?? false) {
+      String? userId = FirebaseAuth.instance.currentUser?.uid;
+
+      if (userId == null) {
+        // Show notification
+        _showLoginDialog();
+        return;
+      }
+
+      setState(() => _isLoading = true);
+      try {
+        String title = provider.projectTitleController.text;
+        String description = provider.descriptionValueController.text;
+        List<String> imagePaths = provider.selectedImagePaths;
+        double budget = double.parse(provider.budgetValueController.text);
+        String currency = selectedCurrency;
+        DateTime date = DateFormat('dd/MM/yyyy').parse(provider.dateController.text);
+        String accountNumber = provider.compteController.text;
+
+        List<String> imageUrls = await provider.uploadImages(imagePaths);
+
+        // Add project data to Firestore under the authenticated user's ID
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .collection('projects')
+            .add({
+          'title': title,
+          'description': description,
+          'images': imageUrls,
+          'budget': budget,
+          'currency': currency,
+          'date': date,
+          'accountNumber': accountNumber,
+        });
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ListeDesProjetsPage()),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error: $e')));
+      } finally {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showLoginDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Connexion requise'),
+          content: Text('Vous devez être connecté pour créer un projet.'),
+          actions: [
+            TextButton(
+              child: Text('Se connecter'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SeConnecterScreen()),
+                );
+              },
+            ),
+            TextButton(
+              child: Text('Annuler'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Validators
+
   String? validateProjectTitle(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Le titre du projet est requis';
+      return 'Il faut remplir cet champs';
     }
-    if (value.length < 3) {
-      return 'Le titre du projet doit contenir au moins 3 caractères';
+    if (value.length < 5 || value.length > 50) {
+      return 'Le titre du projet doit contenir au moins 5 caractères et au plus 50';
     }
     return null;
   }
@@ -405,6 +451,9 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     if (value == null || value.isEmpty) {
       return 'La description est requise';
     }
+    if (value.length < 10 || value.length > 100) {
+      return 'La description doit contenir au moins 10 caractères et au plus 100';
+    }
     return null;
   }
 
@@ -412,9 +461,12 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     if (value == null || value.isEmpty) {
       return 'Le budget est requis';
     }
-    if (double.tryParse(value) == null) {
-      return 'Veuillez entrer un montant valide';
+
+    final parsedValue = double.tryParse(value);
+    if (parsedValue == null || value.length < 3) {
+      return 'un montant de 3 numéro';
     }
+
     return null;
   }
 
@@ -422,7 +474,13 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     if (value == null || value.isEmpty) {
       return 'La date est requise';
     }
-    // Optionally, add a custom date format check here if needed
+    DateTime? enteredDate = DateFormat('dd/MM/yyyy').parse(value);
+    if (enteredDate == null) {
+      return 'Format de date invalide. Utilisez un format comme dd/MM/yyyy.';
+    }
+    if (enteredDate.isBefore(DateTime.now().add(Duration(days: 15)))) {
+      return 'La date doit être au moins 15 jours après aujourd\'hui.';
+    }
     return null;
   }
 
@@ -430,6 +488,11 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     if (value == null || value.isEmpty) {
       return 'Le numéro de compte est requis';
     }
+
+    if (double.tryParse(value) == null || value.length < 12 || value.length > 16) {
+      return 'Le numéro de compte doit contenir entre 12 et 16 chiffres';
+    }
+
     return null;
   }
 }
