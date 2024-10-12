@@ -311,7 +311,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     NavigatorService.pushNamed(AppRoutes.welcomeScreen);
   }
 
- void onTapSeconnecter(BuildContext context) async {
+void onTapSeconnecter(BuildContext context) async {
   final provider = Provider.of<SeConnecterProvider>(context, listen: false);
   final String email = provider.emailController.text.trim();
   final String password = provider.passwordoneController.text.trim();
@@ -324,14 +324,29 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     );
 
     if (userCredential.user != null) {
-      // Save user information to Firestore
-      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-        'email': email,
-        'createdAt': FieldValue.serverTimestamp(),
-        // Add other user data you want to save
-      });
+      final String uid = userCredential.user!.uid;
+      final userDocRef = FirebaseFirestore.instance.collection('users').doc(uid);
 
-      // Redirect to home page after successful login
+      // Check if the user document exists
+      final userDoc = await userDocRef.get();
+
+      if (userDoc.exists) {
+        // If the user document exists, preserve the 'nom' field
+        // Here you can update any other field without affecting the 'nom'
+        await userDocRef.update({
+          'email': email, // Update only the email or any other fields
+          'lastLogin': FieldValue.serverTimestamp(), // Example of updating login timestamp
+        });
+      } else {
+        // If the user document does not exist, create a new one
+        await userDocRef.set({
+          'email': email,
+          'nom': 'Default Name', // You can set a default name if none exists
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      // Redirect to the home page after a successful login
       NavigatorService.pushNamed(AppRoutes.acceuilClientPage);
     }
   } on FirebaseAuthException catch (e) {
@@ -350,6 +365,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     }
   }
 }
+
 
   void onTapTxtMotdepasse(BuildContext context) {
     NavigatorService.pushNamed(AppRoutes.motDePasseOublierScreen);
