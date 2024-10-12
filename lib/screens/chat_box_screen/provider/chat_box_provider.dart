@@ -1,31 +1,55 @@
 import 'package:flutter/material.dart';
-import '../../../core/app_export.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/chat_box_model.dart';
-
-/// A provider class for the ChatBoxScreen.
-///
-/// This provider manages the state of the ChatBoxScreen, including the
-/// current chatBoxModelObj
-// ignore_for_file: must_be_immutable
-
-// ignore_for_file: must_be_immutable
 class ChatBoxProvider extends ChangeNotifier {
-  TextEditingController greetingimenController = TextEditingController();
-
-  TextEditingController greetinghiimController = TextEditingController();
-
-  TextEditingController okdaccordController = TextEditingController();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   TextEditingController messageController = TextEditingController();
+  
+  List<Message> messages = [];
 
   ChatBoxModel chatBoxModelObj = ChatBoxModel();
 
+  ChatBoxProvider() {
+    _loadMessages();
+  }
+
+  Future<void> _loadMessages() async {
+    _firestore.collection('chat_messages').orderBy('timestamp').snapshots().listen((snapshot) {
+      messages = snapshot.docs.map((doc) => Message.fromDocument(doc)).toList();
+      notifyListeners();
+    });
+  }
+
+  Future<void> sendMessage() async {
+    if (messageController.text.isNotEmpty) {
+      await _firestore.collection('chat_messages').add({
+        'message': messageController.text,
+        'timestamp': FieldValue.serverTimestamp(),
+        'isReceived': false, // Adjust based on your logic
+      });
+      messageController.clear();
+    }
+  }
+
   @override
   void dispose() {
-    super.dispose();
-    greetingimenController.dispose();
-    greetinghiimController.dispose();
-    okdaccordController.dispose();
     messageController.dispose();
+    super.dispose();
+  }
+}
+
+// Message class to hold message data
+class Message {
+  final String message;
+  final bool isReceived;
+
+  Message({required this.message, required this.isReceived});
+
+  factory Message.fromDocument(DocumentSnapshot doc) {
+    return Message(
+      message: doc['message'] ?? '',
+      isReceived: doc['isReceived'] ?? false,
+    );
   }
 }

@@ -1,12 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/app_export.dart'; // Import app-specific configurations and utilities
-import '../../core/utils/validation_functions.dart'; // Import validation functions
-import '../../widgets/app_bar/appbar_title.dart'; // Custom widgets for AppBar
+import 'package:firebase_auth/firebase_auth.dart'; // Ajout de FirebaseAuth
+import '../../core/app_export.dart';
+import '../../core/utils/validation_functions.dart';
+import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
-import '../../widgets/custom_elevated_button.dart'; // Custom Elevated button
-import '../../widgets/custom_text_form_field.dart'; // Custom TextFormField widget
-import 'provider/se_connecter_provider.dart'; // Import SeConnecterProvider for state management
+import '../../widgets/custom_elevated_button.dart';
+import '../../widgets/custom_text_form_field.dart';
+import 'provider/se_connecter_provider.dart';
 
 class SeConnecterScreen extends StatefulWidget {
   const SeConnecterScreen({Key? key}) : super(key: key);
@@ -23,7 +25,7 @@ class SeConnecterScreen extends StatefulWidget {
 }
 
 class SeConnecterScreenState extends State<SeConnecterScreen> {
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -48,17 +50,13 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                           Align(
                             alignment: Alignment.bottomCenter,
                             child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 70.h,
-                                vertical: 50.v,
-                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 70.h, vertical: 50.v),
                               decoration: AppDecoration.outlineBlack.copyWith(
                                 borderRadius: BorderRadiusStyle.roundedBorder21,
                               ),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   SizedBox(height: 170.v),
                                   Text(
@@ -71,10 +69,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                                       onTapTxtSinscrire(context);
                                     },
                                     child: Padding(
-                                      padding: EdgeInsets.only(
-                                        left: 60.v,
-                                        right: 90.v,
-                                      ),
+                                      padding: EdgeInsets.only(left: 60.v, right: 90.v),
                                       child: Text(
                                         "lbl_s_inscrire".tr,
                                         style: CustomTextStyles.titleSmallbBlackA700,
@@ -88,10 +83,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                           Align(
                             alignment: Alignment.topCenter,
                             child: Padding(
-                              padding: EdgeInsets.only(
-                                left: 21.h,
-                                right: 31.h,
-                              ),
+                              padding: EdgeInsets.only(left: 21.h, right: 31.h),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -133,10 +125,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
           ),
           AppbarTitle(
             text: "",
-            margin: EdgeInsets.only(
-              left: 50.h,
-              right: 60.h,
-            ),
+            margin: EdgeInsets.only(left: 50.h, right: 60.h),
           ),
         ],
       ),
@@ -146,10 +135,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
   Widget _buildLoginForm(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(left: 8.h),
-      padding: EdgeInsets.symmetric(
-        horizontal: 17.h,
-        vertical: 20.v,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 17.h, vertical: 20.v),
       decoration: AppDecoration.fillWhiteA.copyWith(
         borderRadius: BorderRadiusStyle.roundedBorder20,
       ),
@@ -177,15 +163,8 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                     height: 17,
                     width: 23,
                   ),
-                  suffixConstraints: BoxConstraints(
-                    maxHeight: 50.v,
-                  ),
-                  contentPadding: EdgeInsets.only(
-                    left: 14.h,
-                    top: 17.v,
-                    bottom: 17.v,
-                  ),
-                  // Email validation
+                  suffixConstraints: BoxConstraints(maxHeight: 50.v),
+                  contentPadding: EdgeInsets.only(left: 14.h, top: 17.v, bottom: 17.v),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "L'email est requis".tr;
@@ -200,7 +179,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
           ),
           SizedBox(height: 12.v),
 
-          // Password field (already existing)
+          // Password field
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 17.h),
             child: Consumer<SeConnecterProvider>(
@@ -221,18 +200,11 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                       width: 23,
                     ),
                   ),
-                  suffixConstraints: BoxConstraints(
-                    maxHeight: 50.v,
-                  ),
+                  suffixConstraints: BoxConstraints(maxHeight: 50.v),
                   obscureText: provider.isShowPassword,
-                  contentPadding: EdgeInsets.only(
-                    left: 14.h,
-                    top: 17.v,
-                    bottom: 17.v,
-                  ),
-                  // Password validation
+                  contentPadding: EdgeInsets.only(left: 14.h, top: 17.v, bottom: 17.v),
                   validator: (value) {
-                    if (value == null || (!isValidPassword(value, isRequired: true))) {
+                    if (value == null || !isValidPassword(value, isRequired: true)) {
                       return "Mot de passe invalide".tr;
                     }
                     return null;
@@ -250,10 +222,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
             height: 40.v,
             buttonTextStyle: TextStyle(color: Colors.white),
             text: "lbl_se_connecter".tr,
-            margin: EdgeInsets.only(
-              left: 25.h,
-              right: 20.h,
-            ),
+            margin: EdgeInsets.only(left: 25.h, right: 20.h),
             onPressed: () {
               if (_formKey.currentState?.validate() ?? false) {
                 onTapSeconnecter(context);
@@ -282,8 +251,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                   child: SizedBox(
                     width: 264.h,
                     child: Padding(
-                      padding: EdgeInsets.only(
-                          top: 25.0), // Adjust the top padding as needed
+                      padding: EdgeInsets.only(top: 25.0),
                       child: Divider(),
                     ),
                   ),
@@ -308,7 +276,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                 splashColor: Colors.white,
                 iconSize: 35,
                 onPressed: () {
-                  // Handle Facebook login
+                  _handleFacebookLogin();
                 },
               ),
               IconButton(
@@ -317,7 +285,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                 iconSize: 35,
                 splashColor: Colors.white,
                 onPressed: () {
-                  // Handle email login
+                  _handleGoogleLogin();
                 },
               ),
             ],
@@ -334,7 +302,8 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     );
     return regex.hasMatch(email);
   }
-void onTapTxtSinscrire(BuildContext context) {
+
+  void onTapTxtSinscrire(BuildContext context) {
     NavigatorService.pushNamed(AppRoutes.crErUnCompteScreen);
   }
 
@@ -342,11 +311,55 @@ void onTapTxtSinscrire(BuildContext context) {
     NavigatorService.pushNamed(AppRoutes.welcomeScreen);
   }
 
-  void onTapSeconnecter(BuildContext context) {
-    // Handle login action
+ void onTapSeconnecter(BuildContext context) async {
+  final provider = Provider.of<SeConnecterProvider>(context, listen: false);
+  final String email = provider.emailController.text.trim();
+  final String password = provider.passwordoneController.text.trim();
+
+  try {
+    // Sign in the user with Firebase Authentication
+    final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    if (userCredential.user != null) {
+      // Save user information to Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'email': email,
+        'createdAt': FieldValue.serverTimestamp(),
+        // Add other user data you want to save
+      });
+
+      // Redirect to home page after successful login
+      NavigatorService.pushNamed(AppRoutes.acceuilClientPage);
+    }
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'user-not-found') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Compte invalide")),
+      );
+    } else if (e.code == 'wrong-password') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Mot de passe incorrect")),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erreur de connexion")),
+      );
+    }
   }
+}
 
   void onTapTxtMotdepasse(BuildContext context) {
     NavigatorService.pushNamed(AppRoutes.motDePasseOublierScreen);
+  }
+
+  void _handleFacebookLogin() {
+    // Logique de connexion avec Facebook
+  }
+
+  void _handleGoogleLogin() {
+    // Logique de connexion avec Google
   }
 }

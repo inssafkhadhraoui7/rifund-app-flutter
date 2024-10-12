@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // Assurez-vous que provider est importé
-import 'package:firebase_auth/firebase_auth.dart'; // Importer Firebase Auth
-import 'package:cloud_firestore/cloud_firestore.dart'; // Importer Firestore
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../core/app_export.dart';
 import '../../core/utils/validation_functions.dart';
@@ -27,6 +27,7 @@ class CrErUnCompteScreen extends StatefulWidget {
 
 class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isAccountCreated = false; // State to handle success message display
 
   @override
   Widget build(BuildContext context) {
@@ -35,82 +36,9 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
         backgroundColor: appTheme.whiteA700,
         resizeToAvoidBottomInset: false,
         appBar: _buildAppBar(context),
-        body: Form(
-          key: _formKey,
-          child: SizedBox(
-            width: double.infinity,
-            child: Column(
-              children: [
-                SizedBox(height: 3.v),
-                Expanded(
-                  child: Container(
-                    child: RepaintBoundary(
-                      child: SizedBox(
-                        height: 770.v,
-                        width: double.infinity,
-                        child: Stack(
-                          alignment: Alignment.topCenter,
-                          children: [
-                            Positioned(
-                              bottom: 0,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 100.h,
-                                  vertical: 90.v,
-                                ),
-                                decoration: AppDecoration.outlineBlack.copyWith(
-                                  borderRadius: BorderRadiusStyle.roundedBorder21,
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    SizedBox(height: 110.v),
-                                    SizedBox(height: 5.v),
-                                    GestureDetector(
-                                      onTap: () {},
-                                      child: Padding(
-                                        padding: EdgeInsets.only(
-                                            left: 55.v, right: 85.v),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              top: 0,
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                  left: 21.h,
-                                  right: 31.h,
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SizedBox(height: 17.v),
-                                    CustomImageView(
-                                      imagePath: ImageConstant.imgFigma2RemovebgPreview,
-                                      height: 80.v,
-                                      width: 80.h,
-                                    ),
-                                    SizedBox(height: 30.v),
-                                    _buildLoginForm(context)
-                                  ],
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
+        body: _isAccountCreated
+            ? _buildSuccessMessage(context) // Show success message if account is created
+            : _buildForm(context), // Otherwise, show the registration form
       ),
     );
   }
@@ -135,6 +63,69 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildForm(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
+          children: [
+            SizedBox(height: 3.v),
+            Expanded(
+              child: Container(
+                child: RepaintBoundary(
+                  child: SizedBox(
+                    height: 770.v,
+                    width: double.infinity,
+                    child: Stack(
+                      alignment: Alignment.topCenter,
+                      children: [
+                        Positioned(
+                          bottom: 0,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 100.h,
+                              vertical: 90.v,
+                            ),
+                            decoration: AppDecoration.outlineBlack.copyWith(
+                              borderRadius: BorderRadiusStyle.roundedBorder21,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 0,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              left: 21.h,
+                              right: 31.h,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(height: 17.v),
+                                CustomImageView(
+                                  imagePath: ImageConstant.imgFigma2RemovebgPreview,
+                                  height: 80.v,
+                                  width: 80.h,
+                                ),
+                                SizedBox(height: 30.v),
+                                _buildLoginForm(context)
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -190,9 +181,9 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return "Ce champ ne peut pas être vide".tr; 
+              return "Ce champ ne peut pas être vide".tr;
             }
-            return null; 
+            return null;
           },
         );
       },
@@ -286,7 +277,7 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
             if (value == null || !isValidPassword(value, isRequired: true)) {
               return "Le mot de passe est vide".tr;
             }
-            if (value != provider.passwordOneController.text) {
+            if (value != provider.passwordOneController?.text) {
               return "Les mots de passe ne correspondent pas".tr;
             }
             return null;
@@ -310,48 +301,50 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
         buttonTextStyle: CustomTextStyles.labelLarge_1,
         onPressed: () {
           if (_formKey.currentState!.validate()) {
-            // Gérer la soumission du formulaire
+            // Handle form submission
             onTapCreateButton(context);
           }
         },
-        alignment: Alignment.center,
       ),
     );
   }
 
-  void onTapCreateButton(BuildContext context) async {
-    final provider = Provider.of<CrErUnCompteProvider>(context, listen: false);
-    String name = provider.imageOneController.text; // Récupérer le nom
-    String email = provider.emailController.text;
-    String password = provider.passwordOneController.text;
-
-    try {
-      // Créer un compte utilisateur avec Firebase Authentication
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // Optionnel : stocker des informations supplémentaires sur l'utilisateur dans Firestore
-      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-        'name': name,
-        'email': email,
-      });
-
-      // Naviguez vers l'écran de connexion ou un autre écran après la création
-      NavigatorService.pushNamed(AppRoutes.seConnecterScreen);
-    } catch (e) {
-      // Gérer les erreurs
-      String errorMessage = 'Une erreur est survenue';
-      if (e is FirebaseAuthException) {
-        errorMessage = e.message ?? errorMessage;
-      }
-      // Affichez un message d'erreur à l'utilisateur
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
-    }
+  Widget _buildSuccessMessage(BuildContext context) {
+    return Center(
+      child: Text(
+        "Compte crée avec succès!",
+        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.green),
+      ),
+    );
   }
 
   void onTapImage(BuildContext context) {
     Navigator.pop(context);
+  }
+
+  void onTapCreateButton(BuildContext context) async {
+    var provider = Provider.of<CrErUnCompteProvider>(context, listen: false);
+    String error = await provider.createUserAccount(context);
+    if (error.isEmpty) {
+      setState(() {
+        _isAccountCreated = true;
+      });
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Erreur de création de compte"),
+          content: Text(error),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
   }
 }

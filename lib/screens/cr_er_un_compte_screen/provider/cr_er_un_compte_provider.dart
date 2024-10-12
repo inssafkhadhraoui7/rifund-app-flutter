@@ -1,36 +1,17 @@
 import 'package:flutter/material.dart';
-import '../models/cr_er_un_compte_model.dart';
-
-/// A provider class for the CrErUnCompteScreen.
-///
-/// This provider manages the state of the CrErUnCompteScreen, including the
-/// current crErUnCompteModelObj
-// ignore_for_file: must_be_immutable
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CrErUnCompteProvider extends ChangeNotifier {
-  TextEditingController imageOneController = TextEditingController();
-
-  TextEditingController emailController = TextEditingController();
-
-  TextEditingController passwordOneController = TextEditingController();
-
-  TextEditingController confirmPasswordController = TextEditingController();
-
-  CrErUnCompteModel crErUnCompteModelObj = CrErUnCompteModel();
+  TextEditingController? imageOneController = TextEditingController();
+  TextEditingController? emailController = TextEditingController();
+  TextEditingController? passwordOneController = TextEditingController();
+  TextEditingController? confirmPasswordController = TextEditingController();
 
   bool isShowPassword = true;
-
   bool isShowPassword1 = true;
 
-  @override
-  void dispose() {
-    super.dispose();
-    imageOneController.dispose();
-    emailController.dispose();
-    passwordOneController.dispose();
-    confirmPasswordController.dispose();
-  }
-
+  // Method to change the visibility of the password
   void changePasswordVisibility() {
     isShowPassword = !isShowPassword;
     notifyListeners();
@@ -39,5 +20,27 @@ class CrErUnCompteProvider extends ChangeNotifier {
   void changePasswordVisibility1() {
     isShowPassword1 = !isShowPassword1;
     notifyListeners();
+  }
+
+  Future<String> createUserAccount(BuildContext context) async {
+    try {
+      // Firebase authentication
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController!.text,
+        password: passwordOneController!.text,
+      );
+
+      // Saving user data to Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'nom': imageOneController!.text,
+        'email': emailController!.text,
+      });
+
+      return ""; // No error
+    } on FirebaseAuthException catch (e) {
+      return e.message ?? "Une erreur inconnue s'est produite.";
+    } catch (e) {
+      return "Erreur lors de l'enregistrement des données utilisateur.";
+    }
   }
 }

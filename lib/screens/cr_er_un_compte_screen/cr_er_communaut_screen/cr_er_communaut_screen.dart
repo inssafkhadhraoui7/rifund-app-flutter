@@ -1,17 +1,14 @@
-import 'dart:io';
-import 'package:path/path.dart' as path;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rifund/core/app_export.dart';
 import 'package:rifund/screens/liste_de_communaut_page/liste_de_communaut_page.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import '../../core/app_export.dart';
-import '../../theme/custom_button_style.dart';
-import '../../widgets/app_bar/appbar_title.dart';
-import '../../widgets/app_bar/custom_app_bar.dart';
-import '../../widgets/bottomNavBar.dart';
-import '../../widgets/custom_elevated_button.dart';
-import '../../widgets/custom_text_form_field.dart';
+import 'package:rifund/theme/custom_button_style.dart';
+import 'package:rifund/widgets/app_bar/appbar_title.dart';
+import 'package:rifund/widgets/app_bar/custom_app_bar.dart';
+import 'package:rifund/widgets/custom_bottom_bar.dart';
+import 'package:rifund/widgets/custom_elevated_button.dart';
+import 'package:rifund/widgets/custom_text_form_field.dart';
 import 'provider/cr_er_communaut_provider.dart';
 
 class CrErCommunautScreen extends StatefulWidget {
@@ -23,7 +20,7 @@ class CrErCommunautScreen extends StatefulWidget {
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => CrErCommunautProvider(),
-      child: const CrErCommunautScreen(),
+      child: CrErCommunautScreen(),
     );
   }
 }
@@ -104,9 +101,9 @@ class CrErCommunautScreenState extends State<CrErCommunautScreen> {
       title: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
+            icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
             onPressed: () {
-              NavigatorService.goBack();
+              onTapImage(context);
             },
           ),
           AppbarTitle(
@@ -138,7 +135,7 @@ class CrErCommunautScreenState extends State<CrErCommunautScreen> {
           },
           suffix: Container(
             padding: EdgeInsets.symmetric(vertical: 8.v, horizontal: 10.h),
-            child: const Icon(Icons.people),
+            child: Icon(Icons.people),
           ),
         );
       },
@@ -163,65 +160,48 @@ class CrErCommunautScreenState extends State<CrErCommunautScreen> {
     );
   }
 
- Widget _buildWebUrl(BuildContext context) {
-  return Selector<CrErCommunautProvider, TextEditingController?>(
-    selector: (context, provider) => provider.webUrlController,
-    builder: (context, webUrlController, child) {
-      return Stack(
-        children: [
-          CustomTextFormField(
-            controller: webUrlController,
-            hintText: "selectionner images".tr,
-            textInputAction: TextInputAction.done,
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            bottom: 0,
-            child: GestureDetector(
-              onTap: () async {
-                FilePickerResult? result =
-                    await FilePicker.platform.pickFiles(
-                  type: FileType.image,
-                  allowMultiple: true,
-                );
-                if (result != null) {
-                  List<String> paths = result.paths.map((path) => path!).toList();
-                  for (String filePath in paths) {
-                    await _uploadImageToFirebase(filePath);
+  Widget _buildWebUrl(BuildContext context) {
+    return Selector<CrErCommunautProvider, TextEditingController?>(
+      selector: (context, provider) => provider.webUrlController,
+      builder: (context, webUrlController, child) {
+        return Stack(
+          children: [
+            CustomTextFormField(
+              controller: webUrlController,
+              hintText: "selectionner images".tr,
+              textInputAction: TextInputAction.done,
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              bottom: 0,
+              child: GestureDetector(
+                onTap: () async {
+                  FilePickerResult? result =
+                      await FilePicker.platform.pickFiles(
+                    type: FileType.image,
+                    allowMultiple: true,
+                  );
+                  if (result != null) {
+                    List<String> paths =
+                        result.paths.map((path) => path!).toList();
+                    List<String> fileNames =
+                        result.files.map((file) => file.name ?? '').toList();
+                    print('Selected images: $paths');
+                    print('Selected image names: $fileNames');
                   }
-                }
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 8.v, horizontal: 10.h),
-                child: const Icon(Icons.add_photo_alternate),
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 8.v, horizontal: 10.h),
+                  child: Icon(Icons.add_photo_alternate),
+                ),
               ),
             ),
-          ),
-        ],
-      );
-    },
-  );
-}
-Future<void> _uploadImageToFirebase(String filePath) async {
-  try {
-    File file = File(filePath);
-  String fileName = path.basename(file.path);
-    // Reference to Firebase Storage
-    Reference storageRef = FirebaseStorage.instance.ref().child('uploads/$fileName');
-
-    // Upload file
-    await storageRef.putFile(file);
-
-    // Get download URL
-    String downloadURL = await storageRef.getDownloadURL();
-    
-    // You can now save this URL to Firestore or wherever you need it
-    print('File uploaded successfully. Download URL: $downloadURL');
-  } catch (e) {
-    print('Error uploading file: $e');
+          ],
+        );
+      },
+    );
   }
-}
 
   Widget _buildCreateButton(BuildContext context) {
     return Expanded(
@@ -233,24 +213,15 @@ Future<void> _uploadImageToFirebase(String filePath) async {
         buttonTextStyle: CustomTextStyles.labelLargeWhiteA700,
         onPressed: () async {
           if (_formKey.currentState!.validate()) {
-            final provider = Provider.of<CrErCommunautProvider>(context, listen: false);
-            final String userId = "currentUserId"; // Replace with the actual user ID
-            final String projectId = "currentProjectId"; // Replace with the actual project ID
+            // Call createCommunity method from the provider
+            await Provider.of<CrErCommunautProvider>(context, listen: false)
+                .createCommunity();
 
-            try {
-              await provider.createCommunity(userId, projectId);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Communauté créée avec succès!'))
-              );
-              Navigator.pushReplacement(
-                context, 
-                MaterialPageRoute(builder: (context) => const ListeDeCommunautPage())
-              );
-            } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Erreur lors de la création: $e'))
-              );
-            }
+            // Navigate to the community list page after creation
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ListeDeCommunautPage()),
+            );
           }
         },
       ),
@@ -265,11 +236,15 @@ Future<void> _uploadImageToFirebase(String filePath) async {
         text: "lbl_annuler".tr,
         margin: EdgeInsets.only(left: 12.h),
         buttonStyle: CustomButtonStyles.fillBlueGray,
-        buttonTextStyle: CustomTextStyles.labelLargeWhiteA700,
+        buttonTextStyle: theme.textTheme.labelLarge!,
         onPressed: () {
-          NavigatorService.goBack();
+          onTapImage(context);
         },
       ),
     );
+  }
+
+  void onTapImage(BuildContext context) {
+    NavigatorService.goBack();
   }
 }
