@@ -292,12 +292,12 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
                                 buttonStyle: CustomButtonStyles.fillGray,
                                 buttonTextStyle: theme.textTheme.titleMedium!,
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            DetailsProjetScreen()),
-                                  );
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //       builder: (context) =>
+                                  //          // DetailsProjetScreen(projectTitle: String,)),
+                                  //  ), );
                                 },
                               )
                             ],

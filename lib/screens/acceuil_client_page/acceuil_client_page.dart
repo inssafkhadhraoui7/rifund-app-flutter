@@ -318,7 +318,10 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    DetailsProjetScreen()),
+                                                    DetailsProjetScreen(
+                                                        projectTitle: project
+                                                                .title ??
+                                                            "Titre inconnu")),
                                           );
                                         },
                                       )

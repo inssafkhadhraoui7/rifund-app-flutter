@@ -16,16 +16,16 @@ import 'provider/details_projet_provider.dart';
 import 'widgets/slider_item_widget.dart';
 
 class DetailsProjetScreen extends StatefulWidget {
-  const DetailsProjetScreen({Key? key}) : super(key: key);
+  final String projectTitle;
+  const DetailsProjetScreen({Key? key, required this.projectTitle})
+      : super(key: key);
 
   @override
   DetailsProjetScreenState createState() => DetailsProjetScreenState();
 
   static Widget builder(BuildContext context) {
-    final provider = Provider.of<DetailsProjetProvider>(context);
     return ChangeNotifierProvider(
       create: (context) => DetailsProjetProvider(),
-      child: DetailsProjetScreen(),
     );
   }
 }
@@ -189,13 +189,10 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
               children: [
                 Padding(
                   padding: EdgeInsets.only(top: 8.v),
-                  child: Consumer<DetailsProjetProvider>(
-                      builder: (context, provider, child) {
-                    return Text(
-                      '${provider.detailsProjetModelObj.sliderItemList[provider.sliderIndex].title}',
-                      style: CustomTextStyles.titleLargeInterExtraBold,
-                    );
-                  }),
+                  child: Text(
+                    widget.projectTitle,
+                    style: CustomTextStyles.titleLargeInterExtraBold,
+                  ),
                 ),
                 IconButton(
                   icon: Icon(Icons.group),
