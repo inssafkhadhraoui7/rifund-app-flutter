@@ -1,28 +1,55 @@
 import 'package:flutter/material.dart';
-import '../../../core/app_export.dart';
-import '../models/cr_er_communaut_model.dart';
 
-/// A provider class for the CrErCommunautScreen.
-///
-/// This provider manages the state of the CrErCommunautScreen, including the
-/// current crErCommunautModelObj
-// ignore_for_file: must_be_immutable
+import '../communityservice.dart';
 
-// ignore_for_file: must_be_immutable
 class CrErCommunautProvider extends ChangeNotifier {
   TextEditingController createCommunityController = TextEditingController();
-
   TextEditingController descriptionValueController = TextEditingController();
-
   TextEditingController webUrlController = TextEditingController();
 
-  CrErCommunautModel crErCommunautModelObj = CrErCommunautModel();
+  String? projectId;
+
+  void setProjectId(String id) {
+    projectId = id;
+  }
+
+  Future<void> createCommunity(BuildContext context) async {
+    if (createCommunityController.text.isEmpty ||
+        descriptionValueController.text.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Please fill in all fields.')));
+      return;
+    }
+
+    try {
+      String communityId = await CommunityService().createCommunity(
+        name: createCommunityController.text,
+        description: descriptionValueController.text,
+        webUrl: webUrlController.text.isEmpty ? null : webUrlController.text,
+        projectId: projectId!,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text('Community created successfully with ID: $communityId')));
+
+      // Clear fields if needed
+      createCommunityController.clear();
+      descriptionValueController.clear();
+      webUrlController.clear();
+
+      notifyListeners();
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+    }
+  }
 
   @override
   void dispose() {
-    super.dispose();
     createCommunityController.dispose();
     descriptionValueController.dispose();
     webUrlController.dispose();
+    super.dispose();
   }
 }

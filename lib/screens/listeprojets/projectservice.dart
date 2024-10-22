@@ -21,7 +21,7 @@ class ProjectService {
         .get();
 
     List<UserprofileItemModel> projects = snapshot.docs.map((doc) {
-      String title = doc['title'] ?? 'No Title';
+      String title = doc['title'] ?? 'Pas de titre';
       List<String> images = List<String>.from(doc['images'] ?? []);
       // double financedPercentage = (doc['financedPercentage'] ?? 0.0) * 100;
 
@@ -34,5 +34,20 @@ class ProjectService {
     print('Fetched projects: ${projects.length}');
 
     return projects;
+  }
+  Future<void> deleteUserProject(String projectId) async {
+    String? userId = _auth.currentUser?.uid;
+
+    if (userId == null) {
+      throw Exception('Il faut être connecté');
+    }
+
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('projects')
+        .doc(projectId)
+        .delete();
+    print('Project $projectId deleted');
   }
 }

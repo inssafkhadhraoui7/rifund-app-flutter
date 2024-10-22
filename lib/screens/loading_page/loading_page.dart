@@ -26,13 +26,11 @@ class _loadingScreenState extends State<loadingscreen> {
   @override
   void initState() {
     super.initState();
-    // Start a timer for 2 seconds (for example)
     Timer(Duration(seconds: 2), () {
-      // After 2 seconds, navigate to the next screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (BuildContext context) =>
-              ChatBoxScreen() , //Replace with your next screen
+              ChatBoxScreen() , 
         ),
       );
     });

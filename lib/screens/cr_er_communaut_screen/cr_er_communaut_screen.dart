@@ -1,7 +1,4 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:rifund/screens/liste_de_communaut_page/liste_de_communaut_page.dart';
 
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
@@ -13,15 +10,22 @@ import '../../widgets/custom_text_form_field.dart';
 import 'provider/cr_er_communaut_provider.dart';
 
 class CrErCommunautScreen extends StatefulWidget {
-  const CrErCommunautScreen({Key? key}) : super(key: key);
+  final String projectId;
+
+  const CrErCommunautScreen({Key? key, required this.projectId})
+      : super(key: key);
 
   @override
   CrErCommunautScreenState createState() => CrErCommunautScreenState();
-  
-  static Widget builder(BuildContext context) {
+
+  static Widget builder(BuildContext context, projectId) {
     return ChangeNotifierProvider(
-      create: (context) => CrErCommunautProvider(),
-      child: CrErCommunautScreen(),
+      create: (context) {
+        final provider = CrErCommunautProvider();
+        provider.setProjectId(projectId);
+        return provider;
+      },
+      child: CrErCommunautScreen(projectId: projectId),
     );
   }
 }
@@ -178,22 +182,11 @@ class CrErCommunautScreenState extends State<CrErCommunautScreen> {
               bottom: 0,
               child: GestureDetector(
                 onTap: () async {
-                  FilePickerResult? result =
-                      await FilePicker.platform.pickFiles(
-                    type: FileType.image,
-                    allowMultiple: true,
-                  );
-                  if (result != null) {
-                    List<String> paths =
-                        result.paths.map((path) => path!).toList();
-                    List<String> fileNames =
-                        result.files.map((file) => file.name ?? '').toList();
-                    print('Selected images: $paths');
-                    print('Selected image names: $fileNames');
-                  }
+                  // Image picking logic...
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 8.v, horizontal: 10.h),
+                  padding:
+                      EdgeInsets.symmetric(vertical: 8.v, horizontal: 10.h),
                   child: Icon(Icons.add_photo_alternate),
                 ),
               ),
@@ -214,10 +207,9 @@ class CrErCommunautScreenState extends State<CrErCommunautScreen> {
         buttonTextStyle: CustomTextStyles.labelLargeWhiteA700,
         onPressed: () {
           if (_formKey.currentState!.validate()) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ListeDeCommunautPage()),
-            );
+            Provider.of<CrErCommunautProvider>(context, listen: false)
+                .createCommunity(context);
+            Navigator.pop(context);
           }
         },
       ),

@@ -108,7 +108,11 @@ class AppRoutes {
         notificationPage: NotificationPage.builder,
         listeDesProjetsPage: ListeDesProjetsPage.builder,
         modifierCatGoriePage: ModifierCatGoriePage.builder,
-        crErCommunautScreen: CrErCommunautScreen.builder,
+        crErCommunautScreen: (context) {
+          final String projectId =
+              ModalRoute.of(context)!.settings.arguments as String;
+          return CrErCommunautScreen.builder(context, projectId);
+        },
         modifierCommunautScreen: ModifierCommunautScreen.builder,
         listeDeCommunautPage: ListeDeCommunautPage.builder,
         membreRejoindreScreen: MembreRejoindreScreen.builder,

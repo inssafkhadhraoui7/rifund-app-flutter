@@ -1,14 +1,31 @@
 import '../../../core/app_export.dart';
 import 'listtext_item_model.dart';
 
+class ListeprojectsModel {
+  List<ListtextItemModel> listprojects = [];
 
-// ignore_for_file: must_be_immutable
+  ListeprojectsModel({List<ListtextItemModel>? projects})
+      : listprojects = projects ?? [];
+
+  void addProject(ListtextItemModel project) {
+    listprojects.add(project);
+  }
+
+  void removeProject(ListtextItemModel project) {
+    listprojects.remove(project);
+  }
+}
+
 class AcceuilClientModel {
-  List<ListtextItemModel> listtextItemList = [
-    ListtextItemModel(image: ImageConstant.imgImage28, text: "Enérgie"),
-    ListtextItemModel(image: ImageConstant.imgImage37, text: "Immobilier"),
-    ListtextItemModel(image: ImageConstant.imgImage38, text: "Santé"),
-    ListtextItemModel(image: ImageConstant.imgImage3965x50, text: "Education")
-  ];
- 
+  List<CategoryItemModel> listcategoryItemList;
+
+  AcceuilClientModel()
+      : listcategoryItemList = [
+          CategoryItemModel(images: ImageConstant.imgImage28, title: "Enérgie"),
+          CategoryItemModel(
+              images: ImageConstant.imgImage37, title: "Immobilier"),
+          CategoryItemModel(images: ImageConstant.imgImage38, title: "Santé"),
+          CategoryItemModel(
+              images: ImageConstant.imgImage3965x50, title: "Education"),
+        ];
 }

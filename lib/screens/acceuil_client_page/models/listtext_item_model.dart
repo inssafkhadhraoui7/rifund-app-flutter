@@ -1,18 +1,51 @@
-import '../../../core/app_export.dart';
-
-/// This class is used in the [listtext_item_widget] screen.
-// ignore_for_file: must_be_immutable
-
 class ListtextItemModel {
-  ListtextItemModel({this.image, this.text, this.id}) {
-    image = image ?? ImageConstant.imgImage28;
-    text = text ?? "Enérgie";
-    id = id ?? "";
+  String? title;
+  // String? description;
+  // String? budget;
+
+  ListtextItemModel({
+    this.title,
+    //this.images,
+    // this.description,
+    // this.budget,
+  });
+
+  factory ListtextItemModel.fromMap(Map<String, dynamic> data) {
+    return ListtextItemModel(
+      title: data['title'] as String,
+      //  description: data['description'] as String,
+      // budget: data['budget'] as String,
+      //images: data['images'] as String, 
+    );
   }
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      // 'description': description,
+      // 'budget': budget,
+      //'images': images,
+    };
+  }
+}
+class CategoryItemModel {
+  String? title;
+  String? images;
 
-  String? image;
+  CategoryItemModel({
+    this.title,
+    this.images,
+  });
 
-  String? text;
-
-  String? id;
+  factory CategoryItemModel.fromMap(Map<String, dynamic> data) {
+    return CategoryItemModel(
+      title: data['title'],
+      images: data['image'],
+    );
+  }
+   Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'image': images,
+    };
+  }
 }

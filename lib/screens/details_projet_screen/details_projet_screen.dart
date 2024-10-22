@@ -22,6 +22,7 @@ class DetailsProjetScreen extends StatefulWidget {
   DetailsProjetScreenState createState() => DetailsProjetScreenState();
 
   static Widget builder(BuildContext context) {
+    final provider = Provider.of<DetailsProjetProvider>(context);
     return ChangeNotifierProvider(
       create: (context) => DetailsProjetProvider(),
       child: DetailsProjetScreen(),
@@ -188,10 +189,13 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
               children: [
                 Padding(
                   padding: EdgeInsets.only(top: 8.v),
-                  child: Text(
-                    "msg_communaut_de_camping".tr,
-                    style: CustomTextStyles.titleLargeInterExtraBold,
-                  ),
+                  child: Consumer<DetailsProjetProvider>(
+                      builder: (context, provider, child) {
+                    return Text(
+                      '${provider.detailsProjetModelObj.sliderItemList[provider.sliderIndex].title}',
+                      style: CustomTextStyles.titleLargeInterExtraBold,
+                    );
+                  }),
                 ),
                 IconButton(
                   icon: Icon(Icons.group),

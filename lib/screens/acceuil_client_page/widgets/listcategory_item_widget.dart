@@ -4,12 +4,12 @@ import '../../../theme/custom_text_style.dart';
 import '../models/listtext_item_model.dart'; 
 
 // ignore_for_file: must_be_immutable
-class ListtextItemWidget extends StatelessWidget {
-  final ListtextItemModel listtextItemModelObj;
+class ListCategoryItemWidget extends StatelessWidget {
+  final CategoryItemModel categoryItemModelObj;
   final VoidCallback? onTap; // Define onTap parameter
 
-  const ListtextItemWidget(
-    this.listtextItemModelObj, {
+  const ListCategoryItemWidget(
+    this.categoryItemModelObj, {
     Key? key,
     this.onTap, // Include onTap in constructor
   }) : super(key: key);
@@ -33,18 +33,18 @@ class ListtextItemWidget extends StatelessWidget {
             child: Column(
               children: [
                 SizedBox(height: 15.v),
-                // CustomImageView(
-                //   alignment: Alignment.center,
-                //   imagePath: listtextItemModelObj.images!,
-                //   height: 50,
-                //   width: 50,
-                // ),
+                CustomImageView(
+                  alignment: Alignment.center,
+                  imagePath: categoryItemModelObj.images!,
+                  height: 50,
+                  width: 50,
+                ),
                 SizedBox(height: 9.v),
                 Text(
-                  listtextItemModelObj.title!,
+                  categoryItemModelObj.title!,
                   textAlign: TextAlign.center, // Center the text
                   style: CustomTextStyles.bodyMediumLight,
-                ),
+                )
               ],
             ),
           ),
