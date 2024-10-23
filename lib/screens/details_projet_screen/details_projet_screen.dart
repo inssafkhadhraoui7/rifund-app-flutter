@@ -18,7 +18,9 @@ import 'provider/details_projet_provider.dart';
 import 'widgets/slider_item_widget.dart';
 
 class DetailsProjetScreen extends StatefulWidget {
-  const DetailsProjetScreen({Key? key}) : super(key: key);
+  final String projectTitle;
+  const DetailsProjetScreen({Key? key, required this.projectTitle})
+      : super(key: key);
 
   @override
   DetailsProjetScreenState createState() => DetailsProjetScreenState();
@@ -26,7 +28,6 @@ class DetailsProjetScreen extends StatefulWidget {
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => DetailsProjetProvider(),
-      child: DetailsProjetScreen(),
     );
   }
 }
@@ -184,6 +185,7 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
           ),
          
           SizedBox(height: 1.v),
+<<<<<<< HEAD
         Padding(
   padding: EdgeInsets.only(right: 8.h),
   child: Row(
@@ -195,6 +197,61 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
           child: Text(
             "msg_communaut_de_camping".tr,
             style: CustomTextStyles.titleLargeInterExtraBold,
+=======
+          Padding(
+            padding: EdgeInsets.only(right: 8.h),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: 8.v),
+                  child: Text(
+                    widget.projectTitle,
+                    style: CustomTextStyles.titleLargeInterExtraBold,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.group),
+                  iconSize: 30.0,
+                  tooltip: 'Rejoindre Communauté',
+                  padding: EdgeInsets.only(
+                    left: 28.h,
+                    bottom: 3.v,
+                  ),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Confirmation'),
+                          content: Text(
+                              'Vous-etes sure pour rejoindre cette communauté?'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text('Rejoindre Communauté'),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ChatBoxScreen()),
+                                );
+                              },
+                            ),
+                            TextButton(
+                              child: Text('Annuler'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+>>>>>>> ahmed
           ),
         ),
       ),

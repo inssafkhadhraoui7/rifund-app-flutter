@@ -311,7 +311,11 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     NavigatorService.pushNamed(AppRoutes.welcomeScreen);
   }
 
+<<<<<<< HEAD
 void onTapSeconnecter(BuildContext context) async {
+=======
+ void onTapSeconnecter(BuildContext context) async {
+>>>>>>> ahmed
   final provider = Provider.of<SeConnecterProvider>(context, listen: false);
   final String email = provider.emailController.text.trim();
   final String password = provider.passwordoneController.text.trim();
@@ -324,6 +328,7 @@ void onTapSeconnecter(BuildContext context) async {
     );
 
     if (userCredential.user != null) {
+<<<<<<< HEAD
       final String uid = userCredential.user!.uid;
       final userDocRef = FirebaseFirestore.instance.collection('users').doc(uid);
 
@@ -347,6 +352,16 @@ void onTapSeconnecter(BuildContext context) async {
       }
 
       // Redirect to the home page after a successful login
+=======
+      // Save user information to Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'email': email,
+        'createdAt': FieldValue.serverTimestamp(),
+        // Add other user data you want to save
+      });
+
+      // Redirect to home page after successful login
+>>>>>>> ahmed
       NavigatorService.pushNamed(AppRoutes.acceuilClientPage);
     }
   } on FirebaseAuthException catch (e) {
@@ -365,7 +380,10 @@ void onTapSeconnecter(BuildContext context) async {
     }
   }
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> ahmed
 
   void onTapTxtMotdepasse(BuildContext context) {
     NavigatorService.pushNamed(AppRoutes.motDePasseOublierScreen);
@@ -378,4 +396,8 @@ void onTapSeconnecter(BuildContext context) async {
   void _handleGoogleLogin() {
     // Logique de connexion avec Google
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> ahmed

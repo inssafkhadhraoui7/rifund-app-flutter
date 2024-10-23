@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
+<<<<<<< HEAD
 class CrErCommunautProvider with ChangeNotifier {
    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   bool _isLoading = false;
@@ -24,6 +25,51 @@ class CrErCommunautProvider with ChangeNotifier {
     selectedImagePaths = paths;
     selectedImageNames = names;
     notifyListeners();
+=======
+import '../communityservice.dart';
+
+class CrErCommunautProvider extends ChangeNotifier {
+  TextEditingController createCommunityController = TextEditingController();
+  TextEditingController descriptionValueController = TextEditingController();
+  TextEditingController webUrlController = TextEditingController();
+
+  String? projectId;
+
+  void setProjectId(String id) {
+    projectId = id;
+  }
+
+  Future<void> createCommunity(BuildContext context) async {
+    if (createCommunityController.text.isEmpty ||
+        descriptionValueController.text.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Please fill in all fields.')));
+      return;
+    }
+
+    try {
+      String communityId = await CommunityService().createCommunity(
+        name: createCommunityController.text,
+        description: descriptionValueController.text,
+        webUrl: webUrlController.text.isEmpty ? null : webUrlController.text,
+        projectId: projectId!,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text('Community created successfully with ID: $communityId')));
+
+      // Clear fields if needed
+      createCommunityController.clear();
+      descriptionValueController.clear();
+      webUrlController.clear();
+
+      notifyListeners();
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+    }
+>>>>>>> ahmed
   }
 
   Future<List<String>> uploadImages(List<String> imagePaths) async {
@@ -74,6 +120,7 @@ class CrErCommunautProvider with ChangeNotifier {
     descriptionValueController.dispose();
     webUrlController.dispose();
     super.dispose();
+<<<<<<< HEAD
   }
   Future<void> createCommunity(String userId, String projectId, String communityName) async {
   _setLoading(true);
@@ -122,6 +169,8 @@ class CrErCommunautProvider with ChangeNotifier {
     // Handle or display the error as necessary
   } finally {
     _setLoading(false);
+=======
+>>>>>>> ahmed
   }
 }
 

@@ -347,4 +347,8 @@ class CrErUnCompteScreenState extends State<CrErUnCompteScreen> {
       );
     }
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> ahmed

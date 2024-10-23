@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:provider/provider.dart'; // Importing provider package
 import 'package:rifund/screens/liste_de_communaut_page/models/communitycardsection_item_model.dart';
+=======
+import 'package:provider/provider.dart';
+import 'package:rifund/screens/cr_er_communaut_screen/cr_er_communaut_screen.dart';
+>>>>>>> ahmed
 import '../../core/app_export.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
@@ -25,7 +30,11 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
   @override
   void initState() {
     super.initState();
+<<<<<<< HEAD
     Provider.of<ListeDeCommunautProvider>(context, listen: false).fetchCommunities();
+=======
+    // You may want to fetch community data here if necessary
+>>>>>>> ahmed
   }
 
   @override
@@ -40,6 +49,7 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
           child: Column(
             children: [
               Expanded(
+<<<<<<< HEAD
                 child: SizedBox(
                   width: double.maxFinite,
                   child: Padding(
@@ -52,6 +62,17 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
                         _buildCommunityCardSection(context),
                       ],
                     ),
+=======
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 26.h),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 48.v),
+                      _buildRowListedeOneSection(context),
+                      SizedBox(height: 17.v),
+                      _buildCommunityCardSection(context),
+                    ],
+>>>>>>> ahmed
                   ),
                 ),
               ),
@@ -68,10 +89,15 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
       title: Row(
         children: [
           IconButton(
+<<<<<<< HEAD
             icon: const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
             onPressed: () {
               onTapImage(context);
             },
+=======
+            icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
+            onPressed: () => onTapImage(context),
+>>>>>>> ahmed
           ),
           AppbarTitle(
             text: "Liste des Communautés".tr,
@@ -83,26 +109,48 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
     );
   }
 
-  /// Section Widget
   Widget _buildRowListedeOneSection(BuildContext context) {
     return Row(
+<<<<<<< HEAD
       mainAxisAlignment: MainAxisAlignment.center, // Center the children horizontally
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 5.h), // Add horizontal margin
+=======
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 5.h),
+>>>>>>> ahmed
           child: Text(
-            "Liste des Communautés".tr, // Display translated text
-            style: theme.textTheme.headlineSmall, // Apply a specific text style
+            "Liste des Communautés".tr,
+            style: theme.textTheme.headlineSmall,
           ),
         ),
+<<<<<<< HEAD
+=======
+        IconButton(
+          icon: const Icon(Icons.add_circle, color: Colors.black),
+          iconSize: 30,
+          alignment: Alignment.center,
+          onPressed: () {
+            // Ensure you have the correct projectId to pass
+            final projectId = 'your_project_id'; // Replace with actual project ID logic
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CrErCommunautScreen(projectId: projectId)),
+            );
+          },
+        ),
+>>>>>>> ahmed
       ],
     );
   }
 
-  /// Section Widget
   Widget _buildCommunityCardSection(BuildContext context) {
     return Expanded(
       child: Padding(
+<<<<<<< HEAD
         padding: EdgeInsets.only(left: 3.h, right: 5.h),
         child: Consumer<ListeDeCommunautProvider>(
           builder: (context, provider, child) {
@@ -129,6 +177,21 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
   },
 );
 
+=======
+        padding: EdgeInsets.symmetric(horizontal: 3.h),
+        child: Consumer<ListeDeCommunautProvider>(
+          builder: (context, provider, child) {
+            final communityList = provider.listeDeCommunautModelObj.communitycardsectionItemList;
+            return ListView.separated(
+              physics: BouncingScrollPhysics(),
+              separatorBuilder: (context, index) => SizedBox(height: 22.v),
+              itemCount: communityList.length,
+              itemBuilder: (context, index) {
+                CommunitycardsectionItemModel model = communityList[index];
+                return CommunitycardsectionItemWidget(model);
+              },
+            );
+>>>>>>> ahmed
           },
         ),
       ),

@@ -24,6 +24,45 @@ class AdminUtlisaProvider with ChangeNotifier {
       print("Error fetching users: $e");
       return [];
     }
+<<<<<<< HEAD
+  }
+
+  // Method to accept a user
+  Future<void> acceptUser(String uid) async {
+    try {
+      await _firestore.collection('users').doc(uid).update({
+        'isAccepted': true,
+      });
+      notifyListeners();
+    } catch (e) {
+      print("Error accepting user: $e");
+    }
+  }
+
+  // Method to block a user
+  Future<void> blockUser(String uid, BuildContext context) async {
+    try {
+      await _firestore.collection('users').doc(uid).update({
+        'isBlocked': true,
+      });
+      notifyListeners();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User blocked")));
+    } catch (e) {
+      print("Error blocking user: $e");
+    }
+  }
+
+  // Method to delete a user
+  Future<void> deleteUser(String uid) async {
+    try {
+      await _firestore.collection('users').doc(uid).delete();
+      print("Deleted user with uid: $uid");
+      notifyListeners();
+    } catch (e) {
+      print("Error deleting user: $e");
+    }
+=======
+>>>>>>> ahmed
   }
 
   // Method to accept a user

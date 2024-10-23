@@ -387,10 +387,10 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
         buttonStyle: CustomButtonStyles.fillLightGreen,
         buttonTextStyle: CustomTextStyles.titleSmallOnPrimaryContainer,
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => DetailsProjetScreen()),
-          );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => DetailsProjetScreen()),
+          // );
         },
       ),
     );

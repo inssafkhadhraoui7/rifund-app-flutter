@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart' as path;
@@ -7,6 +8,10 @@ import 'package:provider/provider.dart';
 import 'package:rifund/screens/liste_de_communaut_page/liste_de_communaut_page.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:rifund/screens/se_connecter_screen/se_connecter_screen.dart';
+=======
+import 'package:flutter/material.dart';
+
+>>>>>>> ahmed
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
 import '../../widgets/app_bar/appbar_title.dart';
@@ -16,6 +21,7 @@ import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_text_form_field.dart';
 import 'provider/cr_er_communaut_provider.dart';
 
+<<<<<<< HEAD
 class CrErCommunautScreen extends StatelessWidget {
   const CrErCommunautScreen({Key? key}) : super(key: key);
 
@@ -23,6 +29,25 @@ class CrErCommunautScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => CrErCommunautProvider(),
       child: const CrErCommunautScreen(),
+=======
+class CrErCommunautScreen extends StatefulWidget {
+  final String projectId;
+
+  const CrErCommunautScreen({Key? key, required this.projectId})
+      : super(key: key);
+
+  @override
+  CrErCommunautScreenState createState() => CrErCommunautScreenState();
+
+  static Widget builder(BuildContext context, projectId) {
+    return ChangeNotifierProvider(
+      create: (context) {
+        final provider = CrErCommunautProvider();
+        provider.setProjectId(projectId);
+        return provider;
+      },
+      child: CrErCommunautScreen(projectId: projectId),
+>>>>>>> ahmed
     );
   }
 
@@ -187,6 +212,7 @@ class CrErCommunautScreen extends StatelessWidget {
                           allowMultiple: true,
                         );
 
+<<<<<<< HEAD
                         if (result != null) {
                           List<String> paths = result.paths.map((path) => path!).toList();
                           List<String> names = result.files.map((file) => file.name ?? '').toList();
@@ -203,6 +229,32 @@ class CrErCommunautScreen extends StatelessWidget {
                     ),
                   ),
                 ],
+=======
+  Widget _buildWebUrl(BuildContext context) {
+    return Selector<CrErCommunautProvider, TextEditingController?>(
+      selector: (context, provider) => provider.webUrlController,
+      builder: (context, webUrlController, child) {
+        return Stack(
+          children: [
+            CustomTextFormField(
+              controller: webUrlController,
+              hintText: "selectionner images".tr,
+              textInputAction: TextInputAction.done,
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              bottom: 0,
+              child: GestureDetector(
+                onTap: () async {
+                  // Image picking logic...
+                },
+                child: Container(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 8.v, horizontal: 10.h),
+                  child: Icon(Icons.add_photo_alternate),
+                ),
+>>>>>>> ahmed
               ),
               SizedBox(height: 8.v),
             ],
@@ -268,7 +320,30 @@ Widget _buildCreateButton(BuildContext context, CrErCommunautProvider provider) 
       },
     );
   }
+<<<<<<< HEAD
   
+=======
+
+  Widget _buildCreateButton(BuildContext context) {
+    return Expanded(
+      child: CustomElevatedButton(
+        text: "lbl_cr_er".tr,
+        height: 36.v,
+        width: 117.h,
+        margin: EdgeInsets.only(right: 12.h),
+        buttonTextStyle: CustomTextStyles.labelLargeWhiteA700,
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            Provider.of<CrErCommunautProvider>(context, listen: false)
+                .createCommunity(context);
+            Navigator.pop(context);
+          }
+        },
+      ),
+    );
+  }
+
+>>>>>>> ahmed
   Widget _buildCancelButton(BuildContext context) {
     return Expanded(
       child: CustomElevatedButton(
