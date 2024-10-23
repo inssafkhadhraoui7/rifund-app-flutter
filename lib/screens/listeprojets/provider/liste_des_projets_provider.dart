@@ -15,8 +15,6 @@ class ListeDesProjetsProvider extends ChangeNotifier {
     } catch (e) {
       print('Error loading projects: $e');
     }
-<<<<<<< HEAD
-=======
   }
   Future<void> deleteProject(String projectId) async {
     try {
@@ -28,6 +26,5 @@ class ListeDesProjetsProvider extends ChangeNotifier {
     } catch (e) {
       print('Erreur de suppression du projet $e');
     }
->>>>>>> ahmed
   }
 }

@@ -311,11 +311,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     NavigatorService.pushNamed(AppRoutes.welcomeScreen);
   }
 
-<<<<<<< HEAD
-void onTapSeconnecter(BuildContext context) async {
-=======
  void onTapSeconnecter(BuildContext context) async {
->>>>>>> ahmed
   final provider = Provider.of<SeConnecterProvider>(context, listen: false);
   final String email = provider.emailController.text.trim();
   final String password = provider.passwordoneController.text.trim();
@@ -328,31 +324,6 @@ void onTapSeconnecter(BuildContext context) async {
     );
 
     if (userCredential.user != null) {
-<<<<<<< HEAD
-      final String uid = userCredential.user!.uid;
-      final userDocRef = FirebaseFirestore.instance.collection('users').doc(uid);
-
-      // Check if the user document exists
-      final userDoc = await userDocRef.get();
-
-      if (userDoc.exists) {
-        // If the user document exists, preserve the 'nom' field
-        // Here you can update any other field without affecting the 'nom'
-        await userDocRef.update({
-          'email': email, // Update only the email or any other fields
-          'lastLogin': FieldValue.serverTimestamp(), // Example of updating login timestamp
-        });
-      } else {
-        // If the user document does not exist, create a new one
-        await userDocRef.set({
-          'email': email,
-          'nom': 'Default Name', // You can set a default name if none exists
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      }
-
-      // Redirect to the home page after a successful login
-=======
       // Save user information to Firestore
       await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
         'email': email,
@@ -361,7 +332,6 @@ void onTapSeconnecter(BuildContext context) async {
       });
 
       // Redirect to home page after successful login
->>>>>>> ahmed
       NavigatorService.pushNamed(AppRoutes.acceuilClientPage);
     }
   } on FirebaseAuthException catch (e) {
@@ -380,10 +350,6 @@ void onTapSeconnecter(BuildContext context) async {
     }
   }
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> ahmed
 
   void onTapTxtMotdepasse(BuildContext context) {
     NavigatorService.pushNamed(AppRoutes.motDePasseOublierScreen);
@@ -396,8 +362,4 @@ void onTapSeconnecter(BuildContext context) async {
   void _handleGoogleLogin() {
     // Logique de connexion avec Google
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> ahmed

@@ -4,11 +4,7 @@ import 'package:rifund/screens/admin/admin_utlisa_page/models/userprofile_item_m
 import 'package:rifund/screens/admin/admin_utlisa_page/provider/admin_utlisa_provider.dart';
 import 'package:rifund/widgets/app_bar/appbar_title.dart';
 import 'package:rifund/widgets/app_bar/custom_app_bar.dart';
-<<<<<<< HEAD
-import '../../../../widgets/custom_bottom_bar.dart';
-=======
 import '../../../widgets/custom_bottom_bar.dart';
->>>>>>> ahmed
 
 class AdminUtlisaPage extends StatefulWidget {
   const AdminUtlisaPage({Key? key}) : super(key: key);
@@ -103,8 +99,4 @@ class AdminUtlisaPageState extends State<AdminUtlisaPage> {
       styleType: Style.bgFill_1,
     );
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> ahmed

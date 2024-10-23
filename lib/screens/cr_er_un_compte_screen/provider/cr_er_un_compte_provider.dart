@@ -43,8 +43,4 @@ class CrErUnCompteProvider extends ChangeNotifier {
       return "Erreur lors de l'enregistrement des données utilisateur.";
     }
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> ahmed

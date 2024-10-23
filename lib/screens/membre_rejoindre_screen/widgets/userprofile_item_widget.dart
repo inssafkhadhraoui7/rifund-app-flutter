@@ -5,7 +5,8 @@ import '../models/userprofile_item_model.dart';
 class UserprofileItemWidget extends StatelessWidget {
   final UserprofileItemModel userprofileItemModelObj;
 
-  const UserprofileItemWidget(this.userprofileItemModelObj, {Key? key}) : super(key: key);
+  const UserprofileItemWidget(this.userprofileItemModelObj, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class UserprofileItemWidget extends StatelessWidget {
             imagePath: userprofileItemModelObj.userImage!,
             height: 55.v,
             width: 39.h,
-            margin: EdgeInsets.only(bottom: 20.v, top: 20),
+            margin: EdgeInsets.only(bottom: 20.v,top: 20),
           ),
           SizedBox(width: 12.h), // Add some space between image and username
           Expanded(
@@ -38,16 +39,16 @@ class UserprofileItemWidget extends StatelessWidget {
             child: Row(
               children: [
                 IconButton(
-                  icon: Icon(Icons.check, color: Colors.green),
+                  icon: Icon(Icons.favorite, color: Colors.green),
                   onPressed: () {
-                    // Logic to accept the participant
+                    // Add your onPressed logic here
                   },
                 ),
                 SizedBox(width: 3.h), // Add space between buttons
                 IconButton(
-                  icon: Icon(Icons.clear, color: Colors.red),
+                  icon: Icon(Icons.delete, color: Colors.red),
                   onPressed: () {
-                    // Logic to refuse the participant
+                    // Add your onPressed logic here
                   },
                 ),
               ],

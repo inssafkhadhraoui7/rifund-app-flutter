@@ -1,128 +1,158 @@
 import 'package:flutter/material.dart';
+import 'package:rifund/screens/affichage_communaut_page/affichage_communaut_page.dart';
 import 'package:rifund/screens/chat_box_screen/chat_box_screen.dart';
 import 'package:rifund/screens/membre_rejoindre_screen/membre_rejoindre_screen.dart';
 import 'package:rifund/screens/modifier_communaut_screen/modifier_communaut_screen.dart';
+
 import '../../../core/app_export.dart';
 import '../models/communitycardsection_item_model.dart'; // ignore: must_be_immutable
-class CommunitycardsectionItemWidget extends StatelessWidget {
-  final CommunitycardsectionItemModel model;
+// ignore_for_file: must_be_immutable
 
-  const CommunitycardsectionItemWidget({
-    Key? key,
-    required this.model,
-  }) : super(key: key);
+// ignore_for_file: must_be_immutable
+class CommunitycardsectionItemWidget extends StatelessWidget {
+  CommunitycardsectionItemWidget(this.communitycardsectionItemModelObj,
+      {Key? key})
+      : super(
+          key: key,
+        );
+
+  CommunitycardsectionItemModel communitycardsectionItemModelObj;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 7.h, vertical: 3.v),
+      padding: EdgeInsets.symmetric(
+        horizontal: 7.h,
+        vertical: 3.v,
+      ),
       decoration: AppDecoration.outlineWhiteA.copyWith(
         borderRadius: BorderRadiusStyle.roundedBorder20,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Display image from the URL
           CustomImageView(
-            imagePath: model.imageUrl,
+            imagePath: ImageConstant.imgComponent14,
             height: 99.v,
             width: 93.h,
-            radius: BorderRadius.circular(12.h),
-            margin: EdgeInsets.only(top: 10.v, bottom: 15.v),
+            radius: BorderRadius.circular(
+              12.h,
+            ),
+            margin: EdgeInsets.only(
+              top: 10.v,
+              bottom: 15.v,
+            ),
           ),
           Padding(
-            padding: EdgeInsets.only(left: 8.h, top: 10.v),
+            padding: EdgeInsets.only(
+              left: 8.h,
+              top: 10.v,
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  model.name,
+                  communitycardsectionItemModelObj.communityName!,
                   style: CustomTextStyles.titleSmallSemiBold,
                 ),
                 SizedBox(height: 12.v),
-                // Display the description
-                Text(
-                  model.description,  // Display the description
-                  style: theme.textTheme.bodyMedium,  // Style for description
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: SizedBox(
+                    width: 101.h,
+                    child: Text(
+                      communitycardsectionItemModelObj.projectName!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleSmall,
+                    ),
+                  ),
                 ),
+                SizedBox(height: 10.v),
                 Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.edit_document),
+                      icon: Icon(Icons.edit_document),
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ModifierCommunautScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => ModifierCommunautScreen()),
                         );
                       },
                     ),
                     IconButton(
-                      icon: const Icon(Icons.group_add),
+                      icon: Icon(Icons.group_add),
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const MembreRejoindreScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => MembreRejoindreScreen()),
                         );
                       },
                     ),
                     IconButton(
-                      icon: const Icon(Icons.chat),
+                      icon: Icon(Icons.chat),
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ChatBoxScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => ChatBoxScreen()),
                         );
                       },
                     ),
+                    SizedBox(width: 3.h), // Add space between buttons
                     IconButton(
-                      icon: const Icon(Icons.delete),
+                      icon: Icon(Icons.delete),
                       onPressed: () {
-                        _showDeleteConfirmationDialog(context);
+                        // Show delete confirmation dialog
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              backgroundColor: appTheme.orange50,
+                              title: Text("Confirmation "),
+                              content: Text(
+                                  "Voulez-Vous supprimer cette communauté ?"),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text(
+                                    "Supprimer",
+                                    style: TextStyle(
+                                        color: Color.fromARGB(255, 118, 173,
+                                            55)), // Change text color to black
+                                  ),
+                                  onPressed: () {
+                                    _deleteItem();
+                                    Navigator.of(context).pop(); // Close dialog
+                                  },
+                                ),
+                                TextButton(
+                                  child: Text("Annuler",
+                                      style: TextStyle(
+                                          color: Color.fromARGB(
+                                              255, 118, 173, 55))),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       },
                     ),
                   ],
                 ),
               ],
             ),
-          ),
+          )
         ],
       ),
     );
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: appTheme.orange50,
-          title: const Text("Confirmation"),
-          content: const Text("Voulez-vous supprimer cette communauté ?"),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                "Supprimer",
-                style: TextStyle(color: Color.fromARGB(255, 118, 173, 55)),
-              ),
-              onPressed: () {
-                _deleteItem();
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text("Annuler", style: TextStyle(color: Color.fromARGB(255, 118, 173, 55))),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
+  // Function to perform delete action
   void _deleteItem() {
     print("Communauté supprimée!");
   }
 }
-

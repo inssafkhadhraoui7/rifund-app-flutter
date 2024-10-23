@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart'; // Assurez-vous d'importer Provider pour le changement d'état.
 
 import '../../core/app_export.dart';
 import '../../widgets/app_bar/appbar_title.dart';
@@ -8,7 +7,6 @@ import '../../widgets/app_bar/custom_app_bar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_text_form_field.dart';
 import 'provider/mot_de_passe_oublier_provider.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Assurez-vous d'importer Firebase Auth.
 
 class MotDePasseOublierScreen extends StatefulWidget {
   const MotDePasseOublierScreen({Key? key}) : super(key: key);
@@ -25,7 +23,7 @@ class MotDePasseOublierScreen extends StatefulWidget {
 }
 
 class MotDePasseOublierScreenState extends State<MotDePasseOublierScreen> {
-  final _formKey = GlobalKey<FormState>(); // Ajouter la clé du formulaire pour gérer l'état du formulaire.
+  final _formKey = GlobalKey<FormState>(); // Add Form key to manage form state
 
   @override
   void initState() {
@@ -113,13 +111,13 @@ class MotDePasseOublierScreenState extends State<MotDePasseOublierScreen> {
         borderRadius: BorderRadiusStyle.roundedBorder20,
       ),
       child: Form(
-        key: _formKey, // Utilisez la clé du formulaire pour gérer la validation.
+        key: _formKey, // Use the form key to manage validation
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(height: 47.v),
             Container(
-              child: Selector<MotDePasseOublierProvider, TextEditingController?>( // Utilisation de Provider pour le contrôle du texte.
+              child: Selector<MotDePasseOublierProvider, TextEditingController?>(
                 selector: (context, provider) => provider.emailController,
                 builder: (context, emailController, child) {
                   return CustomTextFormField(
@@ -139,7 +137,7 @@ class MotDePasseOublierScreenState extends State<MotDePasseOublierScreen> {
                       top: 17.v,
                       bottom: 17.v,
                     ),
-                    // Ajouter la validation
+                    // Add validation
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Veuillez entrer un email".tr;
@@ -159,22 +157,10 @@ class MotDePasseOublierScreenState extends State<MotDePasseOublierScreen> {
               height: 40.v,
               text: "lbl_envoyer".tr,
               buttonTextStyle: theme.textTheme.labelLarge!,
-              onPressed: () async {
+              onPressed: () {
                 if (_formKey.currentState?.validate() ?? false) {
-                  // Envoyer l'e-mail de réinitialisation du mot de passe
-                  String email = Provider.of<MotDePasseOublierProvider>(context, listen: false).emailController.text;
-                  try {
-                    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-                    // Affiche un message de succès
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Un e-mail de réinitialisation a été envoyé à votre adresse e-mail.")),
-                    );
-                  } catch (e) {
-                    // Gérer les erreurs ici
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Erreur lors de l'envoi de l'e-mail.")),
-                    );
-                  }
+                  // Proceed with further actions, like sending a password reset email
+                  // _sendPasswordResetEmail(context);
                 }
               },
             ),
@@ -199,12 +185,12 @@ class MotDePasseOublierScreenState extends State<MotDePasseOublierScreen> {
     );
   }
 
-  /// Navigue vers l'écran précédent lorsque l'action est déclenchée.
+  /// Navigates to the previous screen when the action is triggered.
   void onTapImage(BuildContext context) {
     NavigatorService.goBack();
   }
 
-  /// Navigue vers seConnecterScreen lorsque l'action est déclenchée.
+  /// Navigates to the seConnecterScreen when the action is triggered.
   void onTapTxtSeconnecter(BuildContext context) {
     NavigatorService.pushNamed(AppRoutes.seConnecterScreen);
   }

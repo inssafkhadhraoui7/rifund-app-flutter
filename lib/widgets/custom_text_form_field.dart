@@ -153,5 +153,6 @@ class CustomTextFormField extends StatelessWidget {
                 color: theme.colorScheme.primary,
                 width: 1,
               ),
-        ),);
+            ),
+      );
 }

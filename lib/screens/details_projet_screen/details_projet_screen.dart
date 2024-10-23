@@ -1,12 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rifund/screens/chat_box_screen/chat_box_screen.dart';
 import 'package:rifund/screens/financer_projet_screen/financer_projet_screen.dart';
 import 'package:rifund/widgets/app_bar/appbar_subtitle.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:rifund/screens/cr_er_communaut_screen/cr_er_communaut_screen.dart';
+
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
@@ -183,21 +181,7 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
             "lbl_dur_e_1_mois".tr,
             style: theme.textTheme.titleSmall,
           ),
-         
           SizedBox(height: 1.v),
-<<<<<<< HEAD
-        Padding(
-  padding: EdgeInsets.only(right: 8.h),
-  child: Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Expanded( // Wrap with Expanded to avoid overflow
-        child: Padding(
-          padding: EdgeInsets.only(top: 3.v),
-          child: Text(
-            "msg_communaut_de_camping".tr,
-            style: CustomTextStyles.titleLargeInterExtraBold,
-=======
           Padding(
             padding: EdgeInsets.only(right: 8.h),
             child: Row(
@@ -251,118 +235,7 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
                 ),
               ],
             ),
->>>>>>> ahmed
           ),
-        ),
-      ),
-IconButton(
-  icon: Icon(Icons.group),
-  iconSize: 30.0,
-  tooltip: 'Rejoindre Communauté',
-  padding: EdgeInsets.only(
-    left: 28.h,
-    bottom: 3.v,
-  ),
-  onPressed: () async {
-    try {
-      // Get the current logged-in user
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        // Show a message if the user is not logged in
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please log in to join the community')),
-        );
-        return;
-      }
-
-      String currentUserId = user.uid; // Firebase user ID
-      String communityId = 'some_community_id'; // Replace with actual community ID logic
-
-      // Fetch current user's details from 'users' collection
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUserId)
-          .get();
-
-      if (userSnapshot.exists) {
-        String userId = userSnapshot.id; // User ID
-        String userName = userSnapshot['name']; // User's name
-
-        // Check if the user is already a participant
-        DocumentSnapshot participantDoc = await FirebaseFirestore.instance
-            .collection('communities')
-            .doc(communityId)
-            .collection('participants')
-            .doc(userId)
-            .get();
-
-        if (participantDoc.exists) {
-          // User is already a participant, navigate directly to the chat
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ChatBoxScreen()),
-          );
-        } else {
-          // Show confirmation dialog if user is not a participant
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Confirmation'),
-                content: Text('Voulez-vous rejoindre cette communauté ?'),
-                actions: <Widget>[
-                  TextButton(
-                    child: Text('Rejoindre Communauté'),
-                    onPressed: () async {
-                      // Add user as a participant in Firestore
-                      await FirebaseFirestore.instance
-                          .collection('communities')
-                          .doc(communityId)
-                          .collection('participants')
-                          .doc(userId)
-                          .set({
-                        'joinedAt': Timestamp.now(),
-                        'userId': userId,
-                        'name': userName,
-                      });
-
-                      // Navigate to the chat box after adding the user as a participant
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ChatBoxScreen()),
-                      );
-                    },
-                  ),
-                  TextButton(
-                    child: Text('Annuler'),
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close the dialog
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      } else {
-        // If user document is not found
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User data not found. Please try again.')),
-        );
-      }
-    } catch (e) {
-      // Handle error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Une erreur est survenue: $e')),
-      );
-    }
-  },
-      ),
-     
-    ],
-  ),
-),
-
           SizedBox(height: 9.v),
           Padding(
             padding: EdgeInsets.only(right: 30.h),

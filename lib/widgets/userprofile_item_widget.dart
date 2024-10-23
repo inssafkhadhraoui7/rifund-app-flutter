@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rifund/screens/cr_er_communaut_screen/cr_er_communaut_screen.dart';
+
 import '../../../core/app_export.dart';
 import '../screens/cr_er_communaut_screen/cr_er_communaut_screen.dart';
 import '../screens/listeprojets/models/userprofile_item_model.dart';
@@ -8,12 +8,8 @@ import '../screens/modifierscreen/modifierprojetscreen.dart';
 
 // ignore_for_file: must_be_immutable
 class UserprofileItemWidget extends StatelessWidget {
-<<<<<<< HEAD
-  UserprofileItemWidget(this.userprofileItemModelObj, {Key? key}) : super(key: key);
-=======
   UserprofileItemWidget(this.userprofileItemModelObj, {Key? key})
       : super(key: key);
->>>>>>> ahmed
 
   final UserprofileItemModel userprofileItemModelObj;
 
@@ -70,7 +66,7 @@ class UserprofileItemWidget extends StatelessWidget {
                   borderRadius: BorderRadiusStyle.roundedBorder20,
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(width: 14),
@@ -79,14 +75,7 @@ class UserprofileItemWidget extends StatelessWidget {
                       height: 58.adaptSize,
                       width: 58.adaptSize,
                       radius: BorderRadius.circular(29.h),
-<<<<<<< HEAD
-                      margin: EdgeInsets.only(
-                        top: 3.v,
-                        bottom: 17.v,
-                      ),
-=======
                       margin: EdgeInsets.only(top: 3.v, bottom: 17.v),
->>>>>>> ahmed
                     ),
                     Expanded(
                       child: Padding(
@@ -108,50 +97,6 @@ class UserprofileItemWidget extends StatelessWidget {
                                 SizedBox(
                                   height: 32.adaptSize,
                                   width: 32.adaptSize,
-<<<<<<< HEAD
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.center,
-                                        child: IconButton(
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return AlertDialog(
-                                                  title: Text("Confirmation"),
-                                                  content: Text("Voulez-vous supprimer ce projet"),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        // Perform delete operation here
-                                                        Navigator.of(context).pop();
-                                                      },
-                                                      child: Text("Oui"),
-                                                    ),
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.of(context).pop();
-                                                      },
-                                                      child: Text("Annuler"),
-                                                    ),
-                                                  ],
-                                                );
-                                              },
-                                            );
-                                          },
-                                          constraints: BoxConstraints(
-                                            minHeight: 32.adaptSize,
-                                            minWidth: 32.adaptSize,
-                                          ),
-                                          padding: EdgeInsets.all(0),
-                                          icon: const Icon(Icons.delete, color: Colors.red),
-                                          iconSize: 20,
-                                        ),
-                                      ),
-                                    ],
-=======
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
                                     icon: const Icon(Icons.delete,
@@ -160,47 +105,11 @@ class UserprofileItemWidget extends StatelessWidget {
                                       _showDeleteConfirmationDialog(
                                           context, userprofileItemModelObj.id);
                                     },
->>>>>>> ahmed
                                   ),
                                 ),
                               ],
                             ),
                             SizedBox(height: 11.v),
-<<<<<<< HEAD
-                            // Organized buttons
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                SizedBox(
-                                  height: 32.adaptSize,
-                                  width: 32.adaptSize,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.edit, color: Colors.black),
-                                    iconSize: 20,
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => ModifierProjetScreen()),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 32.adaptSize,
-                                  width: 32.adaptSize,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.group_add, color: Colors.black), // Use community icon here
-                                    iconSize: 20,
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => CrErCommunautScreen()),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-=======
                             SizedBox(
                               height: 32.adaptSize,
                               width: 32.adaptSize,
@@ -238,7 +147,6 @@ class UserprofileItemWidget extends StatelessWidget {
                                   );
                                 },
                               ),
->>>>>>> ahmed
                             ),
                           ],
                         ),

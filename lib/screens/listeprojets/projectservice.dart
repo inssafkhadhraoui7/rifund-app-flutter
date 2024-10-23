@@ -21,11 +21,7 @@ class ProjectService {
         .get();
 
     List<UserprofileItemModel> projects = snapshot.docs.map((doc) {
-<<<<<<< HEAD
-      String title = doc['title'] ?? 'No Title';
-=======
       String title = doc['title'] ?? 'Pas de titre';
->>>>>>> ahmed
       List<String> images = List<String>.from(doc['images'] ?? []);
       // double financedPercentage = (doc['financedPercentage'] ?? 0.0) * 100;
 
@@ -39,8 +35,6 @@ class ProjectService {
 
     return projects;
   }
-<<<<<<< HEAD
-=======
   Future<void> deleteUserProject(String projectId) async {
     String? userId = _auth.currentUser?.uid;
 
@@ -56,5 +50,4 @@ class ProjectService {
         .delete();
     print('Project $projectId deleted');
   }
->>>>>>> ahmed
 }
