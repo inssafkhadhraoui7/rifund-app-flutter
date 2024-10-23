@@ -1,16 +1,20 @@
-/// This class is used in the [communitycardsection_item_widget] screen.
 
-// ignore_for_file: must_be_immutable
 class CommunitycardsectionItemModel {
-  CommunitycardsectionItemModel(
-      {this.communityName, this.projectName, this.id}) {
-    communityName = communityName ?? "Nom de communauté";
-    projectName = projectName ?? "Nom de projet\nDate création";
-    id = id ?? "";
+  final String name;
+  final String description;
+  final String imageUrl;
+
+  CommunitycardsectionItemModel({
+    required this.name,
+    required this.description,
+    required this.imageUrl,
+  });
+
+  factory CommunitycardsectionItemModel.fromFirestore(Map<String, dynamic> data) {
+    return CommunitycardsectionItemModel(
+      name: data['name'] ?? '',
+      description: data['description'] ?? '',
+      imageUrl: data['imageUrl'] ?? '',  // Use this if imageUrl is stored in Firestore
+    );
   }
-  String? communityName;
-
-  String? projectName;
-
-  String? id;
 }

@@ -11,7 +11,7 @@ class UserprofileItemModel {
     seventy = seventy ?? "0 %"; // Default to 0%
     circleimage = circleimage ?? ImageConstant.imgprofile;
     titreduprojet = titreduprojet ?? "Titre du projet";
-    id = id ?? "";
+    id = id ?? ""; // Default to empty string
   }
 
   String? seventy;     // Financing percentage

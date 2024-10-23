@@ -23,18 +23,22 @@ class ProjectService {
     List<UserprofileItemModel> projects = snapshot.docs.map((doc) {
       String title = doc['title'] ?? 'Pas de titre';
       List<String> images = List<String>.from(doc['images'] ?? []);
-      // double financedPercentage = (doc['financedPercentage'] ?? 0.0) * 100;
+      String projectId = doc.id; // Get the document ID
 
       return UserprofileItemModel(
+        id: projectId, // Set the ID
         titreduprojet: title,
         circleimage: images.isNotEmpty ? images[0] : ImageConstant.imgprofile,
-        // seventy: '${financedPercentage.toStringAsFixed(0)} %',
+        // Uncomment if financing percentage is available
+        // seventy: '${(doc['financedPercentage'] ?? 0.0 * 100).toStringAsFixed(0)} %',
       );
     }).toList();
+    
     print('Fetched projects: ${projects.length}');
 
     return projects;
   }
+
   Future<void> deleteUserProject(String projectId) async {
     String? userId = _auth.currentUser?.uid;
 
@@ -48,6 +52,7 @@ class ProjectService {
         .collection('projects')
         .doc(projectId)
         .delete();
+        
     print('Project $projectId deleted');
   }
 }

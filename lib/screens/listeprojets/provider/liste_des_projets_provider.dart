@@ -16,9 +16,9 @@ class ListeDesProjetsProvider extends ChangeNotifier {
       print('Error loading projects: $e');
     }
   }
+
   Future<void> deleteProject(String projectId) async {
     try {
-     
       await ProjectService().deleteUserProject(projectId); 
       // Remove from local list as well
       listeDesProjetsModelObj.userprofileItemList.removeWhere((item) => item.id == projectId);

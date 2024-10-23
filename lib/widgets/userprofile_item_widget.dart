@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/app_export.dart';
 import '../screens/cr_er_communaut_screen/cr_er_communaut_screen.dart';
@@ -8,13 +9,23 @@ import '../screens/modifierscreen/modifierprojetscreen.dart';
 
 // ignore_for_file: must_be_immutable
 class UserprofileItemWidget extends StatelessWidget {
-  UserprofileItemWidget(this.userprofileItemModelObj, {Key? key})
-      : super(key: key);
-
   final UserprofileItemModel userprofileItemModelObj;
+
+  UserprofileItemWidget(this.userprofileItemModelObj, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Check if the user profile model is initialized
+    if (userprofileItemModelObj == null) {
+      return Container(); // Handle null case
+    }
+
+    // Debugging: Log model properties
+    print("ID: ${userprofileItemModelObj.id}");
+    print("Titre du projet: ${userprofileItemModelObj.titreduprojet}");
+    print("Circle Image: ${userprofileItemModelObj.circleimage}");
+    print("Seventy: ${userprofileItemModelObj.seventy}");
+
     return Container(
       color: Colors.white,
       child: SizedBox(
@@ -89,8 +100,7 @@ class UserprofileItemWidget extends StatelessWidget {
                                 Padding(
                                   padding: EdgeInsets.only(bottom: 4.v),
                                   child: Text(
-                                    userprofileItemModelObj.titreduprojet ??
-                                        "Titre du projet",
+                                    userprofileItemModelObj.titreduprojet ?? "Titre du projet",
                                     style: theme.textTheme.titleLarge,
                                   ),
                                 ),
@@ -99,11 +109,9 @@ class UserprofileItemWidget extends StatelessWidget {
                                   width: 32.adaptSize,
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.red),
+                                    icon: const Icon(Icons.delete, color: Colors.red),
                                     onPressed: () {
-                                      _showDeleteConfirmationDialog(
-                                          context, userprofileItemModelObj.id);
+                                      _showDeleteConfirmationDialog(context, userprofileItemModelObj.id);
                                     },
                                   ),
                                 ),
@@ -115,14 +123,12 @@ class UserprofileItemWidget extends StatelessWidget {
                               width: 32.adaptSize,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                icon:
-                                    const Icon(Icons.edit, color: Colors.black),
+                                icon: const Icon(Icons.edit, color: Colors.black),
                                 onPressed: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          ModifierProjetScreen(),
+                                      builder: (context) => ModifierProjetScreen(),
                                     ),
                                   );
                                 },
@@ -133,18 +139,24 @@ class UserprofileItemWidget extends StatelessWidget {
                               width: 32.adaptSize,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.people,
-                                    color: Colors.black),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => CrErCommunautScreen(
-                                        projectId: userprofileItemModelObj.id
-                                            .toString(),
-                                      ),
-                                    ),
-                                  );
+                                icon: const Icon(Icons.people, color: Colors.black),
+                                onPressed: () async {
+                                  // Ensure user profile object is initialized
+                                  final projectId = userprofileItemModelObj.id;
+
+                                  // Log project ID for debugging
+                                  print('Project ID from UserProfile: $projectId');
+
+                                  // Navigate only if projectId is valid
+                                  if (projectId != null && projectId.isNotEmpty) {
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/cr_er_communaut_screen',
+                                      arguments: projectId,
+                                    );
+                                  } else {
+                                    print('Project ID is null or empty!'); // Log this error
+                                  }
                                 },
                               ),
                             ),
@@ -162,7 +174,7 @@ class UserprofileItemWidget extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context, projectId) {
+  void _showDeleteConfirmationDialog(BuildContext context, String? projectId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -172,7 +184,9 @@ class UserprofileItemWidget extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                _deleteProject(projectId, context);
+                if (projectId != null && projectId.isNotEmpty) {
+                  _deleteProject(projectId, context);
+                }
                 Navigator.of(context).pop();
               },
               child: Text("Oui"),
@@ -190,8 +204,7 @@ class UserprofileItemWidget extends StatelessWidget {
   }
 
   void _deleteProject(String projectId, BuildContext context) {
-    final provider =
-        Provider.of<ListeDesProjetsProvider>(context, listen: false);
+    final provider = Provider.of<ListeDesProjetsProvider>(context, listen: false);
     provider.deleteProject(projectId); // Implement this method in your provider
   }
 }
