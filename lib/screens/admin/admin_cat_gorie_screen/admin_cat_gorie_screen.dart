@@ -121,7 +121,8 @@ class AdminCatGorieScreenState extends State<AdminCatGorieScreen> {
                                         child: _buildField1(
                                           context,
                                           text: category.name,
-                                          imageUrl: category.imageUrl,
+                                          imageUrl: category.imageUrl!,
+                                          categoryId: category.id,
                                         ),
                                       );
                                     },
@@ -172,6 +173,7 @@ Widget _buildField1(
   BuildContext context, {
   required String text,
   required String imageUrl,
+  required String categoryId, // Pass categoryId
 }) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 15.h, vertical: 13.v),
@@ -184,7 +186,7 @@ Widget _buildField1(
         Padding(
           padding: EdgeInsets.only(top: 5.0, bottom: 9.0),
           child: Image.network(
-            imageUrl, // Use the imageUrl from the category
+            imageUrl,
             height: 24.0,
             width: 24.0,
             fit: BoxFit.cover,
@@ -217,7 +219,7 @@ Widget _buildField1(
           height: 32.0,
           width: 32.0,
           onTap: () {
-            deletedialog(context);
+            deletedialog(context, categoryId, imageUrl);
           },
           child: Icon(Icons.delete),
         ),
@@ -232,28 +234,32 @@ void onTapArrowleftone(BuildContext context) {
 
 void onTapBtnPlusone(BuildContext context) {}
 
-void deletedialog(BuildContext context) {
+void deletedialog(BuildContext context, String categoryId, String imageUrl) {
   showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Confirmation"),
-          content: Text("Voulez-vous supprimer cette catégorie"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // Perform delete operation here
-                Navigator.of(context).pop();
-              },
-              child: Text("Oui"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("Annuler"),
-            ),
-          ],
-        );
-      });
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Confirmation"),
+        content: Text("Voulez-vous supprimer cette catégorie?"),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              final provider =
+                  Provider.of<AdminCatGorieProvider>(context, listen: false);
+              await provider.deleteCategory(
+                  categoryId, imageUrl); // Delete category
+              Navigator.of(context).pop();
+            },
+            child: Text("Oui"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text("Annuler"),
+          ),
+        ],
+      );
+    },
+  );
 }
