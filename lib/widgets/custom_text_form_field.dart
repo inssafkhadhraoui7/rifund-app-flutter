@@ -82,7 +82,7 @@ class CustomTextFormField extends StatelessWidget {
 
   final Color? fillColor;
 
-  final bool? filled,readOnly;
+  final bool? filled, readOnly;
 
   final FormFieldValidator<String>? validator;
 

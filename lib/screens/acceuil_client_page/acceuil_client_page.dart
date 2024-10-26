@@ -69,7 +69,7 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
             ),
             SizedBox(height: 20.v),
             Padding(
-              padding: EdgeInsets.only(left: 15.h),
+              padding: EdgeInsets.only(left: 15.v),
               child: _buildProjetNrgColumn(context),
             ),
             SizedBox(height: 5.v),
@@ -187,7 +187,7 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
           return Center(child: CircularProgressIndicator());
         }
 
-        if (provider.listeprojectsModel.listprojects.isEmpty) {
+        if (provider.filteredProjects.isEmpty) {
           return Center(child: Text("Pas de projets."));
         }
 
@@ -195,13 +195,17 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
           scrollDirection: Axis.horizontal,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: provider.listeprojectsModel.listprojects.map((project) {
+            children: provider.filteredProjects.map((project) {
+              String imageFour =
+                  (project.images != null && project.images!.isNotEmpty)
+                      ? project.images!.first // Ensure this is a list
+                      : ImageConstant.imgRectangle117;
               return SizedBox(
                 width: 340.h,
                 child: Card(
                   clipBehavior: Clip.antiAlias,
                   elevation: 0,
-                  margin: EdgeInsets.all(0),
+                  margin: EdgeInsets.only(left: 10.h),
                   shape: RoundedRectangleBorder(
                     side: BorderSide(color: appTheme.lightGreen600, width: 5.h),
                     borderRadius: BorderRadiusStyle.roundedBorder20,
@@ -213,11 +217,10 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                     ),
                     child: Stack(
                       children: [
-                        // _buildProjetAgricoleStack(
-                        //   context,
-                        //   imageFour:
-                        //       project.images ?? ImageConstant.imgRectangle117,
-                        // ),
+                        _buildProjetAgricoleStack(
+                          context,
+                          imageFour: imageFour, // Pass the first image
+                        ),
                         Align(
                           alignment: Alignment.center,
                           child: Container(
@@ -250,13 +253,12 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                                 SizedBox(height: 8.v),
                                 Padding(
                                   padding: EdgeInsets.only(left: 27.h),
-                                  // child: Text(
-                                  //   project.budget != null
-                                  //       ? "Budget: ${project.budget}"
-                                  //       : 'Budget inconnu',
-                                  //   style: CustomTextStyles
-                                  //       .titleLargeLightgreen600,
-                                  // ),
+                                  child: Text(
+                                    project.budget.toString() ??
+                                        "Pas de budget",
+                                    style: CustomTextStyles
+                                        .titleLargeLightgreen600,
+                                  ),
                                 ),
                                 SizedBox(height: 9.v),
                                 Container(
@@ -355,19 +357,19 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
         alignment: Alignment.center,
         children: [
           CustomImageView(
-            imagePath: ImageConstant.imgRectangle117,
+            imagePath: imageFour,
             height: 258.v,
             width: 193.h,
             radius: BorderRadius.horizontal(left: Radius.circular(15.h)),
             alignment: Alignment.center,
           ),
-          CustomImageView(
-            imagePath: imageFour,
-            height: 258.v,
-            width: 193.h,
-            radius: BorderRadius.horizontal(left: Radius.circular(20.h)),
-            alignment: Alignment.center,
-          )
+          // CustomImageView(
+          //   imagePath: imageFour,
+          //   height: 258.v,
+          //   width: 193.h,
+          //   radius: BorderRadius.horizontal(left: Radius.circular(20.h)),
+          //   alignment: Alignment.center,
+          // )
         ],
       ),
     );

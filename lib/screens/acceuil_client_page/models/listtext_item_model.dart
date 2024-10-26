@@ -1,32 +1,38 @@
 class ListtextItemModel {
+  String? userId;
   String? title;
   // String? description;
-  // String? budget;
+  double? budget;
+  List<String>? images;
 
   ListtextItemModel({
     this.title,
-    //this.images,
+    this.userId,
+    this.images,
     // this.description,
-    // this.budget,
+    this.budget,
   });
 
   factory ListtextItemModel.fromMap(Map<String, dynamic> data) {
     return ListtextItemModel(
       title: data['title'] as String,
       //  description: data['description'] as String,
-      // budget: data['budget'] as String,
-      //images: data['images'] as String, 
+      budget: data['budget'],
+      userId: data['userId'] as String?, // Ensure userId is fetched
+      images: List<String>.from(data['images'] ?? []),
     );
   }
   Map<String, dynamic> toMap() {
     return {
       'title': title,
       // 'description': description,
-      // 'budget': budget,
-      //'images': images,
+      'budget': budget,
+      'userId': userId,
+      'images': images,
     };
   }
 }
+
 class CategoryItemModel {
   String? title;
   String? images;
@@ -42,7 +48,7 @@ class CategoryItemModel {
       images: data['image'],
     );
   }
-   Map<String, dynamic> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'title': title,
       'image': images,

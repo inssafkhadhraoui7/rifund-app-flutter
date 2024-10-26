@@ -36,65 +36,66 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
   String selectedCategory = '';
   @override
   Widget build(BuildContext context) {
+    
     return SafeArea(
       child: Scaffold(
         backgroundColor: theme.colorScheme.onPrimaryContainer,
         resizeToAvoidBottomInset: false,
         appBar: _buildAppBar(context),
         body: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Container(
-              width: double.maxFinite,
-              padding: EdgeInsets.symmetric(horizontal: 27.h, vertical: 16.v),
-              child: Column(
-                children: [
-                  Align(
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 5.h),
-                      child: Text(
-                        "msg_creation_du_projet".tr,
-                        style: theme.textTheme.headlineLarge,
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Container(
+                width: double.maxFinite,
+                padding: EdgeInsets.symmetric(horizontal: 27.h, vertical: 16.v),
+                child: Column(
+                  children: [
+                    Align(
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 5.h),
+                        child: Text(
+                          "msg_creation_du_projet".tr,
+                          style: theme.textTheme.headlineLarge,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 18.v),
-                  Text(
-                    "msg_cr_er_votre_projet".tr,
-                    style: CustomTextStyles.titleLargeInterSemiBold,
-                  ),
-                  SizedBox(height: 18.v),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 11.h),
-                      child: Text(
-                        "msg_remplir_la_formulaire".tr,
-                        style: CustomTextStyles.bodyMediumBlack900,
+                    SizedBox(height: 18.v),
+                    Text(
+                      "msg_cr_er_votre_projet".tr,
+                      style: CustomTextStyles.titleLargeInterSemiBold,
+                    ),
+                    SizedBox(height: 18.v),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 11.h),
+                        child: Text(
+                          "msg_remplir_la_formulaire".tr,
+                          style: CustomTextStyles.bodyMediumBlack900,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 18.v),
-                  _buildProjectTitle(context),
-                  SizedBox(height: 18.v),
-                  _buildDescriptionValue(context),
-                  SizedBox(height: 18.v),
-                  _buildProjectImages(context),
-                  SizedBox(height: 18.v),
-                  _buildDeviseValue(context),
-                  SizedBox(height: 18.v),
-                  _buildDate(context),
-                  SizedBox(height: 18.v),
-                  _buildCategoryDropdown(context),
-                  SizedBox(height: 18.v),
-                  _buildCompte(context),
-                  SizedBox(height: 18.v),
-                  _buildCreateButton(context),
-                ],
+                    SizedBox(height: 18.v),
+                    _buildProjectTitle(context),
+                    SizedBox(height: 18.v),
+                    _buildDescriptionValue(context),
+                    SizedBox(height: 18.v),
+                    _buildProjectImages(context),
+                    SizedBox(height: 18.v),
+                    _buildDeviseValue(context),
+                    SizedBox(height: 18.v),
+                    _buildDate(context),
+                    SizedBox(height: 18.v),
+                    _buildCategoryDropdown(context),
+                    SizedBox(height: 18.v),
+                    _buildCompte(context),
+                    SizedBox(height: 18.v),
+                    _buildCreateButton(context),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
         bottomNavigationBar: BottomNavBar(),
       ),
     );
@@ -355,8 +356,9 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
   }
 
   Widget _buildCompte(BuildContext context) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 2.h),
+      padding: EdgeInsets.only(bottom: keyboardHeight),
       child: Selector<CrErProjetProvider, TextEditingController?>(
         selector: (context, provider) => provider.compteController,
         builder: (context, compteController, child) {

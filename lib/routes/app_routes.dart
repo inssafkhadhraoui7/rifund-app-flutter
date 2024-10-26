@@ -123,7 +123,7 @@ class AppRoutes {
         adminProjetScreen: AdminProjetScreen.builder,
         adminUtlisaPage: AdminUtlisaPage.builder,
         profileAdminPage: ProfileAdminPage.builder,
-        initialRoute: WelcomeScreen.builder,
+        initialRoute: ProfileAdminPage.builder,
         appNavigationScreen: AppNavigationScreen.builder,
       };
 }

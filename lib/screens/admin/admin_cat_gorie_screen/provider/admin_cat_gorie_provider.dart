@@ -1,16 +1,28 @@
 import 'package:flutter/material.dart';
-import '../../../../core/app_export.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/admin_cat_gorie_model.dart';
 
-/// A provider class for the AdminCatGorieScreen.
-///
-/// This provider manages the state of the AdminCatGorieScreen, including the
-/// current adminCatGorieModelObj
-// ignore_for_file: must_be_immutable
-
-// ignore_for_file: must_be_immutable
 class AdminCatGorieProvider extends ChangeNotifier {
-  AdminCatGorieModel adminCatGorieModelObj = AdminCatGorieModel();
+  List<AdminCatGorieModel> categories = [];
+  bool isLoading = false; // Loading state
+  String? errorMessage; // Error message
+
+  Future<void> fetchCategories() async {
+    isLoading = true; // Set loading state
+    notifyListeners();
+
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection('categories').get();
+      categories = snapshot.docs.map((doc) => AdminCatGorieModel.fromMap(doc.data())).toList();
+      errorMessage = null; // Clear previous error
+    } catch (e) {
+      errorMessage = "Error fetching categories: $e"; // Set error message
+      print(errorMessage);
+    } finally {
+      isLoading = false; // Reset loading state
+      notifyListeners();
+    }
+  }
 
   @override
   void dispose() {
