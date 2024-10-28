@@ -1,7 +1,7 @@
 class AdminCatGorieModel {
-  final String id; // Unique identifier for the category
+  final String id;
   final String name;
-  final String? imageUrl; // Make imageUrl nullable
+  final String? imageUrl;
 
   AdminCatGorieModel({
     required this.id,
@@ -12,19 +12,18 @@ class AdminCatGorieModel {
   factory AdminCatGorieModel.fromMap(
       Map<String, dynamic> data, String documentId) {
     return AdminCatGorieModel(
-      id: documentId, // Pass the document ID
+      id: documentId,
       name: data['name'] ?? '',
       imageUrl: (data['imageUrls'] as List<dynamic>?)?.isNotEmpty == true
-          ? data['imageUrls'][0] // Get the first URL if it exists
-          : null, // Return null if no URL exists
+          ? data['imageUrls'][0]
+          : null,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'name': name,
-      'imageUrls':
-          imageUrl != null ? [imageUrl!] : [], // Store as a list, empty if null
+      'imageUrls': imageUrl != null ? [imageUrl!] : [],
     };
   }
 }

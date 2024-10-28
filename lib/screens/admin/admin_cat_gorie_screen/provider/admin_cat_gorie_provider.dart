@@ -6,11 +6,11 @@ import '../models/admin_cat_gorie_model.dart';
 
 class AdminCatGorieProvider extends ChangeNotifier {
   List<AdminCatGorieModel> categories = [];
-  bool isLoading = false; // Loading state
-  String? errorMessage; // Error message
+  bool isLoading = false;
+  String? errorMessage;
 
   Future<void> fetchCategories() async {
-    isLoading = true; // Set loading state
+    isLoading = true;
     notifyListeners();
 
     try {
@@ -20,30 +20,27 @@ class AdminCatGorieProvider extends ChangeNotifier {
         return AdminCatGorieModel.fromMap(
             doc.data() as Map<String, dynamic>, doc.id);
       }).toList();
-      errorMessage = null; // Clear previous error
+      errorMessage = null;
     } catch (e) {
-      errorMessage = "Error fetching categories: $e"; // Set error message
+      errorMessage = "Erreur de telechargement categories: $e";
       print(errorMessage);
     } finally {
-      isLoading = false; // Reset loading state
+      isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> deleteCategory(String categoryId, String imageUrl) async {
     try {
-      // Delete the category document from Firestore
       await FirebaseFirestore.instance
           .collection('categories')
           .doc(categoryId)
           .delete();
 
-      // Delete the image from Firebase Storage
       if (imageUrl.isNotEmpty) {
         await FirebaseStorage.instance.refFromURL(imageUrl).delete();
       }
 
-      // Remove the category from the list locally
       categories.removeWhere((category) => category.id == categoryId);
       notifyListeners();
     } catch (e) {

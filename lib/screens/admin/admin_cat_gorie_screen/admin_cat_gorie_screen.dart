@@ -35,8 +35,7 @@ class AdminCatGorieScreenState extends State<AdminCatGorieScreen> {
   void initState() {
     super.initState();
     final provider = Provider.of<AdminCatGorieProvider>(context, listen: false);
-    provider
-        .fetchCategories(); // Fetch categories when the screen is initialized
+    provider.fetchCategories();
   }
 
   @override
@@ -105,7 +104,6 @@ class AdminCatGorieScreenState extends State<AdminCatGorieScreen> {
                               child: Column(
                                 children: [
                                   SizedBox(height: 25.v),
-                                  // Display dynamic categories
                                   ListView.builder(
                                     shrinkWrap: true,
                                     physics: NeverScrollableScrollPhysics(),
@@ -173,7 +171,7 @@ Widget _buildField1(
   BuildContext context, {
   required String text,
   required String imageUrl,
-  required String categoryId, // Pass categoryId
+  required String categoryId,
 }) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 15.h, vertical: 13.v),
@@ -246,8 +244,7 @@ void deletedialog(BuildContext context, String categoryId, String imageUrl) {
             onPressed: () async {
               final provider =
                   Provider.of<AdminCatGorieProvider>(context, listen: false);
-              await provider.deleteCategory(
-                  categoryId, imageUrl); // Delete category
+              await provider.deleteCategory(categoryId, imageUrl);
               Navigator.of(context).pop();
             },
             child: Text("Oui"),
