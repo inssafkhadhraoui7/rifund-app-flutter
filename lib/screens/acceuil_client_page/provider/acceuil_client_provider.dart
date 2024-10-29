@@ -8,12 +8,11 @@ class AcceuilClientProvider extends ChangeNotifier {
   TextEditingController searchController = TextEditingController();
   AcceuilClientModel acceuilClientModelObj = AcceuilClientModel();
   ListeprojectsModel listeprojectsModel = ListeprojectsModel();
-  List<ListtextItemModel> filteredProjects = []; // For filtered projects
+  List<ListtextItemModel> filteredProjects = [];
   bool isLoading = false;
   String errorMessage = '';
 
   AcceuilClientProvider() {
-    // Listen for changes in the search text
     searchController.addListener(_filterProjects);
   }
 
@@ -23,17 +22,13 @@ class AcceuilClientProvider extends ChangeNotifier {
 
     List<ListtextItemModel> allProjects = [];
     try {
-      // Fetch all users
       QuerySnapshot usersSnapshot =
           await FirebaseFirestore.instance.collection('users').get();
 
-      // Loop through each user document
       for (var userDoc in usersSnapshot.docs) {
-        // Fetch projects for each user
         QuerySnapshot projectsSnapshot =
             await userDoc.reference.collection('projects').get();
 
-        // Loop through each project document
         for (var projectDoc in projectsSnapshot.docs) {
           allProjects.add(
             ListtextItemModel.fromMap(
@@ -42,10 +37,9 @@ class AcceuilClientProvider extends ChangeNotifier {
         }
       }
 
-      // Assign the fetched projects to the ListeprojectsModel
       listeprojectsModel.listprojects = allProjects;
       filteredProjects = allProjects;
-      errorMessage = ''; // Reset error message on success
+      errorMessage = '';
     } catch (e) {
       errorMessage = 'Error fetching projects: $e';
       print(errorMessage);
@@ -58,15 +52,14 @@ class AcceuilClientProvider extends ChangeNotifier {
   void _filterProjects() {
     String query = searchController.text.toLowerCase();
     if (query.isEmpty) {
-      filteredProjects = List.from(
-          listeprojectsModel.listprojects); // Show all if search is empty
+      filteredProjects = List.from(listeprojectsModel.listprojects);
     } else {
       filteredProjects = listeprojectsModel.listprojects.where((project) {
         return project.title != null &&
             project.title!.toLowerCase().contains(query);
       }).toList();
     }
-    notifyListeners(); // Notify listeners of the change
+    notifyListeners();
   }
 
   @override

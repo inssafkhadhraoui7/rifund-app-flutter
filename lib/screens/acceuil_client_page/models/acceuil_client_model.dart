@@ -6,14 +6,6 @@ class ListeprojectsModel {
 
   ListeprojectsModel({List<ListtextItemModel>? projects})
       : listprojects = projects ?? [];
-
-  void addProject(ListtextItemModel project) {
-    listprojects.add(project);
-  }
-
-  void removeProject(ListtextItemModel project) {
-    listprojects.remove(project);
-  }
 }
 
 class AcceuilClientModel {

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:rifund/screens/affichage_par_categorie/affichagecategorie.dart';
+import 'package:rifund/screens/details_projet_screen/details_projet_screen.dart';
 
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
 import '../../widgets/bottomNavBar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_search_view.dart';
-import '../details_projet_screen/details_projet_screen.dart';
 import '../financer_projet_screen/financer_projet_screen.dart';
 import 'models/listtext_item_model.dart';
 import 'provider/acceuil_client_provider.dart';
@@ -319,11 +319,10 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) =>
-                                                    DetailsProjetScreen(
-                                                        projectTitle: project
-                                                                .title ??
-                                                            "Titre inconnu")),
+                                              builder: (context) =>
+                                                  DetailsProjetScreen(
+                                                      project: project),
+                                            ),
                                           );
                                         },
                                       )
