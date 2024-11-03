@@ -8,7 +8,6 @@ import '../../../widgets/app_bar/appbar_title.dart';
 import '../../../widgets/app_bar/custom_app_bar.dart';
 import '../../../widgets/custom_bottom_bar.dart';
 import '../../../widgets/custom_elevated_button.dart';
-import '../profile_admin_page/profile_admin_page.dart';
 import 'models/admin_projet_model.dart';
 import 'provider/admin_projet_provider.dart';
 
@@ -27,8 +26,6 @@ class AdminProjetScreen extends StatefulWidget {
 }
 
 class AdminProjetScreenState extends State<AdminProjetScreen> {
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
-
   @override
   void initState() {
     super.initState();
@@ -68,6 +65,8 @@ class AdminProjetScreenState extends State<AdminProjetScreen> {
   }
 
   Widget _buildProjectCard(AdminProjetModel project) {
+    final provider = Provider.of<AdminProjetProvider>(context, listen: false);
+
     return Container(
       width: 337.h,
       margin: EdgeInsets.symmetric(horizontal: 11.h, vertical: 10.h),
@@ -78,11 +77,10 @@ class AdminProjetScreenState extends State<AdminProjetScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Display the first image only if available
           if (project.images != null && project.images!.isNotEmpty)
             Center(
               child: CachedNetworkImage(
-                imageUrl: project.images!.first, // Get the first image
+                imageUrl: project.images!.first,
                 height: 118.v,
                 width: 237.h,
                 imageBuilder: (context, imageProvider) => Container(
@@ -103,6 +101,8 @@ class AdminProjetScreenState extends State<AdminProjetScreen> {
             child: Text(
               project.title ?? '',
               style: theme.textTheme.titleLarge,
+              maxLines: 2, // Limit to 2 lines
+              overflow: TextOverflow.ellipsis, // Add ellipsis for overflow
             ),
           ),
           SizedBox(height: 15.v),
@@ -133,13 +133,9 @@ class AdminProjetScreenState extends State<AdminProjetScreen> {
                   height: 45.v,
                   text: "Valider".tr,
                   buttonTextStyle: CustomTextStyles.bodyMediumBlack900!,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ProfileAdminPage(),
-                      ),
-                    );
+                  onPressed: () async {
+                    await provider.approveProject(project);
+                    provider.fetchProjects(); // Refresh the project list
                   },
                 ),
                 CustomElevatedButton(
@@ -149,8 +145,9 @@ class AdminProjetScreenState extends State<AdminProjetScreen> {
                   margin: EdgeInsets.only(left: 8.h),
                   buttonStyle: CustomButtonStyles.fillGray,
                   buttonTextStyle: CustomTextStyles.bodyMediumBlack900,
-                  onPressed: () {
-                    onTapArrowleftone(context);
+                  onPressed: () async {
+                    await provider.rejectProject(project);
+                    provider.fetchProjects(); // Refresh the project list
                   },
                 ),
               ],
@@ -201,9 +198,14 @@ class AdminProjetScreenState extends State<AdminProjetScreen> {
             ),
           ),
           SizedBox(width: 8.h),
-          Text(
-            value.tr,
-            style: theme.textTheme.titleSmall,
+          Flexible(
+            // Wrap in Flexible to allow text to wrap
+            child: Text(
+              value.tr,
+              style: theme.textTheme.titleSmall,
+              maxLines: 2, // Limit to 2 lines
+              overflow: TextOverflow.ellipsis, // Add ellipsis for overflow
+            ),
           ),
         ],
       ),

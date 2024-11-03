@@ -1,31 +1,42 @@
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firebase Firestore
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // Ensure you import provider
 
 import '../../core/app_export.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
 import '../../widgets/bottomNavBar.dart';
+import 'models/notification_model.dart';
 import 'provider/notification_provider.dart'; // ignore_for_file: must_be_immutable
 
 class NotificationPage extends StatefulWidget {
-  const NotificationPage({Key? key})
-      : super(
-          key: key,
-        );
+  const NotificationPage({Key? key}) : super(key: key);
 
   @override
   NotificationPageState createState() => NotificationPageState();
+
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => NotificationProvider(),
-      child: NotificationPage(),
+      child: const NotificationPage(),
     );
   }
 }
 
 class NotificationPageState extends State<NotificationPage> {
+  late NotificationProvider _notificationProvider;
+
   @override
   void initState() {
     super.initState();
+    _notificationProvider =
+        Provider.of<NotificationProvider>(context, listen: false);
+    fetchUserNotifications();
+  }
+
+  Future<void> fetchUserNotifications() async {
+    String userId = "user_connected_id"; // Replace with actual user ID
+    await _notificationProvider.fetchNotifications(userId);
   }
 
   @override
@@ -34,60 +45,57 @@ class NotificationPageState extends State<NotificationPage> {
       child: Scaffold(
         backgroundColor: appTheme.whiteA700,
         appBar: _buildAppBar(context),
-        body: SingleChildScrollView(
-          child: SizedBox(
-            width: double.maxFinite,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 10.v),
-                Padding(
-                  padding: EdgeInsets.only(left: 23.h),
-                  child: Text(
-                    "lbl_aujourd_hui".tr,
-                    textAlign: TextAlign.center,
-                    style: CustomTextStyles.titleLargeBlack900,
-                  ),
+        body: Consumer<NotificationProvider>(
+          builder: (context, provider, child) {
+            return SingleChildScrollView(
+              child: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 10.v),
+                    Padding(
+                      padding: EdgeInsets.only(left: 23.h),
+                      child: Text(
+                        "lbl_aujourd_hui".tr,
+                        textAlign: TextAlign.center,
+                        style: CustomTextStyles.titleLargeBlack900,
+                      ),
+                    ),
+                    SizedBox(height: 5.v),
+                    // Display notifications for today
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: provider.notifications.length,
+                      itemBuilder: (context, index) {
+                        return _buildNotificationItem(
+                            context, provider.notifications[index]);
+                      },
+                    ),
+                    SizedBox(height: 8.v),
+                    Padding(
+                      padding: EdgeInsets.only(left: 23.h),
+                      child: Text(
+                        "lbl_plus_t_t".tr,
+                        textAlign: TextAlign.center,
+                        style: CustomTextStyles.titleLargeBlack900,
+                      ),
+                    ),
+                    SizedBox(height: 5.v),
+                    // You can display older notifications or a different category if needed
+                    // Add any additional ListView or static widgets as necessary
+                  ],
                 ),
-                SizedBox(height: 5.v),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount:
-                      2, // Number of times _buildStackTaoufikKes should be repeated
-                  itemBuilder: (context, index) {
-                    return _buildColumnPropertyOne(context);
-                  },
-                ),
-                SizedBox(height: 8.v),
-                Padding(
-                  padding: EdgeInsets.only(left: 23.h),
-                  child: Text(
-                    "lbl_plus_t_t".tr,
-                    textAlign: TextAlign.center,
-                    style: CustomTextStyles.titleLargeBlack900,
-                  ),
-                ),
-                SizedBox(height: 5.v),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount:
-                      7, // Number of times _buildStackTaoufikKes should be repeated
-                  itemBuilder: (context, index) {
-                    return _buildStackTaoufikKes(context);
-                  },
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
         bottomNavigationBar: BottomNavBar(),
       ),
     );
   }
 
-  /// Section Widget
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return CustomAppBar(
       centerTitle: true,
@@ -113,8 +121,8 @@ class NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  /// Section Widget
-  Widget _buildColumnPropertyOne(BuildContext context) {
+  Widget _buildNotificationItem(
+      BuildContext context, NotificationModel notification) {
     return Container(
       height: 78.v,
       width: 347.h,
@@ -131,6 +139,7 @@ class NotificationPageState extends State<NotificationPage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Display the user's notification content
                   Container(
                     height: 39.v,
                     width: 42.h,
@@ -139,45 +148,35 @@ class NotificationPageState extends State<NotificationPage> {
                       alignment: Alignment.bottomRight,
                       children: [
                         CustomImageView(
-                          imagePath: ImageConstant.imgprofile,
+                          imagePath: ImageConstant
+                              .imgAvatar, // Use dynamic data as needed
                           height: 34.adaptSize,
                           width: 34.adaptSize,
                           alignment: Alignment.topLeft,
                         ),
-                        Container(
-                          alignment: Alignment.bottomCenter,
-                          child: Icon(
-                            Icons.comment,
-                            size: 15,
-                          ),
+                        Icon(
+                          Icons.notifications, // Use appropriate icon
+                          size: 15,
                         ),
                       ],
                     ),
                   ),
                   Container(
                     width: 212.h,
-                    margin: EdgeInsets.only(
-                      left: 8.h,
-                      bottom: 9.v,
-                    ),
+                    margin: EdgeInsets.only(left: 8.h, bottom: 9.v),
                     child: Text(
-                      "Imen Missaoui a envoyé un message sur  communauté Projet energie. ".tr,
+                      notification.message ?? "No message",
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleSmall!.copyWith(
-                        height: 1.40,
-                      ),
+                      style: theme.textTheme.titleSmall!.copyWith(height: 1.40),
                     ),
                   ),
                   CustomImageView(
                     imagePath: ImageConstant.imgImage34,
                     height: 30.v,
                     width: 54.h,
-                    margin: EdgeInsets.only(
-                      left: 8.h,
-                      bottom: 26.v,
-                    ),
-                  )
+                    margin: EdgeInsets.only(left: 8.h, bottom: 26.v),
+                  ),
                 ],
               ),
             ),
@@ -187,7 +186,9 @@ class NotificationPageState extends State<NotificationPage> {
             child: Padding(
               padding: EdgeInsets.only(right: 65.h),
               child: Text(
-                "lbl_il_y_a_2_heures".tr,
+                notification.timestamp != null
+                    ? "${notification.timestamp!.difference(DateTime.now()).inHours} il y a des heures" // Format timestamp as needed
+                    : "maintenant",
                 style: theme.textTheme.titleSmall,
               ),
             ),
@@ -197,93 +198,7 @@ class NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  /// Section Widget
-  Widget _buildStackTaoufikKes(BuildContext context) {
-    return Container(
-      height: 78.v,
-      width: 347.h,
-      margin: EdgeInsets.only(left: 2.h),
-      child: Stack(
-        alignment: Alignment.bottomRight,
-        children: [
-          Align(
-            alignment: Alignment.center,
-            child: Container(
-              padding: EdgeInsets.fromLTRB(6.h, 11.v, 6.h, 10.v),
-              decoration: AppDecoration.outlineBlueGray,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 39.v,
-                    width: 42.h,
-                    margin: EdgeInsets.only(bottom: 17.v),
-                    child: Stack(
-                      alignment: Alignment.bottomRight,
-                      children: [
-                        CustomImageView(
-                          imagePath: ImageConstant.imgAvatar,
-                          height: 34.adaptSize,
-                          width: 34.adaptSize,
-                          alignment: Alignment.topLeft,
-                        ),
-                        Container(
-                          alignment: Alignment.bottomCenter,
-                          child: Icon(
-                            Icons.favorite,
-                            color: Colors.red,
-                            size: 15,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: 212.h,
-                    margin: EdgeInsets.only(
-                      left: 8.h,
-                      bottom: 9.v,
-                    ),
-                    child: Text(
-                      "Taoufik keskes a fait un don sur projet énérgétique".tr,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleSmall!.copyWith(
-                        height: 1.40,
-                      ),
-                    ),
-                  ),
-                  CustomImageView(
-                    imagePath: ImageConstant.imgImage34,
-                    height: 30.v,
-                    width: 54.h,
-                    margin: EdgeInsets.only(
-                      left: 8.h,
-                      bottom: 26.v,
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: EdgeInsets.only(right: 65.h),
-              child: Text(
-                "lbl_il_y_a_2_jours".tr,
-                style: theme.textTheme.titleSmall,
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  /// Navigates to the previous screen.
-  onTapArrowleftone(BuildContext context) {
+  void onTapArrowleftone(BuildContext context) {
     NavigatorService.goBack();
   }
 }

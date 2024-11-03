@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../core/app_export.dart';
-import '../screens/cr_er_communaut_screen/cr_er_communaut_screen.dart';
 import '../screens/listeprojets/models/userprofile_item_model.dart';
 import '../screens/listeprojets/provider/liste_des_projets_provider.dart';
 import '../screens/modifierscreen/modifierprojetscreen.dart';
@@ -11,7 +9,8 @@ import '../screens/modifierscreen/modifierprojetscreen.dart';
 class UserprofileItemWidget extends StatelessWidget {
   final UserprofileItemModel userprofileItemModelObj;
 
-  UserprofileItemWidget(this.userprofileItemModelObj, {Key? key}) : super(key: key);
+  UserprofileItemWidget(this.userprofileItemModelObj, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +99,8 @@ class UserprofileItemWidget extends StatelessWidget {
                                 Padding(
                                   padding: EdgeInsets.only(bottom: 4.v),
                                   child: Text(
-                                    userprofileItemModelObj.titreduprojet ?? "Titre du projet",
+                                    userprofileItemModelObj.titreduprojet ??
+                                        "Titre du projet",
                                     style: theme.textTheme.titleLarge,
                                   ),
                                 ),
@@ -109,9 +109,11 @@ class UserprofileItemWidget extends StatelessWidget {
                                   width: 32.adaptSize,
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
-                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
                                     onPressed: () {
-                                      _showDeleteConfirmationDialog(context, userprofileItemModelObj.id);
+                                      _showDeleteConfirmationDialog(
+                                          context, userprofileItemModelObj.id);
                                     },
                                   ),
                                 ),
@@ -123,12 +125,14 @@ class UserprofileItemWidget extends StatelessWidget {
                               width: 32.adaptSize,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.edit, color: Colors.black),
+                                icon:
+                                    const Icon(Icons.edit, color: Colors.black),
                                 onPressed: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => ModifierProjetScreen(),
+                                      builder: (context) =>
+                                          ModifierProjetScreen(),
                                     ),
                                   );
                                 },
@@ -136,26 +140,26 @@ class UserprofileItemWidget extends StatelessWidget {
                             ),
                             SizedBox(
                               height: 32.adaptSize,
-                              width: 32.adaptSize,
+                              width: 29.adaptSize,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.people, color: Colors.black),
+                                icon: const Icon(Icons.people,
+                                    color: Colors.black),
                                 onPressed: () async {
-                                  // Ensure user profile object is initialized
                                   final projectId = userprofileItemModelObj.id;
 
-                                  // Log project ID for debugging
-                                  print('Project ID from UserProfile: $projectId');
+                                  print(
+                                      'Project ID from UserProfile: $projectId');
 
-                                  // Navigate only if projectId is valid
-                                  if (projectId != null && projectId.isNotEmpty) {
+                                  if (projectId != null &&
+                                      projectId.isNotEmpty) {
                                     Navigator.pushNamed(
                                       context,
                                       '/cr_er_communaut_screen',
                                       arguments: projectId,
                                     );
                                   } else {
-                                    print('Project ID is null or empty!'); // Log this error
+                                    print('Project ID is null or empty!');
                                   }
                                 },
                               ),
@@ -204,7 +208,8 @@ class UserprofileItemWidget extends StatelessWidget {
   }
 
   void _deleteProject(String projectId, BuildContext context) {
-    final provider = Provider.of<ListeDesProjetsProvider>(context, listen: false);
-    provider.deleteProject(projectId); // Implement this method in your provider
+    final provider =
+        Provider.of<ListeDesProjetsProvider>(context, listen: false);
+    provider.deleteProject(projectId);
   }
 }

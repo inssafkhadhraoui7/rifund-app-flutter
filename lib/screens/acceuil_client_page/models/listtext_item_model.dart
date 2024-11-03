@@ -31,38 +31,40 @@ class ListtextItemModel {
       images: List<String>.from(data['images'] ?? []),
     );
   }
+  
   Map<String, dynamic> toMap() {
     return {
       'title': title,
       'budget': budget,
       'userId': userId,
       'images': images,
-      'description':description,
-      'category':category,
-      'percentage':percentage,
+      'description': description,
+      'category': category,
+      'percentage': percentage,
     };
   }
 }
 
 class CategoryItemModel {
-  String? title;
+  String? name;
   String? images;
 
   CategoryItemModel({
-    this.title,
+    this.name,
     this.images,
   });
 
   factory CategoryItemModel.fromMap(Map<String, dynamic> data) {
     return CategoryItemModel(
-      title: data['title'],
-      images: data['image'],
+      name: data['name'],         
+      images: data['imageUrls'],    
     );
   }
+  
   Map<String, dynamic> toMap() {
     return {
-      'title': title,
-      'image': images,
+      'name': name,               
+      'imageUrls': images,         
     };
   }
 }

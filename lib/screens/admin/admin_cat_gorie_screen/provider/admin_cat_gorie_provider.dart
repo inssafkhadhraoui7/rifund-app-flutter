@@ -4,33 +4,34 @@ import 'package:flutter/material.dart';
 
 import '../models/admin_cat_gorie_model.dart';
 
-class AdminCatGorieProvider extends ChangeNotifier {
-  List<AdminCatGorieModel> categories = [];
+class AdminCategoryProvider extends ChangeNotifier {
+  List<AdminCategoryModel> categories = [];
   bool isLoading = false;
   String? errorMessage;
 
   Future<void> fetchCategories() async {
-    isLoading = true;
-    notifyListeners();
-
     try {
-      final snapshot =
+      // Your logic to fetch data from Firestore
+      // Assuming you have a collection called 'categories'
+      QuerySnapshot snapshot =
           await FirebaseFirestore.instance.collection('categories').get();
+
       categories = snapshot.docs.map((doc) {
-        return AdminCatGorieModel.fromMap(
+        return AdminCategoryModel.fromMap(
             doc.data() as Map<String, dynamic>, doc.id);
       }).toList();
-      errorMessage = null;
+
+      notifyListeners();
     } catch (e) {
-      errorMessage = "Erreur de telechargement categories: $e";
-      print(errorMessage);
-    } finally {
-      isLoading = false;
+      errorMessage = e.toString();
       notifyListeners();
     }
   }
 
   Future<void> deleteCategory(String categoryId, String imageUrl) async {
+    isLoading = true;
+    notifyListeners();
+
     try {
       await FirebaseFirestore.instance
           .collection('categories')
@@ -42,10 +43,57 @@ class AdminCatGorieProvider extends ChangeNotifier {
       }
 
       categories.removeWhere((category) => category.id == categoryId);
-      notifyListeners();
     } catch (e) {
-      errorMessage = "Error deleting category: $e";
+      errorMessage = "Erreur de suppression categorie : $e";
       print(errorMessage);
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _deleteImageIfExists(String? imageUrl) async {
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      await FirebaseStorage.instance.refFromURL(imageUrl).delete();
+    }
+  }
+
+  Future<void> updateCategory(String categoryId, String name,
+      String? newImageUrl, String? oldImageUrl) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      if (newImageUrl != null && newImageUrl != oldImageUrl) {
+        if (oldImageUrl != null) {
+          await FirebaseStorage.instance.refFromURL(oldImageUrl).delete();
+        }
+      }
+
+      await FirebaseFirestore.instance
+          .collection('categories')
+          .doc(categoryId)
+          .update({
+        'name': name,
+        'imageUrls': newImageUrl != null ? [newImageUrl] : [],
+      });
+
+      final categoryIndex =
+          categories.indexWhere((cat) => cat.id == categoryId);
+      if (categoryIndex != -1) {
+        categories[categoryIndex] = AdminCategoryModel(
+          id: categoryId,
+          name: name,
+          imageUrl: newImageUrl ?? oldImageUrl,
+        );
+      }
+
+      errorMessage = null;
+    } catch (e) {
+      errorMessage = "Erreur de modification categorie: $e";
+      print(errorMessage);
+    } finally {
+      isLoading = false;
       notifyListeners();
     }
   }

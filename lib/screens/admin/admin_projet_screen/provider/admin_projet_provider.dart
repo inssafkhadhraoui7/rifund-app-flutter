@@ -27,21 +27,68 @@ class AdminProjetProvider extends ChangeNotifier {
 
         for (var projectDoc in projectsSnapshot.docs) {
           allProjects.add(
-            AdminProjetModel.fromMap(projectDoc.data() as Map<String, dynamic>),
+            AdminProjetModel.fromMap({
+              ...projectDoc.data() as Map<String, dynamic>,
+              'userId': userDoc.id, // Set userId from the user document
+              'projectId': projectDoc.id, // Set projectId
+            }),
           );
         }
       }
 
       projects = allProjects;
-      print('Tout les projets téléchargés ${projects.length}');
+      print('Total projects downloaded: ${projects.length}');
       errorMessage = '';
     } catch (e) {
-      errorMessage = 'Erreur de télechargement des projets $e';
+      errorMessage = 'Error downloading projects: $e';
       print(errorMessage);
     } finally {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> approveProject(AdminProjetModel project) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(project.userId) // Correctly use the userId from the project
+          .collection('projects')
+          .doc(project.projectId) // Correctly use the projectId from the project
+          .update({'isApproved': true});
+
+      // Send notification
+      await sendNotification(project.title!,
+          'Le projet nommé "${project.title}" que vous avez créé est accepté.');
+      notifyListeners();
+    } catch (e) {
+      print('Error approving project: $e');
+      // Handle errors appropriately
+    }
+  }
+
+  Future<void> rejectProject(AdminProjetModel project) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(project.userId) // Correctly use the userId from the project
+          .collection('projects')
+          .doc(project.projectId) // Correctly use the projectId from the project
+          .delete();
+
+      await sendNotification(project.title!,
+          'Le projet nommé "${project.title}" que vous avez créé n\'est pas accepté.');
+
+      notifyListeners();
+    } catch (e) {
+      print('Error rejecting project: $e');
+      // Handle errors appropriately
+    }
+  }
+
+  Future<void> sendNotification(String title, String message) async {
+    // Implement your notification sending logic here
+    // This could be via a push notification service or email
   }
 
   @override

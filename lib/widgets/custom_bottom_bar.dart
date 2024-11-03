@@ -24,7 +24,7 @@ class BottomNavBar extends StatelessWidget {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const AdminCatGorieScreen()));
+                  builder: (context) => const AdminCategoryScreen()));
         } else if (index == 3) {
           Navigator.push(
               context,

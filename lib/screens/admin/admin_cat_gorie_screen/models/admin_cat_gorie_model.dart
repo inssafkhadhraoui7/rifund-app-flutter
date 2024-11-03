@@ -1,23 +1,31 @@
-class AdminCatGorieModel {
+class AdminCategoryModel {
   final String id;
   final String name;
   final String? imageUrl;
 
-  AdminCatGorieModel({
+  AdminCategoryModel({
     required this.id,
     required this.name,
     this.imageUrl,
   });
 
-  factory AdminCatGorieModel.fromMap(
+  factory AdminCategoryModel.fromMap(
       Map<String, dynamic> data, String documentId) {
-    return AdminCatGorieModel(
+    return AdminCategoryModel(
       id: documentId,
       name: data['name'] ?? '',
-      imageUrl: (data['imageUrls'] as List<dynamic>?)?.isNotEmpty == true
-          ? data['imageUrls'][0]
-          : null,
+      imageUrl: _getImageUrl(
+          data['imageUrls']), // Use the helper function to get the image URL
     );
+  }
+
+  static String? _getImageUrl(dynamic imageUrls) {
+    if (imageUrls is List) {
+      return imageUrls.isNotEmpty ? imageUrls[0] as String : null;
+    } else if (imageUrls is String) {
+      return imageUrls;
+    }
+    return null;
   }
 
   Map<String, dynamic> toMap() {

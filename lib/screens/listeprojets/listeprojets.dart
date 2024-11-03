@@ -112,8 +112,7 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
         child: Consumer<ListeDesProjetsProvider>(
           builder: (context, provider, child) {
             if (provider.listeDesProjetsModelObj.userprofileItemList.isEmpty) {
-              return Center(
-                  child: Text("Pas des projets")); // Handle empty state
+              return Center(child: Text("Pas des projets"));
             }
             return ListView.separated(
               physics: const NeverScrollableScrollPhysics(),
@@ -128,9 +127,8 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
                     provider.listeDesProjetsModelObj.userprofileItemList[index];
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [ 
-                    UserprofileItemWidget(
-                        model),
+                  children: [
+                    UserprofileItemWidget(model),
                   ],
                 );
               },

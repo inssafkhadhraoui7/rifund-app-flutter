@@ -21,6 +21,7 @@ class CrErProjetScreen extends StatefulWidget {
 
   @override
   CrErProjetScreenState createState() => CrErProjetScreenState();
+
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => CrErProjetProvider(),
@@ -32,70 +33,68 @@ class CrErProjetScreen extends StatefulWidget {
 class CrErProjetScreenState extends State<CrErProjetScreen> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  String selectedCurrency = 'TND';
-  String selectedCategory = '';
+
   @override
   Widget build(BuildContext context) {
-    
     return SafeArea(
       child: Scaffold(
         backgroundColor: theme.colorScheme.onPrimaryContainer,
         resizeToAvoidBottomInset: false,
         appBar: _buildAppBar(context),
         body: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Container(
-                width: double.maxFinite,
-                padding: EdgeInsets.symmetric(horizontal: 27.h, vertical: 16.v),
-                child: Column(
-                  children: [
-                    Align(
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 5.h),
-                        child: Text(
-                          "msg_creation_du_projet".tr,
-                          style: theme.textTheme.headlineLarge,
-                        ),
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Container(
+              width: double.maxFinite,
+              padding: EdgeInsets.symmetric(horizontal: 27.h, vertical: 16.v),
+              child: Column(
+                children: [
+                  Align(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 5.h),
+                      child: Text(
+                        "msg_creation_du_projet".tr,
+                        style: theme.textTheme.headlineLarge,
                       ),
                     ),
-                    SizedBox(height: 18.v),
-                    Text(
-                      "msg_cr_er_votre_projet".tr,
-                      style: CustomTextStyles.titleLargeInterSemiBold,
-                    ),
-                    SizedBox(height: 18.v),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 11.h),
-                        child: Text(
-                          "msg_remplir_la_formulaire".tr,
-                          style: CustomTextStyles.bodyMediumBlack900,
-                        ),
+                  ),
+                  SizedBox(height: 18.v),
+                  Text(
+                    "msg_cr_er_votre_projet".tr,
+                    style: CustomTextStyles.titleLargeInterSemiBold,
+                  ),
+                  SizedBox(height: 18.v),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 11.h),
+                      child: Text(
+                        "msg_remplir_la_formulaire".tr,
+                        style: CustomTextStyles.bodyMediumBlack900,
                       ),
                     ),
-                    SizedBox(height: 18.v),
-                    _buildProjectTitle(context),
-                    SizedBox(height: 18.v),
-                    _buildDescriptionValue(context),
-                    SizedBox(height: 18.v),
-                    _buildProjectImages(context),
-                    SizedBox(height: 18.v),
-                    _buildDeviseValue(context),
-                    SizedBox(height: 18.v),
-                    _buildDate(context),
-                    SizedBox(height: 18.v),
-                    _buildCategoryDropdown(context),
-                    SizedBox(height: 18.v),
-                    _buildCompte(context),
-                    SizedBox(height: 18.v),
-                    _buildCreateButton(context),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 18.v),
+                  _buildProjectTitle(context),
+                  SizedBox(height: 18.v),
+                  _buildDescriptionValue(context),
+                  SizedBox(height: 18.v),
+                  _buildProjectImages(context),
+                  SizedBox(height: 18.v),
+                  _buildDeviseValue(context),
+                  SizedBox(height: 18.v),
+                  _buildDate(context),
+                  SizedBox(height: 18.v),
+                  _buildCategoryDropdown(context),
+                  SizedBox(height: 18.v),
+                  _buildCompte(context),
+                  SizedBox(height: 18.v),
+                  _buildCreateButton(context),
+                ],
               ),
             ),
           ),
+        ),
         bottomNavigationBar: BottomNavBar(),
       ),
     );
@@ -196,9 +195,8 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
                         if (result != null) {
                           List<String> paths =
                               result.paths.map((path) => path!).toList();
-                          List<String> names = result.files
-                              .map((file) => file.name ?? '')
-                              .toList();
+                          List<String> names =
+                              result.files.map((file) => file.name).toList();
 
                           context
                               .read<CrErProjetProvider>()
@@ -341,12 +339,9 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
                 EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
             items: crErProjetModelObj.categoryDropdownItemList,
             onChanged: (value) {
-              // Call the provider method to update the selected category
               if (value != null) {
-                Provider.of<CrErProjetProvider>(context, listen: false)
-                    .onSelectedCategoryItem(value);
-                Provider.of<CrErProjetProvider>(context, listen: false)
-                    .updateSelectedCategory(value.title);
+                // Provider.of<CrErProjetProvider>(context, listen: false).onSelectedCategoryItem(value);
+                // Provider.of<CrErProjetProvider>(context, listen: false).updateSelectedCategory(value.title);
               }
             },
           );
@@ -402,7 +397,8 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
         String description = provider.descriptionValueController.text;
         List<String> imagePaths = provider.selectedImagePaths;
         double budget = double.parse(provider.budgetValueController.text);
-        String currency = selectedCurrency;
+        String currency =
+            provider.selectedCurrency; 
         DateTime date =
             DateFormat('dd/MM/yyyy').parse(provider.dateController.text);
         String accountNumber = provider.compteController.text;
@@ -423,7 +419,8 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
           'date': date,
           'percentage': percentage,
           'accountNumber': accountNumber,
-          'category': selectedCategory,
+          'category': provider.selectedCategory,
+          'isApproved': false,
         });
 
         Navigator.push(
@@ -498,7 +495,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
 
     final parsedValue = double.tryParse(value);
     if (parsedValue == null || value.length < 3) {
-      return 'un montant de 3 numéro';
+      return 'un montant de 3 chiffres';
     }
 
     return null;

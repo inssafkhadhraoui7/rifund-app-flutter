@@ -3,7 +3,6 @@ import 'package:rifund/screens/admin/admin_cat_gorie_screen/admin_cat_gorie_scre
 import 'package:rifund/screens/admin/admin_communaut_screen/admin_communaut_screen.dart';
 import 'package:rifund/screens/admin/admin_projet_screen/admin_projet_screen.dart';
 import 'package:rifund/screens/admin/admin_utlisa_page/admin_utlisa_page.dart';
-import 'package:rifund/screens/admin/modifier_cat_gorie_page/modifier_cat_gorie_page.dart';
 import 'package:rifund/screens/affichage_par_categorie/affichagecategorie.dart';
 import 'package:rifund/screens/details_projet_screen/details_projet_screen.dart';
 
@@ -107,7 +106,6 @@ class AppRoutes {
         ajoutCatGoriePage: AjoutCatGoriePage.builder,
         notificationPage: NotificationPage.builder,
         listeDesProjetsPage: ListeDesProjetsPage.builder,
-        modifierCatGoriePage: ModifierCatGoriePage.builder,
         crErCommunautScreen: (context) => CrErCommunautScreen.builder(context),
         modifierCommunautScreen: ModifierCommunautScreen.builder,
         listeDeCommunautPage: ListeDeCommunautPage.builder,
@@ -119,11 +117,11 @@ class AppRoutes {
         profileScreen: ProfileScreen.builder,
         modifierMotdepasseScreen: ModifierMotdepasseScreen.builder,
         adminCommunautScreen: AdminCommunautScreen.builder,
-        adminCatGorieScreen: AdminCatGorieScreen.builder,
+        adminCatGorieScreen: AdminCategoryScreen.builder,
         adminProjetScreen: AdminProjetScreen.builder,
         adminUtlisaPage: AdminUtlisaPage.builder,
         profileAdminPage: ProfileAdminPage.builder,
-        initialRoute: SplashScreen.builder,
+        initialRoute: ProfileAdminPage.builder,
         appNavigationScreen: AppNavigationScreen.builder,
       };
 }

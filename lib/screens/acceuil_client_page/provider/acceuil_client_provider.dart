@@ -9,6 +9,7 @@ class AcceuilClientProvider extends ChangeNotifier {
   AcceuilClientModel acceuilClientModelObj = AcceuilClientModel();
   ListeprojectsModel listeprojectsModel = ListeprojectsModel();
   List<ListtextItemModel> filteredProjects = [];
+  List<CategoryItemModel> listcategoryItemList = [];
   bool isLoading = false;
   String errorMessage = '';
 
@@ -26,14 +27,21 @@ class AcceuilClientProvider extends ChangeNotifier {
           await FirebaseFirestore.instance.collection('users').get();
 
       for (var userDoc in usersSnapshot.docs) {
-        QuerySnapshot projectsSnapshot =
-            await userDoc.reference.collection('projects').get();
+        QuerySnapshot projectsSnapshot = await userDoc.reference
+            .collection('projects')
+            .where('isApproved', isEqualTo: true)
+            .get();
+
+        print(
+            'Fetched ${projectsSnapshot.docs.length} approved projects for user ${userDoc.id}');
 
         for (var projectDoc in projectsSnapshot.docs) {
           allProjects.add(
             ListtextItemModel.fromMap(
                 projectDoc.data() as Map<String, dynamic>),
           );
+
+          print('Project: ${projectDoc.data()}'); 
         }
       }
 
@@ -41,11 +49,34 @@ class AcceuilClientProvider extends ChangeNotifier {
       filteredProjects = allProjects;
       errorMessage = '';
     } catch (e) {
-      errorMessage = 'Error fetching projects: $e';
+      errorMessage = 'Erreur de telechargement de projets $e';
       print(errorMessage);
     } finally {
       isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> fetchCategories() async {
+    isLoading = true;
+    notifyListeners();
+    List<CategoryItemModel> allCategories = [];
+
+    try {
+      QuerySnapshot categoriesSnapshot =
+          await FirebaseFirestore.instance.collection('categories').get();
+
+      allCategories = categoriesSnapshot.docs.map((doc) {
+        return CategoryItemModel.fromMap(doc.data() as Map<String, dynamic>);
+      }).toList();
+    } catch (e) {
+      print('Erreur de téléchargement : $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+
+      ListcategoriesModel listcategoryItemList =
+          ListcategoriesModel(categories: allCategories);
     }
   }
 
@@ -64,8 +95,7 @@ class AcceuilClientProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    searchController.removeListener(
-        _filterProjects); // Remove listener to prevent memory leaks
+    searchController.removeListener(_filterProjects);
     searchController.dispose();
     super.dispose();
   }

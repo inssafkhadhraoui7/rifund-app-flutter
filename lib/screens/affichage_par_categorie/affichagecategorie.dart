@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:rifund/screens/affichage_par_categorie/provider/affichagecategorie_provider.dart';
 
 import '../../core/app_export.dart';
@@ -7,7 +6,6 @@ import '../../theme/custom_button_style.dart';
 import '../../widgets/bottomNavBar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_search_view.dart';
-import '../details_projet_screen/details_projet_screen.dart';
 import '../financer_projet_screen/financer_projet_screen.dart';
 
 class AffichageCategoriePage extends StatefulWidget {
@@ -31,7 +29,7 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
   }
 
   @override
-    Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: appTheme.whiteA700,
       resizeToAvoidBottomInset: false,
@@ -53,7 +51,8 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
                     Expanded(
                       child: SingleChildScrollView(
                         child: Column(
-                          children: List.generate(5, (_) => _buildProjetNrgColumn(context)),
+                          children: List.generate(
+                              5, (_) => _buildProjetNrgColumn(context)),
                         ),
                       ),
                     ),
@@ -67,7 +66,6 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
       bottomNavigationBar: BottomNavBar(),
     );
   }
-
 
   Widget _buildMaleUserOneRow(BuildContext context) {
     return Align(
@@ -315,7 +313,7 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
     );
   }
 
-   Widget _buildProjetAgricoleStack(
+  Widget _buildProjetAgricoleStack(
     BuildContext context, {
     required String imageFour,
   }) {
@@ -347,5 +345,4 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
       ),
     );
   }
-
 }

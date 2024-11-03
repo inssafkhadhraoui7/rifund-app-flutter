@@ -1,19 +1,31 @@
+import 'package:cloud_firestore/cloud_firestore.dart'; // Add this import
 import 'package:flutter/material.dart';
-import '../../../core/app_export.dart';
+
 import '../models/notification_model.dart';
 
-/// A provider class for the NotificationPage.
-///
-/// This provider manages the state of the NotificationPage, including the
-/// current notificationModelObj
-// ignore_for_file: must_be_immutable
-
-// ignore_for_file: must_be_immutable
 class NotificationProvider extends ChangeNotifier {
-  NotificationModel notificationModelObj = NotificationModel();
+  List<NotificationModel> notifications = [];
 
-  @override
-  void dispose() {
-    super.dispose();
+  Future<void> fetchNotifications(String userId) async {
+    try {
+      notifications.clear();
+
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .get();
+
+      notifications = snapshot.docs
+          .map((doc) =>
+              NotificationModel.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+
+      notifyListeners();
+    } catch (e) {
+      print("Erreur de chargement: $e");
+    }
   }
+
+  // Other methods (addNotification, markNotificationAsRead, etc.) remain unchanged
 }

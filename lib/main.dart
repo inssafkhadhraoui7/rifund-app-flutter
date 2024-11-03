@@ -51,7 +51,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rifund/screens/admin/admin_cat_gorie_screen/provider/admin_cat_gorie_provider.dart';
-import 'package:rifund/screens/admin/modifier_cat_gorie_page/provider/modifier_cat_gorie_provider.dart';
 import 'package:rifund/screens/affichage_par_categorie/provider/affichagecategorie_provider.dart';
 
 import 'core/app_export.dart';
@@ -59,9 +58,9 @@ import 'screens/acceuil_client_page/provider/acceuil_client_provider.dart';
 import 'screens/admin/admin_communaut_screen/provider/admin_communaut_provider.dart';
 import 'screens/admin/admin_projet_screen/provider/admin_projet_provider.dart';
 import 'screens/admin/admin_utlisa_page/provider/admin_utlisa_provider.dart';
+import 'screens/admin/ajout_cat_gorie_page/provider/ajout_cat_gorie_provider.dart';
 import 'screens/admin/profile_admin_page/provider/profile_admin_provider.dart';
 import 'screens/affichage_communaut_page/provider/affichage_communaut_provider.dart';
-import 'screens/admin/ajout_cat_gorie_page/provider/ajout_cat_gorie_provider.dart';
 import 'screens/app_navigation_screen/provider/app_navigation_provider.dart';
 import 'screens/chat_box_screen/provider/chat_box_provider.dart';
 import 'screens/cr_er_communaut_screen/provider/cr_er_communaut_provider.dart';
@@ -86,8 +85,8 @@ import 'screens/welcome_screen/provider/welcome_provider.dart';
 
 var globalMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
-void main() async{
-    WidgetsFlutterBinding.ensureInitialized();
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   WidgetsFlutterBinding.ensureInitialized();
   Future.wait([
@@ -161,17 +160,15 @@ class MyApp extends StatelessWidget {
                 create: (_) => AffichageCommunautProvider()),
             ChangeNotifierProvider<AdminCommunautProvider>(
                 create: (_) => AdminCommunautProvider()),
-            ChangeNotifierProvider< AdminCatGorieProvider>(
-                create: (_) =>  AdminCatGorieProvider()),
-                 ChangeNotifierProvider<AdminProjetProvider>(
+            ChangeNotifierProvider<AdminCategoryProvider>(
+                create: (_) => AdminCategoryProvider()),
+            ChangeNotifierProvider<AdminProjetProvider>(
                 create: (_) => AdminProjetProvider()),
-                 ChangeNotifierProvider<ProfileAdminProvider>(
+            ChangeNotifierProvider<ProfileAdminProvider>(
                 create: (_) => ProfileAdminProvider()),
-                 ChangeNotifierProvider<AdminUtlisaProvider>(
+            ChangeNotifierProvider<AdminUtlisaProvider>(
                 create: (_) => AdminUtlisaProvider()),
-                 ChangeNotifierProvider<ModifierCatGorieProvider>(
-                create: (_) => ModifierCatGorieProvider()),
-                 ChangeNotifierProvider(create: (_) => AffichageCategorieProvider()),
+            ChangeNotifierProvider(create: (_) => AffichageCategorieProvider()),
           ],
           child: Consumer<ThemeProvider>(
             builder: (context, provider, child) {
