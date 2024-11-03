@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:rifund/screens/admin/admin_cat_gorie_screen/admin_cat_gorie_screen.dart';
+import 'package:rifund/main.dart';
 import 'package:rifund/screens/admin/admin_communaut_screen/admin_communaut_screen.dart';
-import 'package:rifund/screens/admin/admin_projet_screen/admin_projet_screen.dart';
+import 'package:rifund/screens/admin/admin_projet_screen/admin_projet_screen/admin_projet_screen.dart';
 import 'package:rifund/screens/admin/admin_utlisa_page/admin_utlisa_page.dart';
-import 'package:rifund/screens/admin/modifier_cat_gorie_page/modifier_cat_gorie_page.dart';
+import 'package:rifund/screens/admin/admin_cat_gorie_screen/admin_cat_gorie_screen.dart';
 import 'package:rifund/screens/affichage_par_categorie/affichagecategorie.dart';
 import 'package:rifund/screens/details_projet_screen/details_projet_screen.dart';
 
@@ -19,7 +19,6 @@ import '../screens/financer_projet_screen/financer_projet_screen.dart';
 import '../screens/liste_de_communaut_page/liste_de_communaut_page.dart';
 import '../screens/listeprojets/listeprojets.dart';
 import '../screens/membre_rejoindre_screen/membre_rejoindre_screen.dart';
-import '../screens/modifier_communaut_screen/modifier_communaut_screen.dart';
 import '../screens/modifier_motdepasse_screen/modifier_motdepasse_screen.dart';
 import '../screens/modifier_nom_screen/modifier_nom_screen.dart';
 import '../screens/modifierscreen/modifierprojetscreen.dart';
@@ -107,19 +106,16 @@ class AppRoutes {
         ajoutCatGoriePage: AjoutCatGoriePage.builder,
         notificationPage: NotificationPage.builder,
         listeDesProjetsPage: ListeDesProjetsPage.builder,
-        modifierCatGoriePage: ModifierCatGoriePage.builder,
         crErCommunautScreen: (context) => CrErCommunautScreen.builder(context),
-        modifierCommunautScreen: ModifierCommunautScreen.builder,
-        listeDeCommunautPage: ListeDeCommunautPage.builder,
+        listeDeCommunautPage:(context)=> ListeDeCommunautPage.builder(context),
         membreRejoindreScreen: MembreRejoindreScreen.builder,
-        detailsProjetScreen: DetailsProjetScreen.builder,
-        chatBoxScreen: ChatBoxScreen.builder,
-        affichageCommunautPage: AffichageCommunautPage.builder,
+
+
         modifierNomScreen: ModifierNomScreen.builder,
         profileScreen: ProfileScreen.builder,
         modifierMotdepasseScreen: ModifierMotdepasseScreen.builder,
         adminCommunautScreen: AdminCommunautScreen.builder,
-        adminCatGorieScreen: AdminCatGorieScreen.builder,
+        adminCatGorieScreen: AdminCategoryScreen.builder,
         adminProjetScreen: AdminProjetScreen.builder,
         adminUtlisaPage: AdminUtlisaPage.builder,
         profileAdminPage: ProfileAdminPage.builder,

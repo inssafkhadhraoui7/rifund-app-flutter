@@ -51,13 +51,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rifund/screens/admin/admin_cat_gorie_screen/provider/admin_cat_gorie_provider.dart';
-import 'package:rifund/screens/admin/modifier_cat_gorie_page/provider/modifier_cat_gorie_provider.dart';
+import 'package:rifund/screens/admin/admin_projet_screen/admin_projet_screen/provider/admin_projet_provider.dart';
+
 import 'package:rifund/screens/affichage_par_categorie/provider/affichagecategorie_provider.dart';
 
 import 'core/app_export.dart';
 import 'screens/acceuil_client_page/provider/acceuil_client_provider.dart';
 import 'screens/admin/admin_communaut_screen/provider/admin_communaut_provider.dart';
-import 'screens/admin/admin_projet_screen/provider/admin_projet_provider.dart';
 import 'screens/admin/admin_utlisa_page/provider/admin_utlisa_provider.dart';
 import 'screens/admin/profile_admin_page/provider/profile_admin_provider.dart';
 import 'screens/affichage_communaut_page/provider/affichage_communaut_provider.dart';
@@ -72,7 +72,7 @@ import 'screens/financer_projet_screen/provider/financer_projet_provider.dart';
 import 'screens/liste_de_communaut_page/provider/liste_de_communaut_provider.dart';
 import 'screens/listeprojets/provider/liste_des_projets_provider.dart';
 import 'screens/membre_rejoindre_screen/provider/membre_rejoindre_provider.dart';
-import 'screens/modifier_communaut_screen/provider/modifier_communaut_provider.dart';
+
 import 'screens/modifier_motdepasse_screen/provider/modifier_motdepasse_provider.dart';
 import 'screens/modifier_nom_screen/provider/modifier_nom_provider.dart';
 import 'screens/modifierscreen/provider/modifier_projet_provider.dart';
@@ -85,10 +85,14 @@ import 'screens/splash_page/provider/splash_provider.dart';
 import 'screens/welcome_screen/provider/welcome_provider.dart';
 
 var globalMessengerKey = GlobalKey<ScaffoldMessengerState>();
-
-void main() async{
-    WidgetsFlutterBinding.ensureInitialized();
+String userId = ""; // Replace with actual user ID
+String projectId = ""; // Replace with actual project ID
+String communityId = "";
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+
   WidgetsFlutterBinding.ensureInitialized();
   Future.wait([
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
@@ -115,8 +119,9 @@ class MyApp extends StatelessWidget {
                 create: (_) => AjoutCatGorieProvider()),
             ChangeNotifierProvider<AppNavigationProvider>(
                 create: (_) => AppNavigationProvider()),
-            ChangeNotifierProvider<ChatBoxProvider>(
-                create: (_) => ChatBoxProvider()),
+           ChangeNotifierProvider<ChatBoxProvider>(
+  create: (_) => ChatBoxProvider(projectId,communityId), // If you updated the constructor
+),
             ChangeNotifierProvider<CrErCommunautProvider>(
                 create: (_) => CrErCommunautProvider()),
             ChangeNotifierProvider<CrErUnCompteProvider>(
@@ -131,8 +136,6 @@ class MyApp extends StatelessWidget {
                 create: (_) => ListeDesProjetsProvider()),
             ChangeNotifierProvider<MembreRejoindreProvider>(
                 create: (_) => MembreRejoindreProvider()),
-            ChangeNotifierProvider<ModifierCommunautProvider>(
-                create: (_) => ModifierCommunautProvider()),
             ChangeNotifierProvider<ModifierMotdepasseProvider>(
                 create: (_) => ModifierMotdepasseProvider()),
             ChangeNotifierProvider<ModifierNomProvider>(
@@ -158,20 +161,18 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider<AppNavigationProvider1>(
                 create: (_) => AppNavigationProvider1()),
             ChangeNotifierProvider<AffichageCommunautProvider>(
-                create: (_) => AffichageCommunautProvider()),
+                 create: (_) => AffichageCommunautProvider(userId,projectId,communityId)),
             ChangeNotifierProvider<AdminCommunautProvider>(
                 create: (_) => AdminCommunautProvider()),
-            ChangeNotifierProvider< AdminCatGorieProvider>(
-                create: (_) =>  AdminCatGorieProvider()),
-                 ChangeNotifierProvider<AdminProjetProvider>(
+            ChangeNotifierProvider<AdminCategoryProvider>(
+                create: (_) => AdminCategoryProvider()),
+            ChangeNotifierProvider<AdminProjetProvider>(
                 create: (_) => AdminProjetProvider()),
-                 ChangeNotifierProvider<ProfileAdminProvider>(
+            ChangeNotifierProvider<ProfileAdminProvider>(
                 create: (_) => ProfileAdminProvider()),
-                 ChangeNotifierProvider<AdminUtlisaProvider>(
+            ChangeNotifierProvider<AdminUtlisaProvider>(
                 create: (_) => AdminUtlisaProvider()),
-                 ChangeNotifierProvider<ModifierCatGorieProvider>(
-                create: (_) => ModifierCatGorieProvider()),
-                 ChangeNotifierProvider(create: (_) => AffichageCategorieProvider()),
+            ChangeNotifierProvider(create: (_) => AffichageCategorieProvider()),
           ],
           child: Consumer<ThemeProvider>(
             builder: (context, provider, child) {

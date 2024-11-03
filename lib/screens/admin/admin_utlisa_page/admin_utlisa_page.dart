@@ -58,15 +58,18 @@ class AdminUtlisaPageState extends State<AdminUtlisaPage> {
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () async {
-                          await adminProvider.deleteUser(user.uid);
-                          // Re-fetch users after deletion
-                          setState(() {}); 
+                          // Confirm deletion
+                          bool? confirm = await _showConfirmationDialog(context, "Confirmer la suppression", "Êtes-vous sûr de vouloir supprimer cet utilisateur ?");
+                          if (confirm == true) {
+                            await adminProvider.deleteUser(user.uid, context);
+                            setState(() {}); // Re-fetch users after deletion
+                          }
                         },
                         tooltip: "Supprimer un utilisateur",
                       ),
                       IconButton(
                         icon: const Icon(Icons.check, color: Colors.green),
-                        onPressed: () => adminProvider.acceptUser(user.uid),
+                        onPressed: () => adminProvider.acceptUser(user.uid, context),
                         tooltip: "Accepter l'utilisateur",
                       ),
                     ],
@@ -97,6 +100,32 @@ class AdminUtlisaPageState extends State<AdminUtlisaPage> {
         ],
       ),
       styleType: Style.bgFill_1,
+    );
+  }
+
+  Future<bool?> _showConfirmationDialog(BuildContext context, String title, String message) {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Annuler"),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: Text("Confirmer"),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

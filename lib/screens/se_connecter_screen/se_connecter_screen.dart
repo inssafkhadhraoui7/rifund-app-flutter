@@ -324,15 +324,18 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     );
 
     if (userCredential.user != null) {
-      // Save user information to Firestore
-      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-        'email': email,
-        'createdAt': FieldValue.serverTimestamp(),
-        // Add other user data you want to save
-      });
+      // Check if user document exists in Firestore
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).get();
 
-      // Redirect to home page after successful login
-      NavigatorService.pushNamed(AppRoutes.acceuilClientPage);
+      if (!userDoc.exists) {
+        // This shouldn't happen, but just in case handle it
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("L'utilisateur n'existe pas.")),
+        );
+      } else {
+        // Redirect to home page after successful login
+        NavigatorService.pushNamed(AppRoutes.acceuilClientPage);
+      }
     }
   } on FirebaseAuthException catch (e) {
     if (e.code == 'user-not-found') {

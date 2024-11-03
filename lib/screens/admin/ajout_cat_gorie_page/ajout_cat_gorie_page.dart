@@ -1,6 +1,5 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:rifund/screens/admin/admin_cat_gorie_screen/admin_cat_gorie_screen.dart';
 
 import '../../../core/app_export.dart';
@@ -96,10 +95,7 @@ class AjoutCatGoriePageState extends State<AjoutCatGoriePage> {
     return Container(
       width: 299.h,
       margin: EdgeInsets.only(right: 9.h),
-      padding: EdgeInsets.symmetric(
-        horizontal: 29.h,
-        vertical: 47.v,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 29.h, vertical: 47.v),
       decoration: AppDecoration.outlineLightGreen.copyWith(
         borderRadius: BorderRadiusStyle.roundedBorder20,
       ),
@@ -120,14 +116,16 @@ class AjoutCatGoriePageState extends State<AjoutCatGoriePage> {
                   validator: (value) {
                     return context
                         .read<AjoutCatGorieProvider>()
-                        .validateCategoryName(value); // Call validation
+                        .validateCategoryName(value);
                   },
                   suffix: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8.v, horizontal: 20.h),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 8.v, horizontal: 20.h),
                     child: Icon(Icons.extension),
                   ),
                   suffixConstraints: BoxConstraints(maxHeight: 50.v),
-                  contentPadding: EdgeInsets.only(left: 24.h, top: 17.v, bottom: 17.v),
+                  contentPadding:
+                      EdgeInsets.only(left: 24.h, top: 17.v, bottom: 17.v),
                   borderDecoration: TextFormFieldStyleHelper.outlineLightGreen,
                   filled: true,
                   fillColor: appTheme.whiteA700,
@@ -138,44 +136,74 @@ class AjoutCatGoriePageState extends State<AjoutCatGoriePage> {
           SizedBox(height: 15.v),
           Padding(
             padding: EdgeInsets.only(left: 10.h),
-            child: Selector<AjoutCatGorieProvider, TextEditingController?>(
-              selector: (context, provider) => provider.categorynameController,
-              builder: (context, webUrlController, child) {
-                return CustomTextFormField(
-                  controller: webUrlController,
-                  hintText: "selectionner votre images".tr,
-                  hintStyle: CustomTextStyles.bodyMediumThin,
-                  textInputAction: TextInputAction.done,
-                  suffix: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8.v, horizontal: 10.h),
-                    child: IconButton(
-                      icon: const Icon(Icons.add_photo_alternate),
-                      onPressed: () async {
-                        FilePickerResult? result = await FilePicker.platform.pickFiles(
-                          type: FileType.image,
-                          allowMultiple: true,
-                        );
-                        if (result != null) {
-                          List<String> paths = result.paths.map((path) => path!).toList();
-                          List<String> fileNames = result.files.map((file) => file.name ?? '').toList();
-                          print('Selected images: $paths');
-                          print('Selected image names: $fileNames');
-                        }
-                      },
+            child: Selector<AjoutCatGorieProvider, List<String>>(
+              selector: (context, provider) => provider.imageUrls,
+              builder: (context, imageUrls, child) {
+                return Column(
+                  children: [
+                    CustomTextFormField(
+                      hintText: "selectionner votre images".tr,
+                      hintStyle: CustomTextStyles.bodyMediumThin,
+                      readOnly: true,
+                      controller: TextEditingController(
+                        text: context
+                            .watch<AjoutCatGorieProvider>()
+                            .selectedImageName,
+                      ),
+                      suffix: IconButton(
+                        icon: const Icon(Icons.add_photo_alternate),
+                        onPressed: () async {
+                          FilePickerResult? result =
+                              await FilePicker.platform.pickFiles(
+                            type: FileType.image,
+                            allowMultiple: true,
+                          );
+                          if (result != null) {
+                            List<String> paths =
+                                result.paths.map((path) => path!).toList();
+                            await context
+                                .read<AjoutCatGorieProvider>()
+                                .uploadImages(paths);
+
+                            context
+                                .read<AjoutCatGorieProvider>()
+                                .setSelectedImageName(
+                                  result.names.first ?? '',
+                                );
+                          }
+                        },
+                      ),
+                      suffixConstraints: BoxConstraints(maxHeight: 50.v),
+                      contentPadding:
+                          EdgeInsets.only(left: 24.h, top: 17.v, bottom: 17.v),
                     ),
-                  ),
-                  suffixConstraints: BoxConstraints(maxHeight: 50.v),
-                  contentPadding: EdgeInsets.only(left: 24.h, top: 17.v, bottom: 17.v),
+                    SizedBox(height: 10.v),
+                    if (imageUrls.isNotEmpty)
+                      Wrap(
+                        spacing: 8.0,
+                        runSpacing: 8.0,
+                        children: imageUrls.map((url) {
+                          return Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage(url),
+                                fit: BoxFit.cover,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                  ],
                 );
               },
             ),
           ),
           SizedBox(height: 40.v),
           Padding(
-            padding: EdgeInsets.only(
-              left: 15.h,
-              right: 6.h,
-            ),
+            padding: EdgeInsets.only(left: 15.h, right: 6.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -184,12 +212,13 @@ class AjoutCatGoriePageState extends State<AjoutCatGoriePage> {
                   height: 40.v,
                   text: "lbl_valider".tr,
                   buttonTextStyle: CustomTextStyles.titleSmallWhiteA700,
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      await context.read<AjoutCatGorieProvider>().addCategory();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const AdminCatGorieScreen()),
+                            builder: (context) => const AdminCategoryScreen()),
                       );
                     }
                   },
@@ -204,10 +233,10 @@ class AjoutCatGoriePageState extends State<AjoutCatGoriePage> {
                   onPressed: () {
                     onTapArrowleftone(context);
                   },
-                )
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

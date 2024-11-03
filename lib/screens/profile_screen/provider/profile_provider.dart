@@ -1,19 +1,31 @@
-import 'package:flutter/material.dart';
-import '../../../core/app_export.dart';
-import '../models/profile_model.dart';
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:rifund/screens/profile_screen/models/profile_model.dart';
 
-/// A provider class for the ProfileScreen.
-///
-/// This provider manages the state of the ProfileScreen, including the
-/// current profileModelObj
-// ignore_for_file: must_be_immutable
+class ProfileProvider with ChangeNotifier {
+  String profileImageUrl = '';
 
-// ignore_for_file: must_be_immutable
-class ProfileProvider extends ChangeNotifier {
-  ProfileModel profileModelObj = ProfileModel();
 
-  @override
-  void dispose() {
-    super.dispose();
+ Future<void> fetchUserProfileData() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        if (userDoc.exists) {
+          profileImageUrl = userDoc['image_user'] ?? ''; // Fetch the image URL
+        }
+        notifyListeners(); // Notify listeners to update the UI
+      } catch (e) {
+        print("Error fetching user profile data: $e");
+      }
+    }
+  }
+
+  void updateProfileImage(String url) {
+    profileImageUrl = url;
+    notifyListeners(); // Notify listeners about the change
   }
 }

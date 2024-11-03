@@ -1,8 +1,7 @@
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // Importing provider package
-import 'package:rifund/screens/liste_de_communaut_page/models/communitycardsection_item_model.dart';
+import 'package:provider/provider.dart';
 import '../../core/app_export.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
@@ -10,47 +9,22 @@ import '../liste_de_communaut_page/provider/liste_de_communaut_provider.dart';
 import 'widgets/communitycardsection_item_widget.dart'; // ignore_for_file: must_be_immutable
 
 class ListeDeCommunautPage extends StatefulWidget {
-  const ListeDeCommunautPage({Key? key}) : super(key: key);
-
   @override
-  ListeDeCommunautPageState createState() => ListeDeCommunautPageState();
+  _ListeDeCommunautPageState createState() => _ListeDeCommunautPageState();
 
-  static Widget builder(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => ListeDeCommunautProvider(),
-      child: const ListeDeCommunautPage(),
-    );
-  }
+  static builder(BuildContext context) {}
 }
-class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
-  String? userId; // Declare userId as nullable
-  String? projectId; // Declare projectId as nullable
 
+class _ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch the current authenticated user ID
-    User? currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      userId = currentUser.uid; // Set userId to the authenticated user's ID
-    } else {
-      // Handle the case where there is no authenticated user
-      print("Error: No authenticated user found.");
-    }
-
-    // Set the projectId, you need to provide this dynamically or from some source
-    projectId = "yourProjectId"; // Set this to the actual project ID
-
-    // Ensure both userId and projectId are not null before fetching communities
-    if (userId != null && projectId != null) {
-      Provider.of<ListeDeCommunautProvider>(context, listen: false)
-          .fetchCommunities(projectId!); // Pass projectId only, userId is retrieved in the provider
-    } else {
-      // Handle the case where userId or projectId are null
-      print("Error: userId or projectId is null");
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider =
+          Provider.of<ListeDeCommunautProvider>(context, listen: false);
+      provider.fetchAllCommunities(); // Call to fetch communities
+    });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -58,30 +32,7 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
       child: Scaffold(
         backgroundColor: appTheme.orange50,
         appBar: _buildAppBar(context),
-        body: Container(
-          width: double.maxFinite,
-          decoration: AppDecoration.fillOrange,
-          child: Column(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  width: double.maxFinite,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 26.h),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 48.v),
-                        _buildRowListedeOneSection(context),
-                        SizedBox(height: 17.v),
-                        _buildCommunityCardSection(context),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        body: _buildBody(context),
       ),
     );
   }
@@ -92,10 +43,9 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
       title: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
-            onPressed: () {
-              onTapImage(context);
-            },
+            icon:
+                const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
+            onPressed: () => NavigatorService.goBack(),
           ),
           AppbarTitle(
             text: "Liste des Communautés".tr,
@@ -107,60 +57,77 @@ class ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
     );
   }
 
-  /// Section Widget
+  Widget _buildBody(BuildContext context) {
+    return Container(
+      width: double.maxFinite,
+      decoration: AppDecoration.fillOrange,
+      child: Column(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 26.h),
+              child: Column(
+                children: [
+                  SizedBox(height: 48.v),
+                  _buildRowListedeOneSection(context),
+                  SizedBox(height: 17.v),
+                  _buildCommunityCardSection(context),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildRowListedeOneSection(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center, // Center the children horizontally
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5.h), // Add horizontal margin
+          padding: EdgeInsets.symmetric(horizontal: 5.h),
           child: Text(
-            "Liste des Communautés".tr, // Display translated text
-            style: theme.textTheme.headlineSmall, // Apply a specific text style
+            "Liste des Communautés".tr,
+            style: theme.textTheme.headlineSmall,
           ),
         ),
       ],
     );
   }
 
-/// Section Widget
-Widget _buildCommunityCardSection(BuildContext context) {
+ Widget _buildCommunityCardSection(BuildContext context) {
+  final String idUser = FirebaseAuth.instance.currentUser?.uid ?? ''; // Get current user ID
+
   return Expanded(
     child: Padding(
       padding: EdgeInsets.only(left: 3.h, right: 5.h),
       child: Consumer<ListeDeCommunautProvider>(
         builder: (context, provider, child) {
-          // Check if loading
           if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-          // Check for errors
           if (provider.errorMessage.isNotEmpty) {
             return Center(child: Text(provider.errorMessage));
           }
-          // Handle empty state
           if (provider.communities.isEmpty) {
-            return Center(child: Text("Pas de communautés")); // Message for no communities
+            return Center(child: Text("Pas de communautés"));
           }
 
           return ListView.separated(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            separatorBuilder: (context, index) {
-              return SizedBox(height: 20.v); // Space between items
-            },
+            padding: EdgeInsets.zero,
+            separatorBuilder: (context, index) => SizedBox(height: 18.h),
             itemCount: provider.communities.length,
             itemBuilder: (context, index) {
-              final community = provider.communities[index] as CommunitycardsectionItemModel;
-              return ListTile(
-                leading: Image.network(
-                  community.imageUrl,  // Load image from Firebase Storage
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                ),
-                title: Text(community.name),
-                subtitle: Text(community.description),
+              final community = provider.communities[index];
+              final communityId = community.communityId;
+              final projectId = community.projectId ?? ''; // Retrieve projectId if available in model
+
+              return CommunitycardsectionItemWidget(
+                model: community,
+                communityId: communityId,
+                projectId: projectId, // Pass the project ID
+                userId: idUser,       // Pass the user ID
               );
             },
           );
@@ -171,7 +138,5 @@ Widget _buildCommunityCardSection(BuildContext context) {
 }
 
 
-  void onTapImage(BuildContext context) {
-    NavigatorService.goBack();
-  }
+
 }

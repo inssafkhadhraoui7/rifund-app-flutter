@@ -5,6 +5,7 @@ import 'package:rifund/screens/acceuil_client_page/acceuil_client_page.dart';
 import 'package:rifund/screens/chat_box_screen/chat_box_screen.dart';
 
 import '../../core/app_export.dart';
+import '../creationprojet/creationprojet.dart';
 import '../welcome_screen/welcome_screen.dart';
 import 'provider/loading_provider.dart'; // Import your next screen
 
@@ -30,7 +31,7 @@ class _loadingScreenState extends State<loadingscreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (BuildContext context) =>
-              ChatBoxScreen() , 
+             CrErProjetScreen() , 
         ),
       );
     });

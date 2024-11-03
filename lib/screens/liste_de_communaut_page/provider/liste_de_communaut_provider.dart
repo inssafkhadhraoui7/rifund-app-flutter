@@ -1,39 +1,59 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Authentication
-import 'package:flutter/material.dart';
-import 'package:rifund/screens/liste_de_communaut_page/models/communitycardsection_item_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import '../models/communitycardsection_item_model.dart';
 
 class ListeDeCommunautProvider with ChangeNotifier {
-  List<CommunitycardsectionItemModel> _communities = [];
-  String _errorMessage = '';
   bool _isLoading = false;
+  String _errorMessage = '';
+  List<CommunitycardsectionItemModel> _communities = [];
 
-  List<CommunitycardsectionItemModel> get communities => _communities;
-  String get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
+  String get errorMessage => _errorMessage;
+  List<CommunitycardsectionItemModel> get communities => _communities;
 
-  // Fetch all communities for a specific project
-  Future<void> fetchCommunities(String projectId) async {
-    if (_isLoading) return;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-    _isLoading = true;
-    _errorMessage = ''; // Clear previous error message
+ Future<void> fetchAllCommunities() async {
+  _isLoading = true;
+  _errorMessage = '';
+  notifyListeners();
+
+  String? userId = _auth.currentUser?.uid;
+
+  if (userId == null) {
+    _errorMessage = 'Vous devez être connecté';
+    _isLoading = false;
     notifyListeners();
+    return;
+  }
 
-    try {
-      User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        _errorMessage = 'User is not authenticated.';
-        _isLoading = false;
-        notifyListeners();
-        return;
-      }
+  try {
+    final projectsSnapshot = await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('projects')
+        .get();
 
-      String userId = currentUser.uid;
+    if (projectsSnapshot.docs.isEmpty) {
+      _errorMessage = 'Aucun projet trouvé pour cet utilisateur.';
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
 
-      // Construct the Firestore collection path
-      final querySnapshot = await FirebaseFirestore.instance
+    _communities = [];
+
+    for (var projectDoc in projectsSnapshot.docs) {
+      final projectId = projectDoc.id;
+      final projectName = projectDoc.data()['title'] ?? 'Unnamed Project';
+
+      final communitiesSnapshot = await _firestore
           .collection('users')
           .doc(userId)
           .collection('projects')
@@ -41,89 +61,129 @@ class ListeDeCommunautProvider with ChangeNotifier {
           .collection('communities')
           .get();
 
-      // Fetch each community and its image URL from Firebase Storage
-      _communities = await Future.wait(querySnapshot.docs.map((doc) async {
-        try {
-          String imageUrl = await FirebaseStorage.instance
-              .ref('community_images/${doc.id}') // Assumes image is stored using the document ID
-              .getDownloadURL();
+      for (var communityDoc in communitiesSnapshot.docs) {
+        final communityData = communityDoc.data();
+        String name = communityData['name'] ?? 'Unknown Community';
+        String description = communityData['description'] ?? 'No description available';
+        String imageUrl = communityData['webUrl'] ?? '';
 
-          return CommunitycardsectionItemModel(
-            name: doc['name'],
-            description: doc['description'],
-            imageUrl: imageUrl,
-          );
-        } catch (e) {
-          print("Error fetching image for community ${doc.id}: $e");
-          return CommunitycardsectionItemModel(
-            name: doc['name'],
-            description: doc['description'],
-            imageUrl: '', // Fallback to empty string if image fails to load
-          );
+        if (imageUrl.isEmpty) {
+          try {
+            final storageRef = FirebaseStorage.instance
+                .ref()
+                .child('community_img/${communityDoc.id}.jpg');
+            imageUrl = await storageRef.getDownloadURL();
+          } catch (e) {
+            print('Error fetching image for community $name: $e');
+            imageUrl = 'default_image_url';
+          }
         }
-      }).toList());
 
-      _errorMessage = ""; // Clear error message after successful fetch
-    } catch (e) {
-      _errorMessage = "Error fetching communities: ${e.toString()}"; // Set error message
-      print("Error: $e"); // Log error for debugging
-    } finally {
-      _isLoading = false;
-      notifyListeners(); // Notify listeners after finishing loading
-    }
-  }
-
-  // Fetch a specific community by ID
-  Future<CommunitycardsectionItemModel?> fetchCommunityById(String projectId, String communityId) async {
-    if (_isLoading) return null;
-
-    _isLoading = true;
-    _errorMessage = ''; // Clear previous error message
-    notifyListeners();
-
-    try {
-      User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        _errorMessage = 'User is not authenticated.';
-        _isLoading = false;
-        notifyListeners();
-        return null;
-      }
-
-      String userId = currentUser.uid;
-
-      // Fetch the community document by ID
-      DocumentSnapshot doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('projects')
-          .doc(projectId)
-          .collection('communities')
-          .doc(communityId)
-          .get();
-
-      if (doc.exists) {
-        // Fetch the image URL from Firebase Storage
-        String imageUrl = await FirebaseStorage.instance
-            .ref('imagescom/$communityId') // Assumes image is stored using the community document ID
-            .getDownloadURL();
-
-        return CommunitycardsectionItemModel(
-          name: doc['name'],
-          description: doc['description'],
+        _communities.add(CommunitycardsectionItemModel(
+          communityId: communityDoc.id,
+          projectId: projectId,
+          name: name,
+          description: description,
           imageUrl: imageUrl,
-        );
-      } else {
-        _errorMessage = 'Community not found.';
-        return null;
+          projectName: projectName,
+        ));
       }
-    } catch (e) {
-      _errorMessage = "Error fetching community: ${e.toString()}"; // Set error message
-      print("Error: $e"); // Log error for debugging
-      return null;
-    } finally {
-      _isLoading = false;
-      notifyListeners(); // Notify listeners after finishing loading
     }
+
+    print("Total communities fetched: ${_communities.length}");
+  } catch (e) {
+    _errorMessage = "Erreur lors de la récupération des communautés: ${e.toString()}";
+    print("Error: $e");
+  } finally {
+    _isLoading = false;
+    notifyListeners();
   }
+}
+
+  Future<void> deleteCommunity(String projectId, String communityId) async {
+  String? userId = _auth.currentUser?.uid;
+  if (userId == null) {
+    throw Exception("Vous devez être connecté");
+  }
+
+  try {
+    print("Deleting community with ID: $communityId under project ID: $projectId for user: $userId");
+    
+    DocumentReference communityDoc = _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('projects')
+        .doc(projectId)
+        .collection('communities')
+        .doc(communityId);
+
+    DocumentSnapshot communitySnapshot = await communityDoc.get();
+
+    if (communitySnapshot.exists) {
+      print("Document exists. Proceeding to delete.");
+      await communityDoc.delete();
+      print("Communauté supprimée de Firestore!");
+      await fetchAllCommunities(); // Refresh the list after deletion
+    } else {
+      print("Document does not exist. Cannot delete.");
+    }
+  } catch (e) {
+    print("Erreur lors de la suppression de la communauté: ${e.toString()}");
+    throw Exception("Erreur lors de la suppression de la communauté: ${e.toString()}");
+  }
+}
+
+Future<void> updateCommunity(
+  String projectId,
+  String communityId,
+  String newName,
+  String newDescription,
+  XFile? newImage,
+) async {
+  String? userId = _auth.currentUser?.uid;
+  if (userId == null) {
+    _errorMessage = "Vous devez être connecté";
+    notifyListeners();
+    return;
+  }
+
+  try {
+    DocumentReference communityDoc = _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('projects')
+        .doc(projectId)
+        .collection('communities')
+        .doc(communityId);
+
+    // Update data map
+    Map<String, dynamic> updatedData = {
+      'name': newName,
+      'description': newDescription,
+    };
+
+    // Handle image upload if a new image is selected
+    if (newImage != null) {
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('community_img/${communityId}.jpg');
+
+      // Upload the image to Firebase Storage
+      await storageRef.putFile(File(newImage.path));
+      String downloadURL = await storageRef.getDownloadURL();
+      updatedData['webUrl'] = downloadURL;
+    }
+
+    // Update Firestore document
+    await communityDoc.update(updatedData);
+    print("Community updated successfully!");
+
+    // Refresh local data
+    await fetchAllCommunities();
+  } catch (e) {
+    _errorMessage = "Erreur lors de la mise à jour de la communauté: ${e.toString()}";
+    print("Error updating community: $e");
+  }
+}
+
 }

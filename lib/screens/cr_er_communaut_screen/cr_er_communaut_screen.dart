@@ -33,7 +33,7 @@ class CrErCommunautScreen extends StatefulWidget {
     return ChangeNotifierProvider(
       create: (context) {
         final provider = CrErCommunautProvider();
-        provider.setProjectId(projectId); // Set the project ID in the provider
+        provider.setProjectId(projectId);
         return provider;
       },
       child: CrErCommunautScreen(projectId: projectId),
@@ -41,12 +41,9 @@ class CrErCommunautScreen extends StatefulWidget {
   }
 }
 
-
-
-
 class CrErCommunautScreenState extends State<CrErCommunautScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool _isLoading = false; // Track loading state
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -64,10 +61,7 @@ class CrErCommunautScreenState extends State<CrErCommunautScreen> {
                 SizedBox(height: 54.v),
                 Container(
                   margin: EdgeInsets.symmetric(horizontal: 16.h),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.h,
-                    vertical: 33.v,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 12.h, vertical: 33.v),
                   decoration: AppDecoration.outlineLightGreen.copyWith(
                     borderRadius: BorderRadiusStyle.roundedBorder20,
                   ),
@@ -126,11 +120,7 @@ class CrErCommunautScreenState extends State<CrErCommunautScreen> {
           ),
           AppbarTitle(
             text: "Créer Communauté".tr,
-            margin: EdgeInsets.only(
-              left: 50.h,
-              top: 2.v,
-              right: 60.h,
-            ),
+            margin: EdgeInsets.only(left: 50.h, top: 2.v, right: 60.h),
           ),
         ],
       ),
@@ -139,7 +129,7 @@ class CrErCommunautScreenState extends State<CrErCommunautScreen> {
   }
 
   Widget _buildCreateCommunity(BuildContext context) {
-    return Selector<CrErCommunautProvider, TextEditingController?>( 
+    return Selector<CrErCommunautProvider, TextEditingController?>(
       selector: (context, provider) => provider.createCommunityController,
       builder: (context, createCommunityController, child) {
         return CustomTextFormField(
@@ -161,7 +151,7 @@ class CrErCommunautScreenState extends State<CrErCommunautScreen> {
   }
 
   Widget _buildDescriptionValue(BuildContext context) {
-    return Selector<CrErCommunautProvider, TextEditingController?>( 
+    return Selector<CrErCommunautProvider, TextEditingController?>(
       selector: (context, provider) => provider.descriptionValueController,
       builder: (context, descriptionValueController, child) {
         return CustomTextFormField(
@@ -177,78 +167,91 @@ class CrErCommunautScreenState extends State<CrErCommunautScreen> {
       },
     );
   }
+Widget _buildWebUrl(BuildContext context) {
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 2.h),
+    child: Selector<CrErCommunautProvider, TextEditingController?>(
+      selector: (context, provider) => provider.webUrlController,
+      builder: (context, webUrlController, child) {
+        return Column(
+          children: [
+            Stack(
+              children: [
+                CustomTextFormField(
+                  controller: webUrlController,
+                  hintText: "Sélectionner images".tr,
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
+                  readOnly: true,
+                  validator: (value) {
+                    if (!context
+                        .read<CrErCommunautProvider>()
+                        .isImageSelectionValid()) {
+                      return 'Veuillez sélectionner une image.';
+                    }
+                    return null;
+                  },
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: GestureDetector(
+                    onTap: () async {
+                      FilePickerResult? result =
+                          await FilePicker.platform.pickFiles(
+                        type: FileType.image,
+                        allowMultiple: false,
+                      );
 
-  Widget _buildWebUrl(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 2.h),
-      child: Selector<CrErCommunautProvider, TextEditingController?>( 
-        selector: (context, provider) => provider.webUrlController,
-        builder: (context, webUrlController, child) {
-          return Column(
-            children: [
-              Stack(
-                children: [
-                  CustomTextFormField(
-                    controller: webUrlController,
-                    hintText: "Sélectionner images".tr,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
-                    readOnly: true,
-                    validator: (value) {
-                      if (!context
-                          .read<CrErCommunautProvider>()
-                          .isImageSelectionValid()) {
-                        return 'Veuillez sélectionner une image.';
-                      }
-                      return null;
-                    },
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: GestureDetector(
-                      onTap: () async {
-                        FilePickerResult? result =
-                            await FilePicker.platform.pickFiles(
-                          type: FileType.image,
-                          allowMultiple: false, // Set to true if you want multiple images
+                      if (result != null && result.paths.isNotEmpty) {
+                        String name = result.files.first.name;
+                        String path = result.paths.first!;
+
+                        // Show loading indicator while uploading
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => Center(
+                            child: CircularProgressIndicator(),
+                          ),
                         );
 
-                        if (result != null && result.paths.isNotEmpty) {
-                          String path = result.paths.first!; // Get the first selected image path
-                          String name = result.files.first.name; // Get the name of the first image
+                        // Call the provider's method to handle the upload
+                        await context
+                            .read<CrErCommunautProvider>()
+                            .updateSelectedImage(path, name);
 
-                          // Update selected image paths and names in the provider
-                          context
-                              .read<CrErCommunautProvider>()
-                              .updateSelectedImage(path, name);
+                        // Dismiss the loading indicator after upload completes
+                        Navigator.of(context).pop();
 
-                          // Update the text field with the image file name
-                          webUrlController!.text = name;
-                        }
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            vertical: 8.v, horizontal: 10.h),
-                        child: Icon(Icons.add_photo_alternate),
-                      ),
+                        // Update the controller text with the image name
+                        webUrlController!.text = name;
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          vertical: 8.v, horizontal: 10.h),
+                      child: Icon(Icons.add_photo_alternate),
                     ),
                   ),
-                ],
-              ),
-              SizedBox(height: 8.v),
-            ],
-          );
-        },
-      ),
-    );
-  }
+                ),
+              ],
+            ),
+            SizedBox(height: 8.v),
+          ],
+        );
+      },
+    ),
+  );
+}
+
+
 
   Widget _buildCreateButton(BuildContext context) {
     return Expanded(
       child: CustomElevatedButton(
-        text: _isLoading ? "Uploading..." : "lbl_cr_er".tr,
+        text: _isLoading ? "Téléchargement..." : "lbl_cr_er".tr,
         height: 36.v,
         width: 117.h,
         margin: EdgeInsets.only(right: 12.h),
@@ -256,22 +259,21 @@ class CrErCommunautScreenState extends State<CrErCommunautScreen> {
         onPressed: _isLoading ? null : () {
           if (_formKey.currentState!.validate()) {
             setState(() {
-              _isLoading = true; // Start loading state
+              _isLoading = true;
             });
             Provider.of<CrErCommunautProvider>(context, listen: false)
                 .createCommunity(context)
                 .then((_) {
                   setState(() {
-                    _isLoading = false; // Stop loading state
+                    _isLoading = false;
                   });
-                  Navigator.pop(context); // Navigate back after community creation
+                  Navigator.pop(context);
                 }).catchError((error) {
                   setState(() {
-                    _isLoading = false; // Stop loading state on error
+                    _isLoading = false;
                   });
-                  // Handle error appropriately (e.g., show a snackbar)
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $error')),
+                    SnackBar(content: Text('Euror: $error')),
                   );
                 });
           }
@@ -280,19 +282,6 @@ class CrErCommunautScreenState extends State<CrErCommunautScreen> {
     );
   }
 
-  Future<String> _uploadImage(String imagePath) async {
-    File file = File(imagePath);
-    String fileName = path.basename(file.path);
-    Reference ref = FirebaseStorage.instance.ref().child("community_images/$fileName");
-
-    // Uploading the file
-    UploadTask uploadTask = ref.putFile(file);
-    TaskSnapshot snapshot = await uploadTask;
-
-    // Getting the download URL
-    String downloadUrl = await snapshot.ref.getDownloadURL();
-    return downloadUrl;
-  }
 
   Widget _buildCancelButton(BuildContext context) {
     return Expanded(

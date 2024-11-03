@@ -1,51 +1,70 @@
 class ListtextItemModel {
+  String? userId;
+  String? projectId;
   String? title;
-  // String? description;
-  // String? budget;
+  double? budget;
+  List<String>? images;
+  String? description;
+  String? category;
+  double? percentage;
 
   ListtextItemModel({
+    this.projectId,
     this.title,
-    //this.images,
-    // this.description,
-    // this.budget,
+    this.userId,
+    this.images,
+    this.budget,
+    this.category,
+    this.description,
+    this.percentage,
   });
 
   factory ListtextItemModel.fromMap(Map<String, dynamic> data) {
     return ListtextItemModel(
       title: data['title'] as String,
-      //  description: data['description'] as String,
-      // budget: data['budget'] as String,
-      //images: data['images'] as String, 
+      budget: data['budget'],
+      projectId: data['projectID'] as String?,
+      userId: data['userId'] as String?,
+      description: data['description'],
+      category: data['category'],
+      percentage: data['percentage'],
+      images: List<String>.from(data['images'] ?? []),
     );
   }
+  
   Map<String, dynamic> toMap() {
     return {
       'title': title,
-      // 'description': description,
-      // 'budget': budget,
-      //'images': images,
+      'budget': budget,
+      'userId': userId,
+      'images': images,
+      'description': description,
+      'category': category,
+      'percentage': percentage,
     };
   }
 }
+
 class CategoryItemModel {
-  String? title;
+  String? name;
   String? images;
 
   CategoryItemModel({
-    this.title,
+    this.name,
     this.images,
   });
 
   factory CategoryItemModel.fromMap(Map<String, dynamic> data) {
     return CategoryItemModel(
-      title: data['title'],
-      images: data['image'],
+      name: data['name'],         
+      images: data['imageUrls'],    
     );
   }
-   Map<String, dynamic> toMap() {
+  
+  Map<String, dynamic> toMap() {
     return {
-      'title': title,
-      'image': images,
+      'name': name,               
+      'imageUrls': images,         
     };
   }
 }

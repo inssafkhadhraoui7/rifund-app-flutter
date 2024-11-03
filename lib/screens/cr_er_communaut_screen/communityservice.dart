@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 
 class CommunityService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -23,6 +22,12 @@ class CommunityService {
           .collection('projects') // Reference to the 'projects' sub-collection
           .doc(projectId); // Reference to the specific project document
 
+      // Check if a community already exists for this project
+      QuerySnapshot existingCommunities = await projectRef.collection('communities').get();
+      if (existingCommunities.docs.isNotEmpty) {
+        throw Exception('Une communauté existe déjà pour ce projet. Chaque projet ne peut avoir qu \'une seule communauté.');
+      }
+
       // Add the community document under the specific project's subcollection
       await projectRef.collection('communities').add({
         'name': name,
@@ -33,10 +38,15 @@ class CommunityService {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      print('Community successfully created under user ID: $userId, project ID: $projectId');
+      // Update the user's document to add the role 'createur'
+      await _firestore.collection('users').doc(userId).set({
+        'role': 'createur',
+      }, SetOptions(merge: true)); // Use merge to avoid overwriting existing fields
+
+      print('Communauté créée avec succès sous lID utilisateur: $userId, project ID: $projectId');
       
     } catch (e) {
-      throw Exception('Error creating community: $e');
+      throw Exception('Erreur lors de la création de la communauté: $e');
     }
   }
 }

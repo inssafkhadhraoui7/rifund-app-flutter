@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:rifund/screens/affichage_par_categorie/affichagecategorie.dart';
+import 'package:rifund/screens/details_projet_screen/details_projet_screen.dart';
 
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
 import '../../widgets/bottomNavBar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_search_view.dart';
-import '../details_projet_screen/details_projet_screen.dart';
 import '../financer_projet_screen/financer_projet_screen.dart';
 import 'models/listtext_item_model.dart';
 import 'provider/acceuil_client_provider.dart';
-import 'widgets/listcategory_item_widget.dart';
 
 class AcceuilClientPage extends StatefulWidget {
   const AcceuilClientPage({Key? key}) : super(key: key);
@@ -30,10 +29,11 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
   @override
   void initState() {
     super.initState();
-    // Use WidgetsBinding to ensure context is ready
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AcceuilClientProvider>(context, listen: false)
           .fetchAllProjects();
+      Provider.of<AcceuilClientProvider>(context, listen: false)
+          .fetchCategories();
     });
   }
 
@@ -69,7 +69,7 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
             ),
             SizedBox(height: 20.v),
             Padding(
-              padding: EdgeInsets.only(left: 15.h),
+              padding: EdgeInsets.only(left: 15.v),
               child: _buildProjetNrgColumn(context),
             ),
             SizedBox(height: 5.v),
@@ -123,6 +123,7 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                     height: 17,
                     width: 23,
                   ),
+                  controller: searchController,
                 );
               },
             ),
@@ -144,37 +145,70 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
             child: SizedBox(
               height: 115.v,
               child: Consumer<AcceuilClientProvider>(
-                builder: (context, provider, child) {
-                  return ListView.separated(
-                    padding: EdgeInsets.only(left: 24.h),
-                    scrollDirection: Axis.horizontal,
-                    separatorBuilder: (context, index) => SizedBox(width: 20.h),
-                    itemCount: provider
-                        .acceuilClientModelObj.listcategoryItemList.length,
-                    itemBuilder: (context, index) {
-                      CategoryItemModel model = provider
-                          .acceuilClientModelObj.listcategoryItemList[index];
-                      return SizedBox(
+                  builder: (context, provider, child) {
+                final categoryItems = provider.listcategoryItemList;
+
+                if (provider.isLoading) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (categoryItems.isEmpty) {
+                  return Center(child: Text('Pas de catégories'));
+                }
+
+                return ListView.separated(
+                  padding: EdgeInsets.only(left: 24.h),
+                  scrollDirection: Axis.horizontal,
+                  separatorBuilder: (context, index) => SizedBox(width: 20.h),
+                  itemCount: categoryItems.length,
+                  itemBuilder: (context, index) {
+                    CategoryItemModel model = categoryItems[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AffichageCategoriePage(),
+                          ),
+                        );
+                      },
+                      child: SizedBox(
                         width: 170,
                         height: 130,
-                        child: ListCategoryItemWidget(
-                          model,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AffichageCategoriePage(),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 40.h,
+                            vertical: 1.v,
+                          ),
+                          decoration:
+                              AppDecoration.outlineLightgreen6001.copyWith(
+                            borderRadius: BorderRadiusStyle.roundedBorder20,
+                          ),
+                          child: Column(
+                            children: [
+                              SizedBox(height: 15.v),
+                              CustomImageView(
+                                alignment: Alignment.center,
+                                imagePath: model.images,
+                                height: 50,
+                                width: 50,
                               ),
-                            );
-                          },
+                              SizedBox(height: 9.v),
+                              Text(
+                                model.name!,
+                                textAlign: TextAlign.center,
+                                style: CustomTextStyles.bodyMediumLight,
+                              ),
+                            ],
+                          ),
                         ),
-                      );
-                    },
-                  );
-                },
-              ),
+                      ),
+                    );
+                  },
+                );
+              }),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -187,7 +221,7 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
           return Center(child: CircularProgressIndicator());
         }
 
-        if (provider.listeprojectsModel.listprojects.isEmpty) {
+        if (provider.filteredProjects.isEmpty) {
           return Center(child: Text("Pas de projets."));
         }
 
@@ -195,13 +229,17 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
           scrollDirection: Axis.horizontal,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: provider.listeprojectsModel.listprojects.map((project) {
+            children: provider.filteredProjects.map((project) {
+              String imageFour =
+                  (project.images != null && project.images!.isNotEmpty)
+                      ? project.images!.first
+                      : ImageConstant.imgRectangle117;
               return SizedBox(
                 width: 340.h,
                 child: Card(
                   clipBehavior: Clip.antiAlias,
                   elevation: 0,
-                  margin: EdgeInsets.all(0),
+                  margin: EdgeInsets.only(left: 10.h),
                   shape: RoundedRectangleBorder(
                     side: BorderSide(color: appTheme.lightGreen600, width: 5.h),
                     borderRadius: BorderRadiusStyle.roundedBorder20,
@@ -213,11 +251,10 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                     ),
                     child: Stack(
                       children: [
-                        // _buildProjetAgricoleStack(
-                        //   context,
-                        //   imageFour:
-                        //       project.images ?? ImageConstant.imgRectangle117,
-                        // ),
+                        _buildProjetAgricoleStack(
+                          context,
+                          imageFour: imageFour,
+                        ),
                         Align(
                           alignment: Alignment.center,
                           child: Container(
@@ -241,22 +278,12 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                                 SizedBox(height: 11.v),
                                 Padding(
                                   padding: EdgeInsets.only(left: 27.h),
-                                  // child: Text(
-                                  //   project.description ??
-                                  //       "Description du projet",
-                                  //   style: CustomTextStyles.bodyMediumLight_1,
-                                  // ),
-                                ),
-                                SizedBox(height: 8.v),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 27.h),
-                                  // child: Text(
-                                  //   project.budget != null
-                                  //       ? "Budget: ${project.budget}"
-                                  //       : 'Budget inconnu',
-                                  //   style: CustomTextStyles
-                                  //       .titleLargeLightgreen600,
-                                  // ),
+                                  child: Text(
+                                    project.budget.toString() ??
+                                        "Pas de budget",
+                                    style: CustomTextStyles
+                                        .titleLargeLightgreen600,
+                                  ),
                                 ),
                                 SizedBox(height: 9.v),
                                 Container(
@@ -282,7 +309,7 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                                     ],
                                   ),
                                 ),
-                                SizedBox(height: 8.v),
+                                SizedBox(height: 15.v),
                                 Padding(
                                   padding: EdgeInsets.only(left: 2.h),
                                   child: Row(
@@ -317,11 +344,10 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) =>
-                                                    DetailsProjetScreen(
-                                                        projectTitle: project
-                                                                .title ??
-                                                            "Titre inconnu")),
+                                              builder: (context) =>
+                                                  DetailsProjetScreen(
+                                                      project: project),
+                                            ),
                                           );
                                         },
                                       )
@@ -355,19 +381,12 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
         alignment: Alignment.center,
         children: [
           CustomImageView(
-            imagePath: ImageConstant.imgRectangle117,
+            imagePath: imageFour,
             height: 258.v,
             width: 193.h,
             radius: BorderRadius.horizontal(left: Radius.circular(15.h)),
             alignment: Alignment.center,
           ),
-          CustomImageView(
-            imagePath: imageFour,
-            height: 258.v,
-            width: 193.h,
-            radius: BorderRadius.horizontal(left: Radius.circular(20.h)),
-            alignment: Alignment.center,
-          )
         ],
       ),
     );

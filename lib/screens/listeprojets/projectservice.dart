@@ -1,11 +1,15 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:rifund/core/app_export.dart';
 import 'package:rifund/screens/listeprojets/models/userprofile_item_model.dart';
 
 class ProjectService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
 
   Future<List<UserprofileItemModel>> fetchUserProjects() async {
     String? userId = _auth.currentUser?.uid;
@@ -55,4 +59,6 @@ class ProjectService {
         
     print('Project $projectId deleted');
   }
+
+  
 }
