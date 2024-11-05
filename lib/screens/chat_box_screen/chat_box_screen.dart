@@ -12,12 +12,45 @@ class ChatBoxScreen extends StatelessWidget {
   final String userId;
   final String projectId;
   final String communityId;
+Future<void> updateMessage(String userId, String projectId, String communityId, String messageId, String newMessage) async {
+  if (projectId.isEmpty || communityId.isEmpty || messageId.isEmpty) {
+    print('One or more Firestore path parameters are empty.');
+    throw Exception('Project ID, Community ID, or Message ID cannot be empty.');
+  }
+
+  try {
+    print('Attempting to update message at path: users/$userId/projects/$projectId/communities/$communityId/messages/$messageId');
+
+    final docRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('projects')
+        .doc(projectId)
+        .collection('communities')
+        .doc(communityId)
+        .collection('chat_messages')
+        .doc(messageId);
+
+    final docSnapshot = await docRef.get();
+    if (!docSnapshot.exists) {
+      print('Document not found: $messageId');
+      throw Exception('Document not found'); // Optionally throw or handle as needed
+    }
+
+    await docRef.update({'message': newMessage});
+    print('Message updated successfully. $messageId');
+  } catch (e) {
+    print('Error updating message: $e');
+    throw e; // Re-throw or handle error as needed
+  }
+}
 
   const ChatBoxScreen({
     Key? key,
     required this.userId,
     required this.projectId,
-    required this.communityId, required messageId,
+    required this.communityId,
+    required messageId,
   }) : super(key: key);
 
   static Widget builder(
@@ -31,7 +64,8 @@ class ChatBoxScreen extends StatelessWidget {
       child: ChatBoxScreen(
         userId: userId,
         projectId: projectId,
-        communityId: communityId, messageId: '',
+        communityId: communityId,
+        messageId: '',
       ),
     );
   }
@@ -86,7 +120,9 @@ class ChatBoxScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMessage(BuildContext context, String message, {
+  Widget _buildMessage(
+    BuildContext context,
+    String message, {
     required bool isReceived,
     required String avatar,
     required String messageId,
@@ -97,7 +133,8 @@ class ChatBoxScreen extends StatelessWidget {
     }
 
     return GestureDetector(
-      onLongPress: () => _showMessageOptions(context, messageId, message),
+      onLongPress: () => _showMessageOptions(
+          context, userId, projectId, communityId, messageId, message),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
         child: Column(
@@ -123,7 +160,8 @@ class ChatBoxScreen extends StatelessWidget {
                     ),
                     child: Text(
                       message,
-                      style: TextStyle(color: isReceived ? Colors.black : Colors.white),
+                      style: TextStyle(
+                          color: isReceived ? Colors.black : Colors.white),
                     ),
                   ),
                 ),
@@ -176,20 +214,25 @@ class ChatBoxScreen extends StatelessWidget {
             ],
           ),
           IconButton(
-  icon: Icon(Icons.info_outline, color: Colors.white),
-  onPressed: () {
-    // Navigate to community details page
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ChangeNotifierProvider(
-          create: (_) => AffichageCommunautProvider(provider.userId,provider.projectId, provider.communityId),
-          child: AffichageCommunautPage(userId:provider.userId,projectId:provider.projectId, communityId: provider.communityId,),
-        ),
-      ),
-    );
-  },
-),
+            icon: Icon(Icons.info_outline, color: Colors.white),
+            onPressed: () {
+              // Navigate to community details page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChangeNotifierProvider(
+                    create: (_) => AffichageCommunautProvider(provider.userId,
+                        provider.projectId, provider.communityId),
+                    child: AffichageCommunautPage(
+                      userId: provider.userId,
+                      projectId: provider.projectId,
+                      communityId: provider.communityId,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -230,64 +273,130 @@ class ChatBoxScreen extends StatelessWidget {
     );
   }
 
-  void _showMessageOptions(BuildContext context, String messageId, String currentMessage) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.edit),
-              title: Text('Edit Message'),
-              onTap: () {
-                // Implement message editing logic
-                _editMessage(context, messageId, currentMessage);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.delete),
-              title: Text('Delete Message'),
-              onTap: () {
-                context.read<ChatBoxProvider>().deleteMessage(messageId);
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+  void _showMessageOptions(BuildContext context, String userId, String projectId, String communityId, String messageId, String currentMessage) {
+  showModalBottomSheet(
+    context: context,
+    builder: (context) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: Icon(Icons.edit),
+            title: Text('Modifier le message'),
+            onTap: () {
+              Navigator.pop(context); // Fermer la feuille de fond avant d'afficher le dialog
+              _editMessage(context, userId, projectId, communityId, messageId, currentMessage);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.delete),
+            title: Text('Supprimer le message'),
+            onTap: () {
+              Navigator.pop(context); // Fermer la feuille de fond
+              _confirmDeleteMessage(context, userId, projectId, communityId, messageId);
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 
-  void _editMessage(BuildContext context, String messageId, String currentMessage) {
-    TextEditingController editingController = TextEditingController(text: currentMessage);
+void _editMessage(
+  BuildContext scaffoldContext,
+  String userId,
+  String projectId,
+  String communityId,
+  String messageId,
+  String currentMessage,
+) {
+  final editingController = TextEditingController(text: currentMessage);
+
+  showDialog(
+    context: scaffoldContext,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: Text("Modifier le message"),
+        content: TextField(
+          controller: editingController,
+          decoration: InputDecoration(
+            hintText: "Entrer un nouveau message",
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop(); // Close dialog
+            },
+            child: Text("Annuler"),
+          ),
+          TextButton(
+            onPressed: () async {
+              // Store the new message in a variable to avoid accessing the controller after dialog closure
+              final newMessage = editingController.text;
+
+              Navigator.of(dialogContext).pop(); // Close dialog immediately
+
+              // Perform the update operation outside the dialog context
+              try {
+                await updateMessage(userId, projectId, communityId, messageId, newMessage);
+
+                // Ensure the ScaffoldMessenger context is still valid
+                if (scaffoldContext.mounted) {
+                  ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+                    SnackBar(content: Text("Message mis à jour avec succès")),
+                  );
+                }
+              } catch (e) {
+                if (scaffoldContext.mounted) {
+                  ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+                    SnackBar(content: Text("Erreur lors de la mise à jour du message: $e")),
+                  );
+                }
+              }
+            },
+            child: Text("Confirmer"),
+          ),
+        ],
+      );
+    },
+  ).then((_) {
+    // Dispose of the controller after dialog closure to prevent use-after-disposal
+    if (!editingController.hasListeners) {
+      editingController.dispose();
+    }
+  });
+}
+
+
+
+
+  void _confirmDeleteMessage(BuildContext context, String userId,
+      String projectId, String communityId, String messageId) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Edit Message'),
-          content: TextField(
-            controller: editingController,
-            decoration: InputDecoration(hintText: "Edit your message"),
-          ),
+          title: Text('Confirmer la suppression'),
+          content: Text('Êtes-vous sûr de vouloir supprimer ce message ?'),
           actions: [
             TextButton(
               onPressed: () {
-                String newMessage = editingController.text.trim();
-                if (newMessage.isNotEmpty) {
-                  context.read<ChatBoxProvider>().updateMessage(messageId, newMessage);
-                  Navigator.pop(context);
-                } else {
-                  // Show a message or error if the new message is empty
-                }
+                Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Update'),
+              child: Text('Annuler'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                // Call the delete function from your provider
+                context
+                    .read<ChatBoxProvider>()
+                    .deleteMessage(userId, projectId, communityId, messageId);
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context)
+                    .pop(); // Close the bottom sheet if it was open
               },
-              child: Text('Cancel'),
+              child: Text('supprimer Message '),
             ),
           ],
         );

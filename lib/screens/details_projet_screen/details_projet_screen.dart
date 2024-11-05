@@ -84,25 +84,26 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
     return null;
   }
 
-  Future<String?> fetchProjectIdByDetails(String? name, String? description) async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('projects') // Replace with your collection
-          .where('title', isEqualTo: name)
-          .where('description', isEqualTo: description)
-          .limit(1) // Only fetch the first match
-          .get();
+Future<String?> fetchProjectIdByDetails(String? name, String? description) async {
+  try {
+    // Perform a compound query based on 'name' and 'description'
+    final snapshot = await FirebaseFirestore.instance
+        .collection('projects') // Replace with the correct collection name if different
+        .where('name', isEqualTo: name) // Match project name
+        .where('description', isEqualTo: description) // Match project description
+        .limit(1) // Fetch only the first match
+        .get();
 
-      if (snapshot.docs.isNotEmpty) {
-        return snapshot.docs.first.id; // Getting document ID
-      }
-    } catch (e) {
-      print("Error fetching projectId: $e");
+    if (snapshot.docs.isNotEmpty) {
+      return snapshot.docs.first.id; // Return the project document ID
     }
-    return null;
+  } catch (e) {
+    print("Error fetching projectId: $e");
   }
+  return null;
+}
 
-  Future<void> fetchCommunityId(String userId, String projectId) async {
+Future<void> fetchCommunityId(String userId, String projectId) async {
     try {
       final snapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -112,9 +113,11 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
           .collection('communities')
           .get();
 
+      print("Number of communities found: ${snapshot.docs.length}");
       if (snapshot.docs.isNotEmpty) {
+        final firstCommunityId = snapshot.docs.first.id;
         setState(() {
-          communityId = snapshot.docs.first.id;
+          communityId = firstCommunityId;
         });
         print("Community ID fetched: $communityId");
         await fetchChatMessages(communityId!);
@@ -130,9 +133,9 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
     try {
       final messageSnapshot = await FirebaseFirestore.instance
           .collection('users')
-          .doc(widget.project.userId)
+          .doc(userId) // Assuming you have userId in the widget
           .collection('projects')
-          .doc(widget.project.projectId)
+          .doc(projectId) // Assuming you have projectId in the widget
           .collection('communities')
           .doc(communityId)
           .collection('chat_messages')
@@ -150,13 +153,11 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
 
         messageId = chatMessages.isNotEmpty ? chatMessages[0]['messageId'] : null;
       });
+      print("Chat messages fetched: $chatMessages");
     } catch (e) {
       print("Error fetching chat messages: $e");
     }
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -395,7 +396,7 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
       ),
     );
   }
- void _showJoinCommunityDialog() {
+void _showJoinCommunityDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -411,18 +412,28 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
             ),
             TextButton(
               onPressed: () async {
+                Navigator.of(context).pop();
                 if (communityId != null) {
-                  // Add user to community logic here
+                  await FirebaseFirestore.instance.collection('communities')
+                      .doc(communityId).collection('members')
+                      .doc(widget.project.userId)
+                      .set({'joinedAt': Timestamp.now()});
+                  
+                  // Navigate to chat screen
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ChatBoxScreen(
-                        communityId: communityId!, userId: userId, projectId:projectId, messageId: messageId,
+                        communityId: communityId!, 
+                        userId: userId, 
+                        projectId: projectId,
+                        messageId: messageId,
                       ),
                     ),
                   );
+                } else {
+                  print("Community ID is null.");
                 }
-                Navigator.of(context).pop();
               },
               child: Text("Join"),
             ),
@@ -430,6 +441,6 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
         );
       },
     );
-  }
+}
 
 }

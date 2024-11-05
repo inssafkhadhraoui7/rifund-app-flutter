@@ -21,6 +21,7 @@ class CrErProjetScreen extends StatefulWidget {
 
   @override
   CrErProjetScreenState createState() => CrErProjetScreenState();
+
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => CrErProjetProvider(),
@@ -32,8 +33,7 @@ class CrErProjetScreen extends StatefulWidget {
 class CrErProjetScreenState extends State<CrErProjetScreen> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  String selectedCurrency = 'TND';
-  String selectedCategory = '';
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -195,9 +195,8 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
                         if (result != null) {
                           List<String> paths =
                               result.paths.map((path) => path!).toList();
-                          List<String> names = result.files
-                              .map((file) => file.name ?? '')
-                              .toList();
+                          List<String> names =
+                              result.files.map((file) => file.name).toList();
 
                           context
                               .read<CrErProjetProvider>()
@@ -340,12 +339,9 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
                 EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
             items: crErProjetModelObj.categoryDropdownItemList,
             onChanged: (value) {
-              // Call the provider method to update the selected category
               if (value != null) {
-                Provider.of<CrErProjetProvider>(context, listen: false)
-                    .onSelectedCategoryItem(value);
-                Provider.of<CrErProjetProvider>(context, listen: false)
-                    .updateSelectedCategory(value.title);
+                // Provider.of<CrErProjetProvider>(context, listen: false).onSelectedCategoryItem(value);
+                // Provider.of<CrErProjetProvider>(context, listen: false).updateSelectedCategory(value.title);
               }
             },
           );
@@ -355,8 +351,9 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
   }
 
   Widget _buildCompte(BuildContext context) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 2.h),
+      padding: EdgeInsets.only(bottom: keyboardHeight),
       child: Selector<CrErProjetProvider, TextEditingController?>(
         selector: (context, provider) => provider.compteController,
         builder: (context, compteController, child) {
@@ -400,7 +397,8 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
         String description = provider.descriptionValueController.text;
         List<String> imagePaths = provider.selectedImagePaths;
         double budget = double.parse(provider.budgetValueController.text);
-        String currency = selectedCurrency;
+        String currency =
+            provider.selectedCurrency; 
         DateTime date =
             DateFormat('dd/MM/yyyy').parse(provider.dateController.text);
         String accountNumber = provider.compteController.text;
@@ -421,7 +419,8 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
           'date': date,
           'percentage': percentage,
           'accountNumber': accountNumber,
-          'category': selectedCategory,
+          'category': provider.selectedCategory,
+          'isApproved': false,
         });
 
         Navigator.push(
@@ -496,7 +495,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
 
     final parsedValue = double.tryParse(value);
     if (parsedValue == null || value.length < 3) {
-      return 'un montant de 3 numéro';
+      return 'un montant de 3 chiffres';
     }
 
     return null;

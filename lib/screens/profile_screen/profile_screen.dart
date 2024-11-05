@@ -156,7 +156,7 @@ void initState() {
               radius: 50,
               backgroundImage: profileProvider.profileImageUrl.isNotEmpty
                   ? NetworkImage(profileProvider.profileImageUrl)
-                  : AssetImage('assets/avatar.png') as ImageProvider,
+                  : AssetImage('assets/images/avatar.png') as ImageProvider,
             ),
           ),
           SizedBox(height: 16.v),

@@ -125,38 +125,17 @@ class ChatBoxProvider extends ChangeNotifier {
     }
   }
 
- Future<void> updateMessage(String messageId, String newMessage) async {
-  if (newMessage.isEmpty) {
-    print("Cannot update message to an empty string");
-    return;
+
+
+
+Future<void> deleteMessage(String userId, String projectId, String communityId, String messageId) async {
+  if (messageId.isEmpty) {
+    print("Message ID is empty. Cannot delete message.");
+    return; // Optionally show an error message to the user
   }
 
-  print("Updating message: messageId = $messageId, userId = $userId, projectId = $projectId, communityId = $communityId");
-
   try {
-    await _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('projects')
-        .doc(projectId)
-        .collection('communities')
-        .doc(communityId)
-        .collection('chat_messages')
-        .doc(messageId)
-        .update({
-      'message': newMessage,
-      'timestamp': FieldValue.serverTimestamp(), // Optionally update the timestamp
-    });
-  } catch (e) {
-    print("Error updating message: $e");
-  }
-}
-
-Future<void> deleteMessage(String messageId) async {
-  try {
-    print("Deleting message: messageId = $messageId, userId = $userId, projectId = $projectId, communityId = $communityId");
-
-    await _firestore
+    await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('projects')
@@ -166,10 +145,13 @@ Future<void> deleteMessage(String messageId) async {
         .collection('chat_messages')
         .doc(messageId)
         .delete();
+    
+    print("Message deleted successfully");
   } catch (e) {
     print("Error deleting message: $e");
   }
 }
+
 }
 
 class Message {

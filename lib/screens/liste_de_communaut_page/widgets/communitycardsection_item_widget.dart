@@ -50,13 +50,13 @@ class CommunitycardsectionItemWidget extends StatelessWidget {
         child: Image.network(
           model.imageUrl.isNotEmpty
               ? model.imageUrl
-              : 'assets/images/default_image.png',
+              : '',
           height: 58.adaptSize,
           width: 58.adaptSize,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Image.asset(
-              'assets/images/riflogo.png',
+              '',
               height: 58.adaptSize,
               width: 58.adaptSize,
               fit: BoxFit.cover,
