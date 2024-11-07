@@ -1,9 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import 'package:rifund/core/app_export.dart';
-import 'package:rifund/theme/app_decoration.dart';
 import 'package:rifund/theme/custom_button_style.dart';
 import 'package:rifund/widgets/app_bar/custom_app_bar.dart';
 import 'package:rifund/widgets/bottomNavBar.dart';
@@ -14,7 +12,7 @@ import 'models/admin_projet_model.dart';
 import 'provider/admin_projet_provider.dart';
 
 class AdminProjetScreen extends StatefulWidget {
-  const AdminProjetScreen({Key? key}) : super(key: key);
+  const AdminProjetScreen({super.key});
 
   @override
   AdminProjetScreenState createState() => AdminProjetScreenState();
@@ -48,11 +46,11 @@ class AdminProjetScreenState extends State<AdminProjetScreen> {
         body: SizedBox(
           width: double.infinity,
           child: provider.isLoading
-              ? Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator())
               : provider.errorMessage.isNotEmpty
                   ? Center(child: Text(provider.errorMessage))
                   : provider.projects.isEmpty
-                      ? Center(child: Text("Pas de projets."))
+                      ? const Center(child: Text("Pas de projets."))
                       : ListView.builder(
                           itemCount: provider.projects.length,
                           itemBuilder: (context, index) {
@@ -94,8 +92,8 @@ class AdminProjetScreenState extends State<AdminProjetScreen> {
                     ),
                   ),
                 ),
-                placeholder: (context, url) => CircularProgressIndicator(),
-                errorWidget: (context, url, error) => Icon(Icons.error),
+                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
           SizedBox(height: 10.v),

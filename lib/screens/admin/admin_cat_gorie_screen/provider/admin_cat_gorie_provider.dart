@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +13,6 @@ class AdminCategoryProvider extends ChangeNotifier {
 
   Future<void> fetchCategories() async {
     try {
-      // Your logic to fetch data from Firestore
-      // Assuming you have a collection called 'categories'
       QuerySnapshot snapshot =
           await FirebaseFirestore.instance.collection('categories').get();
 
@@ -45,7 +45,7 @@ class AdminCategoryProvider extends ChangeNotifier {
       categories.removeWhere((category) => category.id == categoryId);
     } catch (e) {
       errorMessage = "Erreur de suppression categorie : $e";
-      print(errorMessage);
+      log(errorMessage!);
     } finally {
       isLoading = false;
       notifyListeners();
@@ -91,15 +91,11 @@ class AdminCategoryProvider extends ChangeNotifier {
       errorMessage = null;
     } catch (e) {
       errorMessage = "Erreur de modification categorie: $e";
-      print(errorMessage);
+      log(errorMessage!);
     } finally {
       isLoading = false;
       notifyListeners();
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

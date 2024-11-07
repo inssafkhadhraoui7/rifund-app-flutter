@@ -1,57 +1,26 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rifund/screens/affichage_communaut_page/affichage_communaut_page.dart';
 import 'package:rifund/screens/affichage_communaut_page/provider/affichage_communaut_provider.dart';
-import '../../theme/app_decoration.dart';
 import '../../theme/theme_helper.dart';
 import 'provider/chat_box_provider.dart';
 
 class ChatBoxScreen extends StatelessWidget {
-  final String userId;
-  final String projectId;
-  final String communityId;
-Future<void> updateMessage(String userId, String projectId, String communityId, String messageId, String newMessage) async {
-  if (projectId.isEmpty || communityId.isEmpty || messageId.isEmpty) {
-    print('One or more Firestore path parameters are empty.');
-    throw Exception('Project ID, Community ID, or Message ID cannot be empty.');
-  }
-
-  try {
-    print('Attempting to update message at path: users/$userId/projects/$projectId/communities/$communityId/messages/$messageId');
-
-    final docRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('projects')
-        .doc(projectId)
-        .collection('communities')
-        .doc(communityId)
-        .collection('chat_messages')
-        .doc(messageId);
-
-    final docSnapshot = await docRef.get();
-    if (!docSnapshot.exists) {
-      print('Document not found: $messageId');
-      throw Exception('Document not found'); // Optionally throw or handle as needed
-    }
-
-    await docRef.update({'message': newMessage});
-    print('Message updated successfully. $messageId');
-  } catch (e) {
-    print('Error updating message: $e');
-    throw e; // Re-throw or handle error as needed
-  }
-}
-
   const ChatBoxScreen({
-    Key? key,
+    super.key,
     required this.userId,
     required this.projectId,
     required this.communityId,
-    required messageId,
-  }) : super(key: key);
+    required this.messageId,
+  });
+
+  final String userId;
+  final String projectId;
+  final String communityId;
+  final String messageId;
 
   static Widget builder(
     BuildContext context, {
@@ -60,7 +29,12 @@ Future<void> updateMessage(String userId, String projectId, String communityId, 
     required String communityId,
   }) {
     return ChangeNotifierProvider(
-      create: (context) => ChatBoxProvider(projectId, communityId),
+      create: (context) {
+        final provider = ChatBoxProvider();
+
+        provider.setup(userId, projectId, communityId);
+        return provider;
+      },
       child: ChatBoxScreen(
         userId: userId,
         projectId: projectId,
@@ -68,6 +42,70 @@ Future<void> updateMessage(String userId, String projectId, String communityId, 
         messageId: '',
       ),
     );
+  }
+
+  Future<void> updateMessage(String userId, String projectId,
+      String communityId, String messageId, String newMessage) async {
+    if (projectId.isEmpty || communityId.isEmpty || messageId.isEmpty) {
+      log('One or more Firestore path parameters are empty.');
+      throw Exception(
+          'Project ID, Community ID, or Message ID cannot be empty.');
+    }
+
+    try {
+      log('Attempting to update message at path: users/$userId/projects/$projectId/communities/$communityId/messages/$messageId');
+
+      final docRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('projects')
+          .doc(projectId)
+          .collection('communities')
+          .doc(communityId)
+          .collection('chat_messages')
+          .doc(messageId);
+
+      final docSnapshot = await docRef.get();
+      if (!docSnapshot.exists) {
+        log('Document not found: $messageId');
+        throw Exception('Document not found');
+      }
+
+      await docRef.update({'message': newMessage});
+      log('Message updated successfully. $messageId');
+    } catch (e) {
+      log('Error updating message: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteMessage(String messageId) async {
+    if (messageId.isEmpty) {
+      log("Message ID is empty. Cannot delete message.");
+      return;
+    }
+
+    try {
+      DocumentSnapshot messageDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('projects')
+          .doc(projectId)
+          .collection('communities')
+          .doc(communityId)
+          .collection('chat_messages')
+          .doc(messageId)
+          .get();
+
+      if (messageDoc.exists) {
+        await messageDoc.reference.delete();
+        log("Message deleted successfully");
+      } else {
+        log("Message not found, unable to delete.");
+      }
+    } catch (e) {
+      log("Error deleting message: $e");
+    }
   }
 
   @override
@@ -84,14 +122,14 @@ Future<void> updateMessage(String userId, String projectId, String communityId, 
                 return _buildHeader(context, provider);
               },
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
             // Message list section
             Expanded(
               child: Consumer<ChatBoxProvider>(
                 builder: (context, provider, _) {
                   return ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: provider.messages.length,
                     itemBuilder: (context, index) {
                       Message message = provider.messages[index];
@@ -113,7 +151,7 @@ Future<void> updateMessage(String userId, String projectId, String communityId, 
 
             // Input field for sending messages
             _buildInputField(context),
-            SizedBox(height: 25),
+            const SizedBox(height: 25),
           ],
         ),
       ),
@@ -129,7 +167,7 @@ Future<void> updateMessage(String userId, String projectId, String communityId, 
     required String senderName,
   }) {
     if (message.isEmpty) {
-      return SizedBox();
+      return const SizedBox();
     }
 
     return GestureDetector(
@@ -153,7 +191,7 @@ Future<void> updateMessage(String userId, String projectId, String communityId, 
                   ),
                 Expanded(
                   child: Container(
-                    padding: EdgeInsets.all(15.0),
+                    padding: const EdgeInsets.all(15.0),
                     decoration: BoxDecoration(
                       color: isReceived ? Colors.black : Colors.grey,
                       borderRadius: BorderRadius.circular(15),
@@ -174,10 +212,10 @@ Future<void> updateMessage(String userId, String projectId, String communityId, 
                   ),
               ],
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Text(
               senderName,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 10,
                 color: Colors.grey,
               ),
@@ -190,10 +228,10 @@ Future<void> updateMessage(String userId, String projectId, String communityId, 
 
   Widget _buildHeader(BuildContext context, ChatBoxProvider provider) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 30),
+      padding: const EdgeInsets.symmetric(horizontal: 30),
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColor,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -201,20 +239,20 @@ Future<void> updateMessage(String userId, String projectId, String communityId, 
           Row(
             children: [
               IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
                   Navigator.pop(context);
                 },
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Text(
                 provider.communityName,
-                style: TextStyle(color: Colors.white, fontSize: 20),
+                style: const TextStyle(color: Colors.white, fontSize: 20),
               ),
             ],
           ),
           IconButton(
-            icon: Icon(Icons.info_outline, color: Colors.white),
+            icon: const Icon(Icons.info_outline, color: Colors.white),
             onPressed: () {
               // Navigate to community details page
               Navigator.push(
@@ -252,14 +290,14 @@ Future<void> updateMessage(String userId, String projectId, String communityId, 
                     hintText: 'créer un message...',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide(color: Colors.grey),
+                      borderSide: const BorderSide(color: Colors.grey),
                     ),
                     filled: true,
                     fillColor: Colors.white,
                   ),
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               IconButton(
                 icon: Icon(Icons.send, color: Theme.of(context).primaryColor),
                 onPressed: () {
@@ -273,130 +311,127 @@ Future<void> updateMessage(String userId, String projectId, String communityId, 
     );
   }
 
-  void _showMessageOptions(BuildContext context, String userId, String projectId, String communityId, String messageId, String currentMessage) {
-  showModalBottomSheet(
-    context: context,
-    builder: (context) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: Icon(Icons.edit),
-            title: Text('Modifier le message'),
-            onTap: () {
-              Navigator.pop(context); // Fermer la feuille de fond avant d'afficher le dialog
-              _editMessage(context, userId, projectId, communityId, messageId, currentMessage);
-            },
+  void _showMessageOptions(
+      BuildContext context,
+      String userId,
+      String projectId,
+      String communityId,
+      String messageId,
+      String currentMessage) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Modifier le message'),
+              onTap: () {
+                Navigator.pop(context);
+                _editMessage(context, userId, projectId, communityId, messageId,
+                    currentMessage);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete),
+              title: const Text('Supprimer le message'),
+              onTap: () {
+                Navigator.pop(context);
+                _confirmDeleteMessage(context, messageId);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _editMessage(
+    BuildContext context,
+    String userId,
+    String projectId,
+    String communityId,
+    String messageId,
+    String currentMessage,
+  ) {
+    final editingController = TextEditingController(text: currentMessage);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text("Modifier le message"),
+          content: TextField(
+            controller: editingController,
+            decoration: const InputDecoration(
+              hintText: "Entrer un nouveau message",
+            ),
           ),
-          ListTile(
-            leading: Icon(Icons.delete),
-            title: Text('Supprimer le message'),
-            onTap: () {
-              Navigator.pop(context); // Fermer la feuille de fond
-              _confirmDeleteMessage(context, userId, projectId, communityId, messageId);
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); 
+              },
+              child: const Text("Annuler"),
+            ),
+            TextButton(
+              onPressed: () async {
+                final newMessage = editingController.text;
 
-void _editMessage(
-  BuildContext scaffoldContext,
-  String userId,
-  String projectId,
-  String communityId,
-  String messageId,
-  String currentMessage,
-) {
-  final editingController = TextEditingController(text: currentMessage);
+                Navigator.of(dialogContext).pop();
 
-  showDialog(
-    context: scaffoldContext,
-    builder: (BuildContext dialogContext) {
-      return AlertDialog(
-        title: Text("Modifier le message"),
-        content: TextField(
-          controller: editingController,
-          decoration: InputDecoration(
-            hintText: "Entrer un nouveau message",
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop(); // Close dialog
-            },
-            child: Text("Annuler"),
-          ),
-          TextButton(
-            onPressed: () async {
-              // Store the new message in a variable to avoid accessing the controller after dialog closure
-              final newMessage = editingController.text;
+                try {
+                  await updateMessage(
+                      userId, projectId, communityId, messageId, newMessage);
 
-              Navigator.of(dialogContext).pop(); // Close dialog immediately
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text("Message mis à jour avec succès")),
+                    );
+                  }
 
-              // Perform the update operation outside the dialog context
-              try {
-                await updateMessage(userId, projectId, communityId, messageId, newMessage);
-
-                // Ensure the ScaffoldMessenger context is still valid
-                if (scaffoldContext.mounted) {
-                  ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-                    SnackBar(content: Text("Message mis à jour avec succès")),
-                  );
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text(
+                              "Erreur lors de la mise à jour du message: $e")),
+                    );
+                  }
                 }
-              } catch (e) {
-                if (scaffoldContext.mounted) {
-                  ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-                    SnackBar(content: Text("Erreur lors de la mise à jour du message: $e")),
-                  );
-                }
-              }
-            },
-            child: Text("Confirmer"),
-          ),
-        ],
-      );
-    },
-  ).then((_) {
-    // Dispose of the controller after dialog closure to prevent use-after-disposal
-    if (!editingController.hasListeners) {
-      editingController.dispose();
-    }
-  });
-}
+              },
+              child: const Text("Confirmer"),
+            ),
+          ],
+        );
+      },
+    ).then((_) {});
+  }
 
-
-
-
-  void _confirmDeleteMessage(BuildContext context, String userId,
-      String projectId, String communityId, String messageId) {
+  void _confirmDeleteMessage(BuildContext context, String messageId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirmer la suppression'),
-          content: Text('Êtes-vous sûr de vouloir supprimer ce message ?'),
+          title: const Text('Confirmer la suppression'),
+          content:
+              const Text('Êtes-vous sûr de vouloir supprimer ce message ?'),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
-              child: Text('Annuler'),
+              child: const Text('Annuler'),
             ),
             TextButton(
-              onPressed: () {
-                // Call the delete function from your provider
-                context
-                    .read<ChatBoxProvider>()
-                    .deleteMessage(userId, projectId, communityId, messageId);
-                Navigator.of(context).pop(); // Close the dialog
-                Navigator.of(context)
-                    .pop(); // Close the bottom sheet if it was open
+              onPressed: () async {
+                await deleteMessage(messageId);
+                if (!context.mounted) return;
+                Navigator.of(context).pop();
               },
-              child: Text('supprimer Message '),
+              child: const Text('Supprimer Message'),
             ),
           ],
         );

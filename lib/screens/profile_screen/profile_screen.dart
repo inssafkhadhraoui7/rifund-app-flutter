@@ -35,17 +35,12 @@ class ProfileScreenState extends State<ProfileScreen> {
   TextEditingController _linkController = TextEditingController();
   List<String> links = [];
 
-
-  var name = '';
-
 @override
 void initState() {
   super.initState();
   // Fetch user profile data when the screen is initialized
   final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
-  
   profileProvider.fetchUserProfileData(); // This should set the profileImageUrl
-  user_Active();
 }
 
 
@@ -161,7 +156,7 @@ void initState() {
               radius: 50,
               backgroundImage: profileProvider.profileImageUrl.isNotEmpty
                   ? NetworkImage(profileProvider.profileImageUrl)
-                  : AssetImage('assets/avatar.png') as ImageProvider,
+                  : AssetImage('assets/images/avatar.png') as ImageProvider,
             ),
           ),
           SizedBox(height: 16.v),
@@ -185,26 +180,13 @@ void initState() {
 }
 
 
-  user_Active() async{
-    FirebaseFirestore  firebaseFirestore =  FirebaseFirestore.instance ;
-
-    await firebaseFirestore.collection("users").doc('mcD7QmIlIKMm8LwmOwox9MVVfwU2').get().then((val) async {
-      //    count(int.parse(ahmed.data()!['count']));
-      name = val.data()!['username'].toString();
-
-      });
-    setState(() {});
-}
-
-
   Widget _buildName(BuildContext context) {
     return _buildInfoRow(
       label: "Nom :".tr,
-      value: name,
-      onTap: () async {
-       await Navigator.push(context, MaterialPageRoute(builder: (context) => ModifierNomScreen()));
-       user_Active();
-       },
+      value: "imen missaoui".tr,
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ModifierNomScreen()));
+      },
     );
   }
 

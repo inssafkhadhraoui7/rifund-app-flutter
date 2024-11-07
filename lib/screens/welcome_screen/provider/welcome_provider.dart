@@ -10,9 +10,4 @@ import '../models/welcome_model.dart';
 
 class WelcomeProvider extends ChangeNotifier {
   WelcomeModel welcomeModelObj = WelcomeModel();
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

@@ -1,37 +1,35 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+
 import 'package:lottie/lottie.dart';
-import 'package:rifund/screens/acceuil_client_page/acceuil_client_page.dart';
-import 'package:rifund/screens/chat_box_screen/chat_box_screen.dart';
 
 import '../../core/app_export.dart';
 import '../creationprojet/creationprojet.dart';
-import '../welcome_screen/welcome_screen.dart';
-import 'provider/loading_provider.dart'; // Import your next screen
 
+// ignore: camel_case_types
 class loadingscreen extends StatefulWidget {
-  const loadingscreen({Key? key}) : super(key: key);
+  const loadingscreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _loadingScreenState createState() => _loadingScreenState();
 
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => SplashProvider(),
-      child: loadingscreen(),
+      child: const loadingscreen(),
     );
   }
 }
 
+// ignore: camel_case_types
 class _loadingScreenState extends State<loadingscreen> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 2), () {
+    Timer(const Duration(seconds: 2), () {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (BuildContext context) =>
-             CrErProjetScreen() , 
+          builder: (BuildContext context) => const CrErProjetScreen(),
         ),
       );
     });
@@ -43,7 +41,7 @@ class _loadingScreenState extends State<loadingscreen> {
       backgroundColor: appTheme.lightGreen600,
       body: Center(
         child: Lottie.network(
-           'https://lottie.host/f3825b57-3f94-4c82-9b17-07a7e653ee68/BqLwRiX0So.json'),
+            'https://lottie.host/f3825b57-3f94-4c82-9b17-07a7e653ee68/BqLwRiX0So.json'),
       ),
     );
   }

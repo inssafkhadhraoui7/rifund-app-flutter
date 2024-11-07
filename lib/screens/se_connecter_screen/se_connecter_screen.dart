@@ -1,8 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Ajout de FirebaseAuth
 import '../../core/app_export.dart';
@@ -12,8 +9,6 @@ import '../../widgets/app_bar/custom_app_bar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_text_form_field.dart';
 import 'provider/se_connecter_provider.dart';
-import 'package:local_auth/error_codes.dart' as auth_error;
-
 
 class SeConnecterScreen extends StatefulWidget {
   const SeConnecterScreen({Key? key}) : super(key: key);
@@ -31,9 +26,6 @@ class SeConnecterScreen extends StatefulWidget {
 
 class SeConnecterScreenState extends State<SeConnecterScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  final LocalAuthentication _auth = LocalAuthentication();
-
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +50,8 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                           Align(
                             alignment: Alignment.bottomCenter,
                             child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 70.h, vertical: 50.v),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 70.h, vertical: 50.v),
                               decoration: AppDecoration.outlineBlack.copyWith(
                                 borderRadius: BorderRadiusStyle.roundedBorder21,
                               ),
@@ -77,10 +70,12 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                                       onTapTxtSinscrire(context);
                                     },
                                     child: Padding(
-                                      padding: EdgeInsets.only(left: 60.v, right: 90.v),
+                                      padding: EdgeInsets.only(
+                                          left: 60.v, right: 90.v),
                                       child: Text(
                                         "lbl_s_inscrire".tr,
-                                        style: CustomTextStyles.titleSmallbBlackA700,
+                                        style: CustomTextStyles
+                                            .titleSmallbBlackA700,
                                       ),
                                     ),
                                   )
@@ -97,7 +92,8 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                                 children: [
                                   SizedBox(height: 17.v),
                                   CustomImageView(
-                                    imagePath: ImageConstant.imgFigma2RemovebgPreview,
+                                    imagePath:
+                                        ImageConstant.imgFigma2RemovebgPreview,
                                     height: 80.v,
                                     width: 80.h,
                                   ),
@@ -172,7 +168,8 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                     width: 23,
                   ),
                   suffixConstraints: BoxConstraints(maxHeight: 50.v),
-                  contentPadding: EdgeInsets.only(left: 14.h, top: 17.v, bottom: 17.v),
+                  contentPadding:
+                      EdgeInsets.only(left: 14.h, top: 17.v, bottom: 17.v),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "L'email est requis".tr;
@@ -185,7 +182,6 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
               },
             ),
           ),
-
           SizedBox(height: 12.v),
 
           // Password field
@@ -211,9 +207,11 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                   ),
                   suffixConstraints: BoxConstraints(maxHeight: 50.v),
                   obscureText: provider.isShowPassword,
-                  contentPadding: EdgeInsets.only(left: 14.h, top: 17.v, bottom: 17.v),
+                  contentPadding:
+                      EdgeInsets.only(left: 14.h, top: 17.v, bottom: 17.v),
                   validator: (value) {
-                    if (value == null || !isValidPassword(value, isRequired: true)) {
+                    if (value == null ||
+                        !isValidPassword(value, isRequired: true)) {
                       return "Mot de passe invalide".tr;
                     }
                     return null;
@@ -297,43 +295,6 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                   _handleGoogleLogin();
                 },
               ),
-              IconButton(
-                icon: Icon(Icons.fingerprint),
-                color: Colors.black,
-                iconSize: 35,
-                splashColor: Colors.white,
-                onPressed: () async{
-
-
-
-                  try {
-                    final bool didAuthenticate = await _auth.authenticate(localizedReason: 'please_authenticate_complete_request'.tr
-                        , options: const AuthenticationOptions(useErrorDialogs: false,stickyAuth: false,biometricOnly: true),
-                        // authMessages:   <AuthMessages> [
-                        //   AndroidAuthMessages(
-                        //     signInTitle: 'oops_biometric_authentication_required'.tr,
-                        //   ),
-                        //   // IOSAuthMessages(
-                        //   //     cancelButton: 'cancel'.tr,
-                        //   //     goToSettingsDescription: 'please'.tr +' ' + 'enable'.tr +'Please enable Touch ID.',)
-                        // ]
-
-                    );
-                    if(didAuthenticate){
-                      NavigatorService.pushNamed(AppRoutes.acceuilClientPage);
-
-                    }
-                    print(didAuthenticate);
-                  } on PlatformException catch (e) {
-                    if (e.code == auth_error.notAvailable) {
-                    } else if (e.code == auth_error.lockedOut || e.code == auth_error.permanentlyLockedOut) {
-                    
-                    } 
-                  }
-
-
-                },
-              ),
             ],
           )
         ],
@@ -348,107 +309,71 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     );
     return regex.hasMatch(email);
   }
-  start_CheckBiometrics() async {
-    final bool canAuthenticateWithBiometrics = await _auth.canCheckBiometrics;
-    final bool canAuthenticate = canAuthenticateWithBiometrics || await _auth.isDeviceSupported();
-  }
+
   void onTapTxtSinscrire(BuildContext context) {
-    NavigatorService.pushNamed(AppRoutes.crErUnCompteScreen);
+    NavigatorService.pushNamed(RoutePath.crErUnCompteScreen);
   }
 
   void onTapImage(BuildContext context) {
-    NavigatorService.pushNamed(AppRoutes.welcomeScreen);
+    NavigatorService.pushNamed(RoutePath.welcomeScreen);
   }
 
- void onTapSeconnecter(BuildContext context) async {
-  final provider = Provider.of<SeConnecterProvider>(context, listen: false);
-  final String email = provider.emailController.text.trim();
-  final String password = provider.passwordoneController.text.trim();
+  void onTapSeconnecter(BuildContext context) async {
+    final provider = Provider.of<SeConnecterProvider>(context, listen: false);
+    final String email = provider.emailController.text.trim();
+    final String password = provider.passwordoneController.text.trim();
 
-  if(email == 'adminimen01@gmail.com'){
-
-  return  NavigatorService.pushNamed(AppRoutes.profileAdminPage);
-
-  }
-
-  try {
-    // Sign in the user with Firebase Authentication
-    final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-
-    // if(email == 'adminimen01@gmail.com'){
-    //
-    //   NavigatorService.pushNamed(AppRoutes.profileAdminPage);
-    //
-    // } else
+    try {
+      // Sign in the user with Firebase Authentication
+      final userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
       if (userCredential.user != null) {
-      // Check if user document exists in Firestore
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).get();
+        // Check if user document exists in Firestore
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .get();
 
-       if (!userDoc.exists) {
-        // This shouldn't happen, but just in case handle it
+        if (!userDoc.exists) {
+          // This shouldn't happen, but just in case handle it
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("L'utilisateur n'existe pas.")),
+          );
+        } else {
+          // Redirect to home page after successful login
+          NavigatorService.pushNamed(RoutePath.acceuilClientPage);
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("L'utilisateur n'existe pas.")),
+          const SnackBar(content: Text("Compte invalide")),
+        );
+      } else if (e.code == 'wrong-password') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Mot de passe incorrect")),
         );
       } else {
-        // Redirect to home page after successful login
-        NavigatorService.pushNamed(AppRoutes.acceuilClientPage);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Erreur de connexion")),
+        );
       }
     }
-  } on FirebaseAuthException catch (e) {
-    if (e.code == 'user-not-found') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Compte invalide")),
-      );
-    } else if (e.code == 'wrong-password') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Mot de passe incorrect")),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erreur de connexion")),
-      );
-    }
   }
-}
 
   void onTapTxtMotdepasse(BuildContext context) {
-    NavigatorService.pushNamed(AppRoutes.motDePasseOublierScreen);
+    NavigatorService.pushNamed(RoutePath.motDePasseOublierScreen);
   }
 
   void _handleFacebookLogin() {
     // Logique de connexion avec Facebook
   }
 
-  void _handleGoogleLogin() async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    FirebaseFirestore  firebaseFirestore =  FirebaseFirestore.instance ;
-    final GoogleSignInAccount? googleUser = await GoogleSignIn(scopes: <String>['email']).signIn();
-
-    GoogleSignInAuthentication googlAuthentication  = await googleUser!.authentication;
-
-    final  credential = GoogleAuthProvider.credential(
-        accessToken: googlAuthentication.accessToken,
-        idToken: googlAuthentication.idToken
-    );
-    await auth.signInWithCredential(credential).then((value) async {
-      auth.currentUser!.updateDisplayName(googleUser.displayName);
-      var _email = googleUser.email;
-
-      NavigatorService.pushNamed(AppRoutes.acceuilClientPage);
-
-    });
-
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    start_CheckBiometrics();
+  void _handleGoogleLogin() {
+    // Logique de connexion avec Google
   }
 }
-
-

@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:rifund/screens/listeprojets/listeprojets.dart';
-
 import '../../core/app_export.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
@@ -14,10 +12,9 @@ import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_text_form_field.dart';
 import '../se_connecter_screen/se_connecter_screen.dart';
 import 'models/modelcrprojet.dart';
-import 'provider/cr_er_projet_provider.dart';
 
 class CrErProjetScreen extends StatefulWidget {
-  const CrErProjetScreen({Key? key}) : super(key: key);
+  const CrErProjetScreen({super.key});
 
   @override
   CrErProjetScreenState createState() => CrErProjetScreenState();
@@ -25,13 +22,13 @@ class CrErProjetScreen extends StatefulWidget {
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => CrErProjetProvider(),
-      child: CrErProjetScreen(),
+      child: const CrErProjetScreen(),
     );
   }
 }
 
 class CrErProjetScreenState extends State<CrErProjetScreen> {
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
   @override
@@ -106,7 +103,8 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
       title: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
+            icon:
+                const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
             onPressed: () => Navigator.pop(context),
           ),
           AppbarTitle(
@@ -197,7 +195,6 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
                               result.paths.map((path) => path!).toList();
                           List<String> names =
                               result.files.map((file) => file.name).toList();
-
                           context
                               .read<CrErProjetProvider>()
                               .updateSelectedImages(paths, names);
@@ -208,7 +205,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
                       child: Container(
                         padding: EdgeInsets.symmetric(
                             vertical: 8.v, horizontal: 10.h),
-                        child: Icon(Icons.add_photo_alternate),
+                        child: const Icon(Icons.add_photo_alternate),
                       ),
                     ),
                   ),
@@ -264,6 +261,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
                 alignment: Alignment.center,
                 items: crErProjetModelObj?.dropdownItemList ?? [],
                 onChanged: (value) {
+                  // ignore: unnecessary_null_comparison
                   if (value != null) {
                     Provider.of<CrErProjetProvider>(context, listen: false)
                         .onSelectedDropdownItem(value);
@@ -339,6 +337,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
                 EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
             items: crErProjetModelObj.categoryDropdownItemList,
             onChanged: (value) {
+              // ignore: unnecessary_null_comparison
               if (value != null) {
                 // Provider.of<CrErProjetProvider>(context, listen: false).onSelectedCategoryItem(value);
                 // Provider.of<CrErProjetProvider>(context, listen: false).updateSelectedCategory(value.title);
@@ -397,8 +396,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
         String description = provider.descriptionValueController.text;
         List<String> imagePaths = provider.selectedImagePaths;
         double budget = double.parse(provider.budgetValueController.text);
-        String currency =
-            provider.selectedCurrency; 
+        String currency = provider.selectedCurrency;
         DateTime date =
             DateFormat('dd/MM/yyyy').parse(provider.dateController.text);
         String accountNumber = provider.compteController.text;
@@ -411,6 +409,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
             .doc(userId)
             .collection('projects')
             .add({
+          "userId": userId,
           'title': title,
           'description': description,
           'images': imageUrls,
@@ -425,7 +424,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
 
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ListeDesProjetsPage()),
+          MaterialPageRoute(builder: (context) => const ListeDesProjetsPage()),
         );
       } catch (e) {
         ScaffoldMessenger.of(context)
@@ -487,8 +486,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     }
     return null;
   }
-
- String? validateBudget(String? value) {
+String? validateBudget(String? value) {
   if (value == null || value.isEmpty) {
     return 'Le budget est requis';
   }
@@ -501,10 +499,8 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
   if (parsedValue == null || value.length < 3) {
     return 'Un montant de 3 chiffres est requis';
   }
-
-  return null;
+return null;
 }
-
   String? validateDate(String? value) {
     if (value == null || value.isEmpty) {
       return 'La date est requise';

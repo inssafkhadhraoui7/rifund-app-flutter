@@ -1,29 +1,27 @@
+import 'dart:developer';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rifund/screens/acceuil_client_page/models/listtext_item_model.dart';
+import 'package:rifund/screens/chat_box_screen/chat_box_screen.dart';
 import 'package:rifund/screens/financer_projet_screen/financer_projet_screen.dart';
 import 'package:rifund/widgets/app_bar/appbar_subtitle.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
 import '../../widgets/bottomNavBar.dart';
 import '../../widgets/custom_elevated_button.dart';
-import '../../widgets/custom_search_view.dart';
 import 'models/slider_item_model.dart';
-import 'provider/details_projet_provider.dart';
 import 'widgets/slider_item_widget.dart';
 
 class DetailsProjetScreen extends StatefulWidget {
   final ListtextItemModel project;
 
   const DetailsProjetScreen({
-    Key? key,
+    super.key,
     required this.project,
-  }) : super(key: key);
-
+  });
 
   @override
   DetailsProjetScreenState createState() => DetailsProjetScreenState();
@@ -39,22 +37,25 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
   GlobalKey<NavigatorState> navigatorKey = GlobalKey();
   String? communityId;
   String? messageId;
-  List<Map<String, dynamic>> chatMessages = [];
   String? userId;
   String? projectId;
+  List<Map<String, dynamic>> chatMessages = [];
 
   @override
   void initState() {
     super.initState();
-    
-    userId == widget.project.userId;
-    projectId == widget.project.projectId;
-    print("hello details page hellllllllllllllllllo $projectId $userId");
+
+    userId = widget.project.userId;
+    projectId = widget.project.id;
+
+    if (userId != null && projectId != null) {
+      fetchCommunityId(userId!, projectId!);
+    }
   }
 
-   Future<void> fetchCommunityId(String userId, String projectId) async {
-    userId == widget.project.userId;
-    projectId == widget.project.projectId;
+  Future<void> fetchCommunityId(String userId, String projectId) async {
+    log("userId: $userId, projectId: $projectId");
+
     try {
       final snapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -64,21 +65,49 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
           .collection('communities')
           .get();
 
-      print("Number of communities found: ${snapshot.docs.length}");
+      log("Number of communities found: ${snapshot.docs.length}");
       if (snapshot.docs.isNotEmpty) {
         final firstCommunityId = snapshot.docs.first.id;
         setState(() {
           communityId = firstCommunityId;
         });
-        print("Community ID fetched: $communityId");
+        log("Community ID fetched: $communityId");
         await fetchChatMessages(communityId!);
-        //_buildProjectDetails(communityId!);
       } else {
-        print(
-            "No communities found for userId: $userId and projectId: $projectId");
+        log("No communities found for userId: $userId and projectId: $projectId");
+        // If no community found, create a new one
+        await createNewCommunity(userId, projectId);
       }
     } catch (e) {
-      print("Error fetching community ID: $e");
+      log("Error fetching community ID: $e");
+    }
+  }
+
+  Future<void> createNewCommunity(String userId, String projectId) async {
+    try {
+      // Create a new community document
+      DocumentReference communityRef = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('projects')
+          .doc(projectId)
+          .collection('communities')
+          .add({
+        'name': 'New Community', // Default name, can be changed later
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      log("New community created with ID: ${communityRef.id}");
+
+      // After creating the community, fetch the messages
+      setState(() {
+        communityId = communityRef.id;
+      });
+
+      // Optionally, you can fetch the chat messages for the newly created community
+      await fetchChatMessages(communityRef.id);
+    } catch (e) {
+      log("Error creating new community: $e");
     }
   }
 
@@ -86,9 +115,9 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
     try {
       final messageSnapshot = await FirebaseFirestore.instance
           .collection('users')
-          .doc(userId) // Assuming you have userId in the widget
+          .doc(userId)
           .collection('projects')
-          .doc(projectId) // Assuming you have projectId in the widget
+          .doc(projectId)
           .collection('communities')
           .doc(communityId)
           .collection('chat_messages')
@@ -107,9 +136,9 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
         messageId =
             chatMessages.isNotEmpty ? chatMessages[0]['messageId'] : null;
       });
-      print("Chat messages fetched: $chatMessages");
+      log("Chat messages fetched: $chatMessages");
     } catch (e) {
-      print("Error fetching chat messages: $e");
+      log("Error fetching chat messages: $e");
     }
   }
 
@@ -137,25 +166,24 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 23.h),
-                    child:
-                        Selector<DetailsProjetProvider, TextEditingController?>(
-                      // Search Bar
-                      selector: (context, provider) =>
-                          provider.searchController,
-                      builder: (context, searchController, child) {
-                        return CustomSearchView(
-                          controller: searchController,
-                          hintText: "lbl_rechercher".tr,
-                          alignment: Alignment.center,
-                        );
-                      },
-                    ),
-                  ),
-                ),
+                // Align(
+                //   alignment: Alignment.center,
+                //   child: Padding(
+                //     padding: EdgeInsets.symmetric(horizontal: 23.h),
+                //     child:
+                //         Selector<DetailsProjetProvider, TextEditingController?>(
+                //       selector: (context, provider) =>
+                //           provider.searchController,
+                //       builder: (context, searchController, child) {
+                //         return CustomSearchView(
+                //           controller: searchController,
+                //           hintText: "lbl_rechercher".tr,
+                //           alignment: Alignment.center,
+                //         );
+                //       },
+                //     ),
+                //   ),
+                // ),
                 SizedBox(height: 10.v),
                 _buildSlider(context, sliderItems),
                 SizedBox(height: 10.v),
@@ -175,7 +203,8 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
       title: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
+            icon:
+                const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
             onPressed: () => NavigatorService.goBack(),
           ),
           AppbarSubtitle(
@@ -194,7 +223,6 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
       child: Column(
         children: [
           Consumer<DetailsProjetProvider>(
-            // Slider
             builder: (context, provider, child) {
               return CarouselSlider.builder(
                 options: CarouselOptions(
@@ -212,7 +240,7 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
                 itemBuilder: (context, index, realIndex) {
                   return sliderItems.isNotEmpty
                       ? SliderItemWidget(sliderItems[index])
-                      : Center(child: Text("Pas d'images"));
+                      : const Center(child: Text("No images available"));
                 },
               );
             },
@@ -267,16 +295,16 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
                 Padding(
                   padding: EdgeInsets.only(top: 15.v),
                   child: Text(
-                    "Cliquer sur l'icone pour rejoindre ",
+                    "Cliquer sur l'icone pour rejoindre ", // Updated text
                     style: theme.textTheme.titleSmall,
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.group),
+                  icon: const Icon(Icons.group),
                   iconSize: 30.0,
                   tooltip: 'Rejoindre Communauté',
                   padding: EdgeInsets.only(left: 10.h, bottom: 3.v),
-                  onPressed: () => _showJoinCommunityDialog(communityId!),
+                  onPressed: () => _showJoinCommunityDialog(),
                 ),
               ],
             ),
@@ -302,7 +330,7 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
               SizedBox(height: 21.v),
               Padding(
                 padding: EdgeInsets.only(left: 2.h),
-                child: Text("TND ${widget.project.budget.toString()}",
+               child: Text("TND ${widget.project.budget.toString()}",
                     style: CustomTextStyles.titleLargeInterPrimary),
               ),
             ],
@@ -319,7 +347,7 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
                   ),
                   SizedBox(height: 4.v),
                   Text(
-                    widget.project.description ?? "Pas de description",
+                    widget.project.description ?? "No Description",
                     style: theme.textTheme.bodySmall,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 3,
@@ -346,41 +374,133 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => FinancerProjetScreen()),
+            MaterialPageRoute(
+                builder: (context) => const FinancerProjetScreen()),
           );
         },
       ),
     );
   }
 
- void _showJoinCommunityDialog(String communityId) {
+  void _showJoinCommunityDialog() {
+    if (communityId == null || userId == null || projectId == null) {
+      log("Missing required fields for joining community.");
+      return;
+    }
+Future<Map<String, String>> getUserData() async {
+  try {
+    // Get the current user's UID from Firebase Auth
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId == null) {
+      log("No user is currently signed in");
+      return {'nom': 'Unknown', 'image': ''};
+    }
+
+    // Fetch the user's document from Firestore using the UID
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .get();
+
+    if (userDoc.exists) {
+      // Retrieve nom and image fields, defaulting to empty strings if not found
+      String nom = userDoc['nom'] ?? 'Unknown';
+      String image = userDoc['image_user'] ?? '';
+      return {'nom': nom, 'image': image};
+    } else {
+      log("User document does not exist");
+      return {'nom': 'Unknown', 'image': ''};
+    }
+  } catch (e) {
+    log("Error fetching user data: $e");
+    return {'nom': 'Unknown', 'image': ''};
+  }
+}
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Joindre la communauté"),
-          content: Text("Voulez vous joindre la communauté ?"),
+          title: const Text("Rejoindre la communauté"),
+          content: const Text("Souhaitez-vous rejoindre cette communauté ?"),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text("Annuler"),
+              child: const Text("Annuler"),
             ),
             TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                if (communityId != null) {
-                  await FirebaseFirestore.instance
-                      .collection('communities')
-                      .doc(communityId)
-                      .collection('members')
-                      .doc(userId)
-                      .set({'joinedAt': Timestamp.now()});
-                }
-              },
-              child: Text("Joindre"),
+  onPressed: () async {
+    if (communityId == null) {
+      // Display an alert dialog to inform the user
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Avis"),
+            content: const Text("Ce projet n'a pas de communauté."),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    } else if (userId != null && projectId != null) {
+      try {
+        log("Joining community with ID: $communityId");
+        Map<String, String> userData = await getUserData();
+
+        // Add user to community members
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .collection('projects')
+            .doc(projectId)
+            .collection('communities')
+            .doc(communityId)
+            .collection('members')
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .set({
+          'joinedAt': Timestamp.now(),
+          'nom': userData['nom'],
+          'image': userData['image'],
+          'status': 'En attend',
+        });
+
+        if (!context.mounted) return;
+
+        Navigator.of(context).pop();
+        log("userId: $userId , projectId: $projectId, communityId: $communityId");
+
+        if (!context.mounted) return;
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatBoxScreen.builder(
+              context,
+              userId: userId ?? '',
+              projectId: projectId ?? '',
+              communityId: communityId!,
             ),
+          ),
+        );
+      } catch (e) {
+        log("Error joining community: $e");
+      }
+    } else {
+      log("One or more required fields are empty");
+    }
+  },
+  child: const Text("Rejoindre"),
+),
+
           ],
         );
       },

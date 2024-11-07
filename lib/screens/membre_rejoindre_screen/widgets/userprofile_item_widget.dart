@@ -1,60 +1,53 @@
 import 'package:flutter/material.dart';
-import '../../../core/app_export.dart';
 import '../models/userprofile_item_model.dart';
+import '../provider/membre_rejoindre_provider.dart';
 
 class UserprofileItemWidget extends StatelessWidget {
-  final UserprofileItemModel userprofileItemModelObj;
+  final UserprofileItemModel model;
+  final MembreRejoindreProvider provider;
+  final String communityId;
+  final String userId;
+  final String projectId;
 
-  const UserprofileItemWidget(this.userprofileItemModelObj, {Key? key})
-      : super(key: key);
+  UserprofileItemWidget({
+    required this.model,
+    required this.provider,
+    required this.communityId,
+    required this.userId,
+    required this.projectId,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 16.h,
-        vertical: 18.v,
-      ),
-      decoration: AppDecoration.outlineLightgreen6001.copyWith(
-        borderRadius: BorderRadiusStyle.roundedBorder20,
-      ),
-      child: Row(
-        children: [
-          CustomImageView(
-            imagePath: userprofileItemModelObj.userImage!,
-            height: 55.v,
-            width: 39.h,
-            margin: EdgeInsets.only(bottom: 20.v,top: 20),
-          ),
-          SizedBox(width: 12.h), // Add some space between image and username
-          Expanded(
-            child: Text(
-              userprofileItemModelObj.username!,
-              style: theme.textTheme.titleSmall,
+    return Card(
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundImage: NetworkImage(model.userImage ?? ''),
+        ),
+        title: Text(model.username ?? 'Unknown'),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: Icon(Icons.heart_broken_outlined, color: Colors.green),
+              onPressed: () => provider.approveMember(
+                model.id ?? '',
+                communityId,
+                userId,  // Pass userId to approveMember
+                projectId,  // Pass projectId to approveMember
+              ),
             ),
-          ),
-          SizedBox(width: 23.h), // Add space between username and actions
-          Container(
-            height: 32.v,
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.favorite, color: Colors.green),
-                  onPressed: () {
-                    // Add your onPressed logic here
-                  },
-                ),
-                SizedBox(width: 3.h), // Add space between buttons
-                IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    // Add your onPressed logic here
-                  },
-                ),
-              ],
+            IconButton(
+              icon: Icon(Icons.close, color: Colors.red),
+              onPressed: () => provider.rejectMember(
+                model.id ?? '',
+                communityId,
+                userId,  // Pass userId to rejectMember
+                projectId,  // Pass projectId to rejectMember
+              ),
             ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }

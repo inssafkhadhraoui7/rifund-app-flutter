@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import '../core/app_export.dart';
 
 class CustomSearchView extends StatelessWidget {
-  CustomSearchView(
-      {Key? key,
+  const CustomSearchView(
+      {super.key,
       this.alignment,
       this.width,
-      this.scrollPadding,
+      this.scrollPadding = const EdgeInsets.all(20),
       this.controller,
       this.focusNode,
       this.autofocus = false,
@@ -24,16 +24,13 @@ class CustomSearchView extends StatelessWidget {
       this.fillColor,
       this.filled = true,
       this.validator,
-      this.onChanged})
-      : super(
-          key: key,
-        );
+      this.onChanged});
 
   final Alignment? alignment;
 
   final double? width;
 
-  final TextEditingController? scrollPadding;
+  final EdgeInsets? scrollPadding;
 
   final TextEditingController? controller;
 

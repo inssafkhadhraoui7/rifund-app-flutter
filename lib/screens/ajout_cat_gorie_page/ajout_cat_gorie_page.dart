@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+
 
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
@@ -6,20 +6,16 @@ import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_text_form_field.dart';
-import 'provider/ajout_cat_gorie_provider.dart'; // ignore_for_file: must_be_immutable
 
 class AjoutCatGoriePage extends StatefulWidget {
-  const AjoutCatGoriePage({Key? key})
-      : super(
-          key: key,
-        );
+  const AjoutCatGoriePage({super.key});
 
   @override
   AjoutCatGoriePageState createState() => AjoutCatGoriePageState();
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => AjoutCatGorieProvider(),
-      child: AjoutCatGoriePage(),
+      child: const AjoutCatGoriePage(),
     );
   }
 }
@@ -66,7 +62,7 @@ class AjoutCatGoriePageState extends State<AjoutCatGoriePage> {
       title: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
             onPressed: () {
               onTapArrowleftone(context);
             },
@@ -113,7 +109,7 @@ class AjoutCatGoriePageState extends State<AjoutCatGoriePage> {
                   textInputAction: TextInputAction.done,
                   suffix: Container(
                     margin: EdgeInsets.fromLTRB(30.h, 15.v, 15.h, 30.v),
-                    child: Icon(
+                    child: const Icon(
                       Icons.extension,
                     ),
                   ),

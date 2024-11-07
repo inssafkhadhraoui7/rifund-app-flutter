@@ -46,63 +46,28 @@
 //   }
 // }
 
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:rifund/screens/admin/admin_cat_gorie_screen/provider/admin_cat_gorie_provider.dart';
-import 'package:rifund/screens/admin/admin_projet_screen/admin_projet_screen/provider/admin_projet_provider.dart';
-
-import 'package:rifund/screens/affichage_par_categorie/provider/affichagecategorie_provider.dart';
-
 import 'core/app_export.dart';
-import 'screens/acceuil_client_page/provider/acceuil_client_provider.dart';
-import 'screens/admin/admin_communaut_screen/provider/admin_communaut_provider.dart';
-import 'screens/admin/admin_utlisa_page/provider/admin_utlisa_provider.dart';
-import 'screens/admin/profile_admin_page/provider/profile_admin_provider.dart';
-import 'screens/affichage_communaut_page/provider/affichage_communaut_provider.dart';
-import 'screens/admin/ajout_cat_gorie_page/provider/ajout_cat_gorie_provider.dart';
-import 'screens/app_navigation_screen/provider/app_navigation_provider.dart';
-import 'screens/chat_box_screen/provider/chat_box_provider.dart';
-import 'screens/cr_er_communaut_screen/provider/cr_er_communaut_provider.dart';
-import 'screens/cr_er_un_compte_screen/provider/cr_er_un_compte_provider.dart';
-import 'screens/creationprojet/provider/cr_er_projet_provider.dart';
-import 'screens/details_projet_screen/provider/details_projet_provider.dart';
-import 'screens/financer_projet_screen/provider/financer_projet_provider.dart';
-import 'screens/liste_de_communaut_page/provider/liste_de_communaut_provider.dart';
-import 'screens/listeprojets/provider/liste_des_projets_provider.dart';
-import 'screens/membre_rejoindre_screen/provider/membre_rejoindre_provider.dart';
-
-import 'screens/modifier_motdepasse_screen/provider/modifier_motdepasse_provider.dart';
-import 'screens/modifier_nom_screen/provider/modifier_nom_provider.dart';
-import 'screens/modifierscreen/provider/modifier_projet_provider.dart';
-import 'screens/mot_de_passe_oublier_screen/provider/mot_de_passe_oublier_provider.dart';
-import 'screens/navigation/provider/app_navigation_provider.dart';
-import 'screens/notification_page/provider/notification_provider.dart';
-import 'screens/profile_screen/provider/profile_provider.dart';
-import 'screens/se_connecter_screen/provider/se_connecter_provider.dart';
-import 'screens/splash_page/provider/splash_provider.dart';
-import 'screens/welcome_screen/provider/welcome_provider.dart';
 
 var globalMessengerKey = GlobalKey<ScaffoldMessengerState>();
-String userId = ""; // Replace with actual user ID
-String projectId = ""; // Replace with actual project ID
+String userId = "";
+String projectId = "";
 String communityId = "";
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-
 
   WidgetsFlutterBinding.ensureInitialized();
   Future.wait([
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
     PrefUtils().init()
   ]).then((value) {
-    runApp(MyApp());
+    runApp(const MyApp());
   });
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Sizer(
@@ -119,9 +84,8 @@ class MyApp extends StatelessWidget {
                 create: (_) => AjoutCatGorieProvider()),
             ChangeNotifierProvider<AppNavigationProvider>(
                 create: (_) => AppNavigationProvider()),
-           ChangeNotifierProvider<ChatBoxProvider>(
-  create: (_) => ChatBoxProvider(projectId,communityId), // If you updated the constructor
-),
+            ChangeNotifierProvider<ChatBoxProvider>(
+                create: (_) => ChatBoxProvider()),
             ChangeNotifierProvider<CrErCommunautProvider>(
                 create: (_) => CrErCommunautProvider()),
             ChangeNotifierProvider<CrErUnCompteProvider>(
@@ -161,7 +125,8 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider<AppNavigationProvider1>(
                 create: (_) => AppNavigationProvider1()),
             ChangeNotifierProvider<AffichageCommunautProvider>(
-                 create: (_) => AffichageCommunautProvider(userId,projectId,communityId)),
+                create: (_) =>
+                    AffichageCommunautProvider(userId, projectId, communityId)),
             ChangeNotifierProvider<AdminCommunautProvider>(
                 create: (_) => AdminCommunautProvider()),
             ChangeNotifierProvider<AdminCategoryProvider>(
@@ -181,14 +146,14 @@ class MyApp extends StatelessWidget {
                 debugShowCheckedModeBanner: false,
                 theme: theme,
                 navigatorKey: NavigatorService.navigatorKey,
-                localizationsDelegates: [
+                localizationsDelegates: const [
                   AppLocalizationDelegate(),
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate
                 ],
-                supportedLocales: [Locale('en', '')],
-                initialRoute: AppRoutes.initialRoute,
+                supportedLocales: const [Locale('en', '')],
+                initialRoute: RoutePath.initialRoute,
                 routes: AppRoutes.routes,
               );
             },

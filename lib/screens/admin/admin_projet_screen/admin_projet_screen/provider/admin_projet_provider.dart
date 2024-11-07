@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -17,12 +19,12 @@ class AdminProjetProvider extends ChangeNotifier {
     try {
       QuerySnapshot usersSnapshot =
           await FirebaseFirestore.instance.collection('users').get();
-      print('Fetched users: ${usersSnapshot.docs.length}');
+      log('Fetched users: ${usersSnapshot.docs.length}');
 
       for (var userDoc in usersSnapshot.docs) {
         QuerySnapshot projectsSnapshot =
             await userDoc.reference.collection('projects').get();
-        print(
+        log(
             'Fetched projects for user ${userDoc.id}: ${projectsSnapshot.docs.length}');
 
         for (var projectDoc in projectsSnapshot.docs) {
@@ -37,11 +39,11 @@ class AdminProjetProvider extends ChangeNotifier {
       }
 
       projects = allProjects;
-      print('Total projects downloaded: ${projects.length}');
+      log('Total projects downloaded: ${projects.length}');
       errorMessage = '';
     } catch (e) {
       errorMessage = 'Error downloading projects: $e';
-      print(errorMessage);
+      log(errorMessage);
     } finally {
       isLoading = false;
       notifyListeners();
@@ -62,8 +64,7 @@ class AdminProjetProvider extends ChangeNotifier {
           'Le projet nommé "${project.title}" que vous avez créé est accepté.');
       notifyListeners();
     } catch (e) {
-      print('Error approving project: $e');
-      // Handle errors appropriately
+      log('Error approving project: $e');
     }
   }
 
@@ -81,7 +82,7 @@ class AdminProjetProvider extends ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      print('Error rejecting project: $e');
+      log('Error rejecting project: $e');
       // Handle errors appropriately
     }
   }
@@ -91,8 +92,4 @@ class AdminProjetProvider extends ChangeNotifier {
     // This could be via a push notification service or email
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

@@ -1,27 +1,38 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/chat_box_model.dart';
 
 class ChatBoxProvider extends ChangeNotifier {
   bool _isSendingMessage = false;
-
   bool get isSendingMessage => _isSendingMessage;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String projectId;
-  final String communityId;
-  final String userId;
+  String projectId = '';
+  String communityId = '';
+  String userId = '';
 
   List<Message> messages = [];
   TextEditingController messageController = TextEditingController();
   String communityName = '';
   String userName = '';
-  String userImage = ''; // Add userImage field
+  String userImage = '';
 
-  ChatBoxProvider(this.projectId, this.communityId)
-      : userId = FirebaseAuth.instance.currentUser?.uid ?? '' {
-    print("ChatBoxProvider initialized with userId: $userId, projectId: $projectId, communityId: $communityId");
+  String get getUserId => userId;
+  String get getProjectId => projectId;
+  String get getCommunityId => communityId;
+
+  void setup(String userId, String projectId, String communityId) {
+    if (userId.isEmpty || projectId.isEmpty || communityId.isEmpty) {
+      log('Error: userId, projectId, or communityId is empty.');
+      throw Exception(
+          'Required parameters (userId, projectId, communityId) are missing.');
+    }
+
+    this.userId = userId;
+    this.projectId = projectId;
+    this.communityId = communityId;
+    notifyListeners();
     _loadMessages();
     _fetchCommunityName();
     _fetchUserName();
@@ -66,7 +77,7 @@ class ChatBoxProvider extends ChangeNotifier {
     if (imageUrl.isNotEmpty) {
       return imageUrl;
     } else {
-      return 'assets/images/avatar.png'; // Use a local fallback image
+      return 'assets/images/avatar.png';
     }
   }
 
@@ -91,7 +102,11 @@ class ChatBoxProvider extends ChangeNotifier {
 
   Future<void> sendMessage(String message) async {
     if (message.isEmpty) {
-      // Optionally show a message to the user about empty messages
+      return;
+    }
+
+    if (userId.isEmpty || projectId.isEmpty || communityId.isEmpty) {
+      log("Error: userId, projectId, or communityId is empty.");
       return;
     }
 
@@ -117,40 +132,12 @@ class ChatBoxProvider extends ChangeNotifier {
 
       messageController.clear();
     } catch (e) {
-      print("Error sending message: $e");
-      // Optionally show an error message to the user
+      log("Error sending message: $e");
     } finally {
       _isSendingMessage = false;
       notifyListeners();
     }
   }
-
-
-
-
-Future<void> deleteMessage(String userId, String projectId, String communityId, String messageId) async {
-  if (messageId.isEmpty) {
-    print("Message ID is empty. Cannot delete message.");
-    return; // Optionally show an error message to the user
-  }
-
-  try {
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('projects')
-        .doc(projectId)
-        .collection('communities')
-        .doc(communityId)
-        .collection('chat_messages')
-        .doc(messageId)
-        .delete();
-    
-    print("Message deleted successfully");
-  } catch (e) {
-    print("Error deleting message: $e");
-  }
-}
 
 }
 
@@ -174,11 +161,11 @@ class Message {
   factory Message.fromFirestore(DocumentSnapshot doc) {
     return Message(
       id: doc.id,
-      message: doc['message'],
-      isReceived: doc['isReceived'],
+      message: doc['message'] ?? '',
+      isReceived: doc['isReceived'] ?? false,
       userName: doc['userName'] ?? 'Unknown User',
       userImage: doc['image_user'] ?? '',
-      timestamp: doc['timestamp'],
+      timestamp: doc['timestamp'] ?? Timestamp.fromDate(DateTime.now()),
     );
   }
 }

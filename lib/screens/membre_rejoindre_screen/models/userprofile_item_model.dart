@@ -1,22 +1,11 @@
-import '../../../core/app_export.dart';
-
-/// This class is used in the [userprofile_item_widget] screen.
-// ignore_for_file: must_be_immutable
-
-// ignore_for_file: must_be_immutable
 class UserprofileItemModel {
-  UserprofileItemModel(
-      {this.userImage, this.username, this.chartImage, this.id}) {
-    userImage = userImage ?? ImageConstant.imgAccount;
-    username = username ?? "Imen Missaoui";
-    id = id ?? "";
-  }
+  final String? userImage;
+  final String? username;
+  final String? id;
 
-  String? userImage;
-
-  String? username;
-
-  String? chartImage;
-
-  String? id;
+  UserprofileItemModel({
+    this.userImage,
+    this.username,
+    this.id,
+  });
 }

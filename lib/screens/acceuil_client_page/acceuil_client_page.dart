@@ -1,23 +1,22 @@
-import 'package:flutter/material.dart';
+import 'dart:developer';
 import 'package:rifund/screens/affichage_par_categorie/affichagecategorie.dart';
-import 'package:rifund/theme/custom_button_style.dart';
-import 'package:rifund/widgets/bottomNavBar.dart';
-import 'package:rifund/widgets/custom_elevated_button.dart';
+import 'package:rifund/screens/details_projet_screen/details_projet_screen.dart';
 import 'package:rifund/widgets/custom_search_view.dart';
 
 import '../../core/app_export.dart';
-import '../details_projet_screen/details_projet_screen.dart';
+import '../../theme/custom_button_style.dart';
+import '../../widgets/bottomNavBar.dart';
+import '../../widgets/custom_elevated_button.dart';
 import '../financer_projet_screen/financer_projet_screen.dart';
 import 'models/listtext_item_model.dart';
-import 'provider/acceuil_client_provider.dart';
 
 class AcceuilClientPage extends StatefulWidget {
-  const AcceuilClientPage({Key? key}) : super(key: key);
+  const AcceuilClientPage({super.key});
 
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => AcceuilClientProvider(),
-      child: AcceuilClientPage(),
+      child: const AcceuilClientPage(),
     );
   }
 
@@ -34,8 +33,6 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
           .fetchAllProjects();
       Provider.of<AcceuilClientProvider>(context, listen: false)
           .fetchCategories();
-      Provider.of<AcceuilClientProvider>(context, listen: false)
-          .fetchUserData();
     });
   }
 
@@ -44,104 +41,111 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
     return Scaffold(
       backgroundColor: appTheme.whiteA700,
       resizeToAvoidBottomInset: false,
-      body: Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildMaleUserOneRow(context),
-            SizedBox(height: 47.v),
-            Padding(
-              padding: EdgeInsets.only(left: 15.h),
-              child: Text(
-                "lbl_cat_gories".tr,
-                textAlign: TextAlign.left,
-                style: theme.textTheme.headlineSmall,
-              ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildMaleUserOneRow(context),
+          SizedBox(height: 47.v),
+          Padding(
+            padding: EdgeInsets.only(left: 15.h),
+            child: Text(
+              "lbl_cat_gories".tr,
+              textAlign: TextAlign.left,
+              style: theme.textTheme.headlineSmall,
             ),
-            _buildCategoriesColumn(context),
-            SizedBox(height: 20.v),
-            Padding(
-              padding: EdgeInsets.only(left: 15.h),
-              child: Text(
-                "msg_projets_financ_s".tr,
-                textAlign: TextAlign.left,
-                style: theme.textTheme.headlineSmall,
-              ),
+          ),
+          _buildCategoriesColumn(context),
+          SizedBox(height: 20.v),
+          Padding(
+            padding: EdgeInsets.only(left: 15.h),
+            child: Text(
+              "msg_projets_financ_s".tr,
+              textAlign: TextAlign.left,
+              style: theme.textTheme.headlineSmall,
             ),
-            SizedBox(height: 20.v),
-            Padding(
-              padding: EdgeInsets.only(left: 15.v),
-              child: _buildProjetNrgColumn(context),
-            ),
-            SizedBox(height: 5.v),
-          ],
-        ),
+          ),
+          SizedBox(height: 20.v),
+          Padding(
+            padding: EdgeInsets.only(left: 15.v),
+            child: _buildProjetNrgColumn(context),
+          ),
+          SizedBox(height: 5.v),
+        ],
       ),
       bottomNavigationBar: BottomNavBar(),
     );
   }
 
-  Widget _buildMaleUserOneRow(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Container(
-        width: double.maxFinite,
-        padding: EdgeInsets.symmetric(horizontal: 27.h, vertical: 13.v),
-        decoration: AppDecoration.fillLightGreen.copyWith(
-          borderRadius: BorderRadiusStyle.roundedBorder22,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(left: 4.h),
-              child: Row(
-                children: [
-                  Icon(Icons.account_circle, color: Colors.white, size: 60),
-                  SizedBox(width: 11.h),
-                  Container(
-                    width: 111.h,
-                    margin: EdgeInsets.only(left: 11.h, top: 12.v, bottom: 3.v),
-                    child: Consumer<AcceuilClientProvider>(
-                      builder: (context, provider, child) {
-                        // Ensure we get the userName from the provider
-                        String userName = provider.userName;
-                        return Text(
-                          userName.isEmpty ? "Nom d'utilisateur" : userName,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: CustomTextStyles.titleLargeWhiteA700,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 9.v),
-            Selector<AcceuilClientProvider, TextEditingController?>(
-              selector: (context, provider) => provider.searchController,
-              builder: (context, searchController, child) {
-                return CustomSearchView(
-                  hintText: "Rechercher",
-                  suffix: Container(
-                    margin: EdgeInsets.fromLTRB(30.h, 7.v, 10.h, 7.v),
-                    height: 17,
-                    width: 23,
-                  ),
-                  controller: searchController,
-                );
-              },
-            ),
-          ],
-        ),
+Widget _buildMaleUserOneRow(BuildContext context) {
+  return Align(
+    alignment: Alignment.centerRight,
+    child: Container(
+      width: double.maxFinite,
+      padding: EdgeInsets.symmetric(horizontal: 27.h, vertical: 13.v),
+      decoration: AppDecoration.fillLightGreen.copyWith(
+        borderRadius: BorderRadiusStyle.roundedBorder22,
       ),
-    );
-  }
-
-  Widget _buildCategoriesColumn(BuildContext context) {
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(left: 4.h),
+            child: Row(
+              children: [
+                Consumer<AcceuilClientProvider>(
+                  builder: (context, provider, child) {
+                    // If profileImageUrl is not null, display the profile image
+                    return provider.profileImageUrl != null
+                        ? CircleAvatar(
+                            radius: 30,
+                            backgroundImage:
+                                NetworkImage(provider.profileImageUrl!),
+                          )
+                        // Otherwise, display the default user icon
+                        : Icon(Icons.account_circle, color: Colors.white, size: 60);
+                  },
+                ),
+                SizedBox(width: 11.h),
+                Container(
+                  width: 111.h,
+                  margin: EdgeInsets.only(left: 11.h, top: 12.v, bottom: 3.v),
+                  child: Consumer<AcceuilClientProvider>(
+                    builder: (context, provider, child) {
+                      return Text(
+                        provider.userName.isEmpty ? "Nom d'utilisateur" : provider.userName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: CustomTextStyles.titleLargeWhiteA700,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 9.v),
+          Selector<AcceuilClientProvider, TextEditingController?>( 
+            selector: (context, provider) => provider.searchController,
+            builder: (context, searchController, child) {
+              return CustomSearchView(
+                hintText: "Rechercher",
+                suffix: Container(
+                  margin: EdgeInsets.fromLTRB(30.h, 7.v, 10.h, 7.v),
+                  height: 17,
+                  width: 23,
+                ),
+                controller: searchController,
+              );
+            },
+          ),
+        ],
+      ),
+    ),
+  );
+}
+ Widget _buildCategoriesColumn(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
       child: Column(
@@ -227,11 +231,11 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
     return Consumer<AcceuilClientProvider>(
       builder: (context, provider, child) {
         if (provider.isLoading) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (provider.filteredProjects.isEmpty) {
-          return Center(child: Text("Pas de projets."));
+          return const Center(child: Text("Pas de projets."));
         }
 
         return SingleChildScrollView(
@@ -288,8 +292,9 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                                 Padding(
                                   padding: EdgeInsets.only(left: 27.h),
                                   child: Text(
-                                    project.budget.toString() ??
-                                        "Pas de budget",
+                                    project.budget != null
+                                        ? project.budget.toString()
+                                        : "Pas de budget",
                                     style: CustomTextStyles
                                         .titleLargeLightgreen600,
                                   ),
@@ -336,7 +341,7 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    FinancerProjetScreen()),
+                                                    const FinancerProjetScreen()),
                                           );
                                         },
                                       ),
@@ -350,13 +355,13 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                                         buttonTextStyle:
                                             theme.textTheme.titleMedium!,
                                         onPressed: () {
+                                          log("project : userid : ${project.userId} and projectId : ${project.id}");
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   DetailsProjetScreen(
-                                                project: project,
-                                              ),
+                                                      project: project),
                                             ),
                                           );
                                         },

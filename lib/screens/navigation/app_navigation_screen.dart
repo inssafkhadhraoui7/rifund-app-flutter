@@ -14,7 +14,7 @@ class AppNavigationScreen extends StatefulWidget {
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => AppNavigationProvider(),
-      child: AppNavigationScreen(),
+      child: const AppNavigationScreen(),
     );
   }
 }
@@ -45,19 +45,19 @@ class AppNavigationScreenState extends State<AppNavigationScreen> {
                           context,
                           screenTitle: "lbl_cr_er_projet".tr,
                           onTapScreenTitle: () =>
-                              onTapScreenTitle(AppRoutes.crProjetScreen),
+                              onTapScreenTitle(RoutePath.crProjetScreen),
                         ),
                         _buildScreenTitle(
                           context,
                           screenTitle: "lbl_details_projet".tr,
                           onTapScreenTitle: () =>
-                              onTapScreenTitle(AppRoutes.detailsProjetScreen),
+                              onTapScreenTitle(RoutePath.detailsProjetScreen),
                         ),
                         _buildScreenTitle(
                           context,
                           screenTitle: "lbl_modifier_projet".tr,
                           onTapScreenTitle: () =>
-                              onTapScreenTitle(AppRoutes.modifierProjetScreen),
+                              onTapScreenTitle(RoutePath.modifierProjetScreen),
                         ),
                         // _buildScreenTitle(
                         // context,

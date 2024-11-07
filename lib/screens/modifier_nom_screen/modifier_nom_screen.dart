@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:rifund/screens/profile_screen/profile_screen.dart';
 import 'package:provider/provider.dart';
@@ -28,12 +27,10 @@ class ModifierNomScreen extends StatefulWidget {
 
 class ModifierNomScreenState extends State<ModifierNomScreen> {
   final _formKey = GlobalKey<FormState>(); // Key for form validation
-  TextEditingController _enternewusernamController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _enternewusernamController.clear();
   }
 
   @override
@@ -101,7 +98,7 @@ class ModifierNomScreenState extends State<ModifierNomScreen> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 9.h),
               child: Selector<ModifierNomProvider, TextEditingController?>(
-                selector: (context, provider) => _enternewusernamController,
+                selector: (context, provider) => provider.enternewusernamController,
                 builder: (context, enternewusernamController, child) {
                   return CustomTextFormField(
                     controller: enternewusernamController,
@@ -133,15 +130,6 @@ class ModifierNomScreenState extends State<ModifierNomScreen> {
                   buttonTextStyle: CustomTextStyles.titleSmallPrimary.copyWith(color: Colors.white),
                   onPressed: () {
                     if (_formKey.currentState?.validate() ?? false) {
-
-
-                        FirebaseFirestore  firebaseFirestore =  FirebaseFirestore.instance ;
-
-                         firebaseFirestore.collection("users").doc('mcD7QmIlIKMm8LwmOwox9MVVfwU2').update({
-                           'username': _enternewusernamController.text.trim()
-                         });
-
-
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => ProfileScreen()),

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -14,7 +15,7 @@ import 'models/admin_cat_gorie_model.dart';
 import 'provider/admin_cat_gorie_provider.dart';
 
 class AdminCategoryScreen extends StatefulWidget {
-  const AdminCategoryScreen({Key? key}) : super(key: key);
+  const AdminCategoryScreen({super.key});
 
   @override
   AdminCatGorieScreenState createState() => AdminCatGorieScreenState();
@@ -22,7 +23,7 @@ class AdminCategoryScreen extends StatefulWidget {
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => AdminCategoryProvider(),
-      child: AdminCategoryScreen(),
+      child: const AdminCategoryScreen(),
     );
   }
 }
@@ -66,15 +67,15 @@ class AdminCatGorieScreenState extends State<AdminCategoryScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => AjoutCatGoriePage()),
+                              builder: (context) => const AjoutCatGoriePage()),
                         );
                       },
-                      child: Icon(Icons.add, color: Colors.white),
                       style: ElevatedButton.styleFrom(
-                        shape: CircleBorder(),
-                        padding: EdgeInsets.all(19),
+                        shape: const CircleBorder(),
+                        padding: const EdgeInsets.all(19),
                         backgroundColor: Colors.lightGreen.shade600,
                       ),
+                      child: const Icon(Icons.add, color: Colors.white),
                     ),
                   ],
                 ),
@@ -83,7 +84,7 @@ class AdminCatGorieScreenState extends State<AdminCategoryScreen> {
                 child: Consumer<AdminCategoryProvider>(
                   builder: (context, provider, child) {
                     if (provider.isLoading) {
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     }
                     if (provider.errorMessage != null) {
                       return Center(child: Text(provider.errorMessage!));
@@ -102,7 +103,8 @@ class AdminCatGorieScreenState extends State<AdminCategoryScreen> {
                                     SizedBox(height: 25.v),
                                     ListView.builder(
                                       shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       itemCount: provider.categories.length,
                                       itemBuilder: (context, index) {
                                         final category =
@@ -114,8 +116,7 @@ class AdminCatGorieScreenState extends State<AdminCategoryScreen> {
                                               bottom: 10.v),
                                           child: _buildField1(
                                             context,
-                                            category:
-                                                category, // Pass the category directly
+                                            category: category,
                                           ),
                                         );
                                       },
@@ -146,7 +147,7 @@ PreferredSizeWidget _buildAppBar(BuildContext context) {
     title: Row(
       children: [
         IconButton(
-          icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
           onPressed: () {
             onTapArrowleftone(context);
           },
@@ -172,17 +173,17 @@ Widget _buildField1(BuildContext context,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(top: 5.0, bottom: 9.0),
+          padding: const EdgeInsets.only(top: 5.0, bottom: 9.0),
           child: Image.network(
-            category.imageUrl ?? '', // Handle case if imageUrl is null
+            category.imageUrl ?? '',
             height: 24.0,
             width: 24.0,
             fit: BoxFit.cover,
           ),
         ),
-        SizedBox(width: 8.0),
+        const SizedBox(width: 8.0),
         Padding(
-          padding: EdgeInsets.only(top: 7.0, bottom: 9.0),
+          padding: const EdgeInsets.only(top: 7.0, bottom: 9.0),
           child: Text(
             category.name,
             style: theme.textTheme.bodyMedium!.copyWith(
@@ -190,23 +191,23 @@ Widget _buildField1(BuildContext context,
             ),
           ),
         ),
-        Spacer(),
+        const Spacer(),
         CustomIconButton(
           height: 32.0,
           width: 32.0,
           onTap: () {
             _showUpdateDialog(context, category); // Pass the whole category
           },
-          child: Icon(Icons.edit),
+          child: const Icon(Icons.edit),
         ),
-        SizedBox(width: 8.0),
+        const SizedBox(width: 8.0),
         CustomIconButton(
           height: 32.0,
           width: 32.0,
           onTap: () {
             deletedialog(context, category.id, category.imageUrl!);
           },
-          child: Icon(Icons.delete),
+          child: const Icon(Icons.delete),
         ),
       ],
     ),
@@ -218,8 +219,8 @@ void onTapArrowleftone(BuildContext context) {
 }
 
 void _showUpdateDialog(BuildContext context, AdminCategoryModel category) {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  TextEditingController _nameController =
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  TextEditingController nameController =
       TextEditingController(text: category.name);
   String? newImageUrl;
 
@@ -227,15 +228,16 @@ void _showUpdateDialog(BuildContext context, AdminCategoryModel category) {
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: Text("Modifier Catégorie"),
+        title: const Text("Modifier Catégorie"),
         content: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: "Nom de la catégorie"),
+                controller: nameController,
+                decoration:
+                    const InputDecoration(labelText: "Nom de la catégorie"),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez entrer un nom';
@@ -243,7 +245,7 @@ void _showUpdateDialog(BuildContext context, AdminCategoryModel category) {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               TextButton(
                 onPressed: () async {
                   FilePickerResult? result =
@@ -256,19 +258,21 @@ void _showUpdateDialog(BuildContext context, AdminCategoryModel category) {
                     newImageUrl = await uploadImage(path);
 
                     if (newImageUrl == null) {
+                      if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                             content:
                                 Text("Échec du téléchargement de l'image")),
                       );
                     } else {
+                      if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Image sélectionnée")),
+                        const SnackBar(content: Text("Image sélectionnée")),
                       );
                     }
                   }
                 },
-                child: Text("Choisir une image"),
+                child: const Text("Choisir une image"),
               ),
               if (newImageUrl != null)
                 Padding(
@@ -282,26 +286,26 @@ void _showUpdateDialog(BuildContext context, AdminCategoryModel category) {
         actions: [
           TextButton(
             onPressed: () {
-              if (_formKey.currentState!.validate()) {
+              if (formKey.currentState!.validate()) {
                 String finalImageUrl = newImageUrl ?? category.imageUrl ?? '';
 
                 Provider.of<AdminCategoryProvider>(context, listen: false)
                     .updateCategory(
                   category.id,
-                  _nameController.text,
+                  nameController.text,
                   finalImageUrl,
                   category.imageUrl,
                 );
                 Navigator.of(context).pop();
               }
             },
-            child: Text("Valider"),
+            child: const Text("Valider"),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text("Annuler"),
+            child: const Text("Annuler"),
           ),
         ],
       );
@@ -320,7 +324,7 @@ Future<String?> uploadImage(String path) async {
 
     return await snapshot.ref.getDownloadURL();
   } catch (e) {
-    print("Erreur de telechargement image: $e");
+    log("Erreur de telechargement image: $e");
     return null;
   }
 }
@@ -330,23 +334,24 @@ void deletedialog(BuildContext context, String categoryId, String imageUrl) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text("Confirmation"),
-        content: Text("Voulez-vous supprimer cette catégorie?"),
+        title: const Text("Confirmation"),
+        content: const Text("Voulez-vous supprimer cette catégorie?"),
         actions: [
           TextButton(
             onPressed: () async {
               final provider =
                   Provider.of<AdminCategoryProvider>(context, listen: false);
               await provider.deleteCategory(categoryId, imageUrl);
+              if (!context.mounted) return;
               Navigator.of(context).pop();
             },
-            child: Text("Oui"),
+            child: const Text("Oui"),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text("Annuler"),
+            child: const Text("Annuler"),
           ),
         ],
       );

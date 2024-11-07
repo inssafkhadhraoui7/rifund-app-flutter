@@ -30,7 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (BuildContext context) =>
-              WelcomeScreen(), // Replace with your next screen
+              const WelcomeScreen(), // Replace with your next screen
         ),
       );
     });

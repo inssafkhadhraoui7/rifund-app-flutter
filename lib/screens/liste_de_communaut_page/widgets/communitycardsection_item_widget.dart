@@ -127,7 +127,11 @@ class CommunitycardsectionItemWidget extends StatelessWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => MembreRejoindreScreen()),
+              MaterialPageRoute(builder: (context) => MembreRejoindreScreen(
+                 userId: currentUserId,
+                  projectId: model.projectId, // Using model.projectId
+                  communityId: model.communityId,
+              )),
             );
           },
         ),
@@ -141,7 +145,8 @@ class CommunitycardsectionItemWidget extends StatelessWidget {
                   context,
                   userId: currentUserId,
                   projectId: model.projectId, // Using model.projectId
-                  communityId: model.communityId, // Using model.communityId
+                  communityId: model.communityId, // Using model.communityI
+                 
                 ),
               ),
             );

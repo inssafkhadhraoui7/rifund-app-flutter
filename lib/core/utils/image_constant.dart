@@ -26,7 +26,7 @@ class ImageConstant {
   static String imgComponent14 = '$imagePath/img_component_14.png';
   static String imgAccount = '$imagePath/img_account.png';
 // Details projet images
-  static String imgSearch = '$imagePath/img_search.svg';
+  static String imgSearch = '$imagePath/img_arrow_left.svg';
 
   static String imgImage = '$imagePath/neige.jpeg';
 
@@ -38,7 +38,7 @@ class ImageConstant {
   static String img1308314 = '$imagePath/img_130831_4.png';
 
 // Supprimer projet  images
-  static String imgRectangle34 = '$imagePath/img_rectangle_34.svg';
+  static String imgRectangle34 = '$imagePath/img_arrow_left.svg';
 
 // Common images
   static String imgArrowLeft = '$imagePath/img_arrow_left.svg';
@@ -55,7 +55,7 @@ class ImageConstant {
 
   static String imgClock = '$imagePath/img_clock.png';
 
-  static String imageNotFound = 'assets/images/image_not_found.png';
+ // static String imageNotFound = 'assets/images/image_not_found.jpg';
 
   static String imgImage3 = '$imagePath/imgwelc.jpg';
 

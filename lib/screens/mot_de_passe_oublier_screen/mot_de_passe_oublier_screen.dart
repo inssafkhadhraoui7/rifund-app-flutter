@@ -192,6 +192,6 @@ class MotDePasseOublierScreenState extends State<MotDePasseOublierScreen> {
 
   /// Navigates to the seConnecterScreen when the action is triggered.
   void onTapTxtSeconnecter(BuildContext context) {
-    NavigatorService.pushNamed(AppRoutes.seConnecterScreen);
+    NavigatorService.pushNamed(RoutePath.seConnecterScreen);
   }
 }
