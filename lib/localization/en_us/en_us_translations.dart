@@ -3,7 +3,7 @@ final Map<String, String> enUs = {
   "lbl_date": "Date",
   "msg_cr_er_votre_projet": "Créer votre projet personnel",
   "msg_creation_du_projet": "Creation du projet",
-  "msg_remplir_la_formulaire": "Remplir la formulaire suivante",
+  "msg_remplir_la_formulaire": "Remplir le formulaire suivant",
   "lbl_25": "25 %",
   "lbl_45": "45 %",
   "lbl_70": "70 %",

@@ -31,7 +31,7 @@ class ListtextItemModel {
       images: List<String>.from(data['images'] ?? []),
     );
   }
-  
+
   Map<String, dynamic> toMap() {
     return {
       'title': title,
@@ -47,7 +47,7 @@ class ListtextItemModel {
 
 class CategoryItemModel {
   String? name;
-  String? images;
+  List<String>? images;
 
   CategoryItemModel({
     this.name,
@@ -56,15 +56,16 @@ class CategoryItemModel {
 
   factory CategoryItemModel.fromMap(Map<String, dynamic> data) {
     return CategoryItemModel(
-      name: data['name'],         
-      images: data['imageUrls'],    
+      name: data['name'],
+      images:
+          data['imageUrls'] != null ? List<String>.from(data['imageUrls']) : [],
     );
   }
-  
+
   Map<String, dynamic> toMap() {
     return {
-      'name': name,               
-      'imageUrls': images,         
+      'name': name,
+      'imageUrls': images,
     };
   }
 }

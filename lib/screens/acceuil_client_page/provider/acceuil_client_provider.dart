@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../models/acceuil_client_model.dart';
@@ -11,10 +12,38 @@ class AcceuilClientProvider extends ChangeNotifier {
   List<ListtextItemModel> filteredProjects = [];
   List<CategoryItemModel> listcategoryItemList = [];
   bool isLoading = false;
+  String userName = '';
   String errorMessage = '';
 
   AcceuilClientProvider() {
     searchController.addListener(_filterProjects);
+  }
+  Future<void> fetchUserData() async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      // Assume we are getting the current user using FirebaseAuth
+      User? currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser != null) {
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .get();
+
+        if (userDoc.exists) {
+          userName = userDoc['nom'] ?? 'Utilisateur';
+        }
+      }
+      errorMessage = '';
+    } catch (e) {
+      errorMessage = 'Erreur de téléchargement de l\'utilisateur $e';
+      print(errorMessage);
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> fetchAllProjects() async {
@@ -32,16 +61,12 @@ class AcceuilClientProvider extends ChangeNotifier {
             .where('isApproved', isEqualTo: true)
             .get();
 
-        print(
-            'Fetched ${projectsSnapshot.docs.length} approved projects for user ${userDoc.id}');
-
         for (var projectDoc in projectsSnapshot.docs) {
           allProjects.add(
             ListtextItemModel.fromMap(
-                projectDoc.data() as Map<String, dynamic>),
+              projectDoc.data() as Map<String, dynamic>,
+            ),
           );
-
-          print('Project: ${projectDoc.data()}'); 
         }
       }
 
@@ -49,7 +74,7 @@ class AcceuilClientProvider extends ChangeNotifier {
       filteredProjects = allProjects;
       errorMessage = '';
     } catch (e) {
-      errorMessage = 'Erreur de telechargement de projets $e';
+      errorMessage = 'Erreur de téléchargement de projets $e';
       print(errorMessage);
     } finally {
       isLoading = false;
@@ -60,8 +85,8 @@ class AcceuilClientProvider extends ChangeNotifier {
   Future<void> fetchCategories() async {
     isLoading = true;
     notifyListeners();
-    List<CategoryItemModel> allCategories = [];
 
+    List<CategoryItemModel> allCategories = [];
     try {
       QuerySnapshot categoriesSnapshot =
           await FirebaseFirestore.instance.collection('categories').get();
@@ -69,14 +94,14 @@ class AcceuilClientProvider extends ChangeNotifier {
       allCategories = categoriesSnapshot.docs.map((doc) {
         return CategoryItemModel.fromMap(doc.data() as Map<String, dynamic>);
       }).toList();
+
+      listcategoryItemList = allCategories;
     } catch (e) {
-      print('Erreur de téléchargement : $e');
+      print('Erreur de téléchargement des catégories : $e');
+      errorMessage = 'Erreur de téléchargement des catégories : $e';
     } finally {
       isLoading = false;
       notifyListeners();
-
-      ListcategoriesModel listcategoryItemList =
-          ListcategoriesModel(categories: allCategories);
     }
   }
 

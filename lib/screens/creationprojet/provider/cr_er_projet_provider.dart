@@ -1,12 +1,10 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:rifund/core/utils/image_constant.dart';
 import 'package:rifund/screens/listeprojets/models/userprofile_item_model.dart';
-
 import '../../../data/models/selectionPopupModel/selection_popup_model.dart';
 import '../models/modelcrprojet.dart';
 
@@ -59,6 +57,45 @@ class CrErProjetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> createUserProject() async {
+    String? userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      throw Exception("Utilisateur pas connecté");
+    }
+
+    String title = projectTitleController.text;
+    String description = descriptionValueController.text;
+    List<String> imageUrls = await uploadImages(selectedImagePaths);
+    String budget = budgetValueController.text;
+    String date = dateController.text;
+    String? accountNumber = compteController.text;
+
+    Map<String, dynamic> projectData = {
+      'title': title,
+      'description': description,
+      'images': imageUrls,
+      'budget': budget,
+      'date': date,
+      'accountNumber': accountNumber,
+      'currency': selectedCurrency,
+      'category': selectedCategory,
+      'userId': userId, // Include userId in the data.
+    };
+
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('projects')
+          .add(projectData);
+
+      notifyListeners();
+    } catch (error) {
+      print('Error creating project: $error');
+      throw Exception('Failed to create project: $error');
+    }
+  }
+
   Future<List<UserprofileItemModel>> fetchUserProjects() async {
     String? userId = _auth.currentUser?.uid;
 
@@ -92,8 +129,9 @@ class CrErProjetProvider extends ChangeNotifier {
   }
 
   Future<void> updateUserProject(String? projectId) async {
-    if (projectId == null) {
-      throw Exception("Project ID cannot be null");
+    String? userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      throw Exception("Utilisateur pas connecté");
     }
 
     String title = projectTitleController.text;
@@ -112,12 +150,8 @@ class CrErProjetProvider extends ChangeNotifier {
       'accountNumber': accountNumber,
       'currency': selectedCurrency,
       'category': selectedCategory,
+      'userId': userId,
     };
-
-    String? userId = _auth.currentUser?.uid;
-    if (userId == null) {
-      throw Exception("Utilisateru pas connecté");
-    }
 
     try {
       await _firestore

@@ -1,13 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:rifund/main.dart';
 import 'package:rifund/screens/acceuil_client_page/models/listtext_item_model.dart';
-import 'package:rifund/screens/chat_box_screen/chat_box_screen.dart';
 import 'package:rifund/screens/financer_projet_screen/financer_projet_screen.dart';
 import 'package:rifund/widgets/app_bar/appbar_subtitle.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
@@ -27,6 +24,7 @@ class DetailsProjetScreen extends StatefulWidget {
     required this.project,
   }) : super(key: key);
 
+
   @override
   DetailsProjetScreenState createState() => DetailsProjetScreenState();
 
@@ -42,68 +40,21 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
   String? communityId;
   String? messageId;
   List<Map<String, dynamic>> chatMessages = [];
+  String? userId;
+  String? projectId;
 
   @override
   void initState() {
     super.initState();
-    fetchUserAndProjectData();
+    
+    userId == widget.project.userId;
+    projectId == widget.project.projectId;
+    print("hello details page hellllllllllllllllllo $projectId $userId");
   }
 
-  Future<void> fetchUserAndProjectData() async {
-    try {
-      // Fetch userId and projectId based on project name and description
-      final userId = await fetchUserIdByProjectDetails(widget.project.title, widget.project.description);
-      final projectId = await fetchProjectIdByDetails(widget.project.title, widget.project.description);
-
-      // Check if the IDs are available
-      if (userId != null && projectId != null) {
-        await fetchCommunityId(userId, projectId);
-      } else {
-        print("User ID or Project ID is null.");
-      }
-    } catch (e) {
-      print("Error fetching user and project data: $e");
-    }
-  }
-
-  Future<String?> fetchUserIdByProjectDetails(String? title, String? description) async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('projects') // Replace with your collection
-          .where('title', isEqualTo: title)
-          .where('description', isEqualTo: description)
-          .limit(1) // Only fetch the first match
-          .get();
-
-      if (snapshot.docs.isNotEmpty) {
-        return snapshot.docs.first['userId']; // Ensure the field exists
-      }
-    } catch (e) {
-      print("Error fetching userId: $e");
-    }
-    return null;
-  }
-
-Future<String?> fetchProjectIdByDetails(String? name, String? description) async {
-  try {
-    // Perform a compound query based on 'name' and 'description'
-    final snapshot = await FirebaseFirestore.instance
-        .collection('projects') // Replace with the correct collection name if different
-        .where('name', isEqualTo: name) // Match project name
-        .where('description', isEqualTo: description) // Match project description
-        .limit(1) // Fetch only the first match
-        .get();
-
-    if (snapshot.docs.isNotEmpty) {
-      return snapshot.docs.first.id; // Return the project document ID
-    }
-  } catch (e) {
-    print("Error fetching projectId: $e");
-  }
-  return null;
-}
-
-Future<void> fetchCommunityId(String userId, String projectId) async {
+   Future<void> fetchCommunityId(String userId, String projectId) async {
+    userId == widget.project.userId;
+    projectId == widget.project.projectId;
     try {
       final snapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -121,8 +72,10 @@ Future<void> fetchCommunityId(String userId, String projectId) async {
         });
         print("Community ID fetched: $communityId");
         await fetchChatMessages(communityId!);
+        //_buildProjectDetails(communityId!);
       } else {
-        print("No communities found for userId: $userId and projectId: $projectId");
+        print(
+            "No communities found for userId: $userId and projectId: $projectId");
       }
     } catch (e) {
       print("Error fetching community ID: $e");
@@ -151,7 +104,8 @@ Future<void> fetchCommunityId(String userId, String projectId) async {
           };
         }).toList();
 
-        messageId = chatMessages.isNotEmpty ? chatMessages[0]['messageId'] : null;
+        messageId =
+            chatMessages.isNotEmpty ? chatMessages[0]['messageId'] : null;
       });
       print("Chat messages fetched: $chatMessages");
     } catch (e) {
@@ -187,8 +141,11 @@ Future<void> fetchCommunityId(String userId, String projectId) async {
                   alignment: Alignment.center,
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 23.h),
-                    child: Selector<DetailsProjetProvider, TextEditingController?>(
-                      selector: (context, provider) => provider.searchController,
+                    child:
+                        Selector<DetailsProjetProvider, TextEditingController?>(
+                      // Search Bar
+                      selector: (context, provider) =>
+                          provider.searchController,
                       builder: (context, searchController, child) {
                         return CustomSearchView(
                           controller: searchController,
@@ -203,8 +160,6 @@ Future<void> fetchCommunityId(String userId, String projectId) async {
                 _buildSlider(context, sliderItems),
                 SizedBox(height: 10.v),
                 _buildProjectDetails(context),
-          
-             
               ],
             ),
           ),
@@ -239,6 +194,7 @@ Future<void> fetchCommunityId(String userId, String projectId) async {
       child: Column(
         children: [
           Consumer<DetailsProjetProvider>(
+            // Slider
             builder: (context, provider, child) {
               return CarouselSlider.builder(
                 options: CarouselOptions(
@@ -256,7 +212,7 @@ Future<void> fetchCommunityId(String userId, String projectId) async {
                 itemBuilder: (context, index, realIndex) {
                   return sliderItems.isNotEmpty
                       ? SliderItemWidget(sliderItems[index])
-                      : Center(child: Text("No images available"));
+                      : Center(child: Text("Pas d'images"));
                 },
               );
             },
@@ -311,7 +267,7 @@ Future<void> fetchCommunityId(String userId, String projectId) async {
                 Padding(
                   padding: EdgeInsets.only(top: 15.v),
                   child: Text(
-                    "Cliquer sur l'icone pour rejoindre ", // Updated text
+                    "Cliquer sur l'icone pour rejoindre ",
                     style: theme.textTheme.titleSmall,
                   ),
                 ),
@@ -320,7 +276,7 @@ Future<void> fetchCommunityId(String userId, String projectId) async {
                   iconSize: 30.0,
                   tooltip: 'Rejoindre Communauté',
                   padding: EdgeInsets.only(left: 10.h, bottom: 3.v),
-                  onPressed: () => _showJoinCommunityDialog(),
+                  onPressed: () => _showJoinCommunityDialog(communityId!),
                 ),
               ],
             ),
@@ -346,7 +302,7 @@ Future<void> fetchCommunityId(String userId, String projectId) async {
               SizedBox(height: 21.v),
               Padding(
                 padding: EdgeInsets.only(left: 2.h),
-                child: Text("\$${widget.project.budget.toString()}",
+                child: Text("TND ${widget.project.budget.toString()}",
                     style: CustomTextStyles.titleLargeInterPrimary),
               ),
             ],
@@ -363,7 +319,7 @@ Future<void> fetchCommunityId(String userId, String projectId) async {
                   ),
                   SizedBox(height: 4.v),
                   Text(
-                    widget.project.description ?? "No Description",
+                    widget.project.description ?? "Pas de description",
                     style: theme.textTheme.bodySmall,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 3,
@@ -377,7 +333,7 @@ Future<void> fetchCommunityId(String userId, String projectId) async {
     );
   }
 
- Widget _buildDonationButton(BuildContext context) {
+  Widget _buildDonationButton(BuildContext context) {
     return Align(
       alignment: Alignment.center,
       child: CustomElevatedButton(
@@ -396,51 +352,38 @@ Future<void> fetchCommunityId(String userId, String projectId) async {
       ),
     );
   }
-void _showJoinCommunityDialog() {
+
+ void _showJoinCommunityDialog(String communityId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Join Community"),
-          content: Text("Would you like to join this community?"),
+          title: Text("Joindre la communauté"),
+          content: Text("Voulez vous joindre la communauté ?"),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text("Cancel"),
+              child: Text("Annuler"),
             ),
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop();
                 if (communityId != null) {
-                  await FirebaseFirestore.instance.collection('communities')
-                      .doc(communityId).collection('members')
-                      .doc(widget.project.userId)
+                  await FirebaseFirestore.instance
+                      .collection('communities')
+                      .doc(communityId)
+                      .collection('members')
+                      .doc(userId)
                       .set({'joinedAt': Timestamp.now()});
-                  
-                  // Navigate to chat screen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatBoxScreen(
-                        communityId: communityId!, 
-                        userId: userId, 
-                        projectId: projectId,
-                        messageId: messageId,
-                      ),
-                    ),
-                  );
-                } else {
-                  print("Community ID is null.");
                 }
               },
-              child: Text("Join"),
+              child: Text("Joindre"),
             ),
           ],
         );
       },
     );
-}
-
+  }
 }

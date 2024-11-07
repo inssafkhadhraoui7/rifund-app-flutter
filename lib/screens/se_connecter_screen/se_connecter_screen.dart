@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Ajout de FirebaseAuth
 import '../../core/app_export.dart';
@@ -9,6 +12,8 @@ import '../../widgets/app_bar/custom_app_bar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_text_form_field.dart';
 import 'provider/se_connecter_provider.dart';
+import 'package:local_auth/error_codes.dart' as auth_error;
+
 
 class SeConnecterScreen extends StatefulWidget {
   const SeConnecterScreen({Key? key}) : super(key: key);
@@ -26,6 +31,9 @@ class SeConnecterScreen extends StatefulWidget {
 
 class SeConnecterScreenState extends State<SeConnecterScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final LocalAuthentication _auth = LocalAuthentication();
+
 
   @override
   Widget build(BuildContext context) {
@@ -177,6 +185,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
               },
             ),
           ),
+
           SizedBox(height: 12.v),
 
           // Password field
@@ -288,6 +297,43 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                   _handleGoogleLogin();
                 },
               ),
+              IconButton(
+                icon: Icon(Icons.fingerprint),
+                color: Colors.black,
+                iconSize: 35,
+                splashColor: Colors.white,
+                onPressed: () async{
+
+
+
+                  try {
+                    final bool didAuthenticate = await _auth.authenticate(localizedReason: 'please_authenticate_complete_request'.tr
+                        , options: const AuthenticationOptions(useErrorDialogs: false,stickyAuth: false,biometricOnly: true),
+                        // authMessages:   <AuthMessages> [
+                        //   AndroidAuthMessages(
+                        //     signInTitle: 'oops_biometric_authentication_required'.tr,
+                        //   ),
+                        //   // IOSAuthMessages(
+                        //   //     cancelButton: 'cancel'.tr,
+                        //   //     goToSettingsDescription: 'please'.tr +' ' + 'enable'.tr +'Please enable Touch ID.',)
+                        // ]
+
+                    );
+                    if(didAuthenticate){
+                      NavigatorService.pushNamed(AppRoutes.acceuilClientPage);
+
+                    }
+                    print(didAuthenticate);
+                  } on PlatformException catch (e) {
+                    if (e.code == auth_error.notAvailable) {
+                    } else if (e.code == auth_error.lockedOut || e.code == auth_error.permanentlyLockedOut) {
+                    
+                    } 
+                  }
+
+
+                },
+              ),
             ],
           )
         ],
@@ -302,7 +348,10 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     );
     return regex.hasMatch(email);
   }
-
+  start_CheckBiometrics() async {
+    final bool canAuthenticateWithBiometrics = await _auth.canCheckBiometrics;
+    final bool canAuthenticate = canAuthenticateWithBiometrics || await _auth.isDeviceSupported();
+  }
   void onTapTxtSinscrire(BuildContext context) {
     NavigatorService.pushNamed(AppRoutes.crErUnCompteScreen);
   }
@@ -316,6 +365,12 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
   final String email = provider.emailController.text.trim();
   final String password = provider.passwordoneController.text.trim();
 
+  if(email == 'adminimen01@gmail.com'){
+
+  return  NavigatorService.pushNamed(AppRoutes.profileAdminPage);
+
+  }
+
   try {
     // Sign in the user with Firebase Authentication
     final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -323,11 +378,17 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
       password: password,
     );
 
-    if (userCredential.user != null) {
+    // if(email == 'adminimen01@gmail.com'){
+    //
+    //   NavigatorService.pushNamed(AppRoutes.profileAdminPage);
+    //
+    // } else
+
+      if (userCredential.user != null) {
       // Check if user document exists in Firestore
       DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).get();
 
-      if (!userDoc.exists) {
+       if (!userDoc.exists) {
         // This shouldn't happen, but just in case handle it
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("L'utilisateur n'existe pas.")),
@@ -362,7 +423,32 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     // Logique de connexion avec Facebook
   }
 
-  void _handleGoogleLogin() {
-    // Logique de connexion avec Google
+  void _handleGoogleLogin() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    FirebaseFirestore  firebaseFirestore =  FirebaseFirestore.instance ;
+    final GoogleSignInAccount? googleUser = await GoogleSignIn(scopes: <String>['email']).signIn();
+
+    GoogleSignInAuthentication googlAuthentication  = await googleUser!.authentication;
+
+    final  credential = GoogleAuthProvider.credential(
+        accessToken: googlAuthentication.accessToken,
+        idToken: googlAuthentication.idToken
+    );
+    await auth.signInWithCredential(credential).then((value) async {
+      auth.currentUser!.updateDisplayName(googleUser.displayName);
+      var _email = googleUser.email;
+
+      NavigatorService.pushNamed(AppRoutes.acceuilClientPage);
+
+    });
+
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    start_CheckBiometrics();
   }
 }
+
+

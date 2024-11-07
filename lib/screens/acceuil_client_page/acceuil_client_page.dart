@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:rifund/screens/affichage_par_categorie/affichagecategorie.dart';
-import 'package:rifund/screens/details_projet_screen/details_projet_screen.dart';
+import 'package:rifund/theme/custom_button_style.dart';
+import 'package:rifund/widgets/bottomNavBar.dart';
+import 'package:rifund/widgets/custom_elevated_button.dart';
+import 'package:rifund/widgets/custom_search_view.dart';
 
 import '../../core/app_export.dart';
-import '../../theme/custom_button_style.dart';
-import '../../widgets/bottomNavBar.dart';
-import '../../widgets/custom_elevated_button.dart';
-import '../../widgets/custom_search_view.dart';
+import '../details_projet_screen/details_projet_screen.dart';
 import '../financer_projet_screen/financer_projet_screen.dart';
 import 'models/listtext_item_model.dart';
 import 'provider/acceuil_client_provider.dart';
@@ -34,6 +34,8 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
           .fetchAllProjects();
       Provider.of<AcceuilClientProvider>(context, listen: false)
           .fetchCategories();
+      Provider.of<AcceuilClientProvider>(context, listen: false)
+          .fetchUserData();
     });
   }
 
@@ -102,13 +104,19 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                   Container(
                     width: 111.h,
                     margin: EdgeInsets.only(left: 11.h, top: 12.v, bottom: 3.v),
-                    child: Text(
-                      "msg_nom_d_utilisateur2".tr,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: CustomTextStyles.titleLargeWhiteA700,
+                    child: Consumer<AcceuilClientProvider>(
+                      builder: (context, provider, child) {
+                        // Ensure we get the userName from the provider
+                        String userName = provider.userName;
+                        return Text(
+                          userName.isEmpty ? "Nom d'utilisateur" : userName,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: CustomTextStyles.titleLargeWhiteA700,
+                        );
+                      },
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -163,6 +171,10 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                   itemCount: categoryItems.length,
                   itemBuilder: (context, index) {
                     CategoryItemModel model = categoryItems[index];
+
+                    String imageUrl = model.images?.isNotEmpty == true
+                        ? model.images!.first
+                        : '';
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -173,12 +185,11 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                         );
                       },
                       child: SizedBox(
-                        width: 170,
+                        width: 180,
                         height: 130,
                         child: Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 40.h,
-                            vertical: 1.v,
+                            horizontal: 9.h,
                           ),
                           decoration:
                               AppDecoration.outlineLightgreen6001.copyWith(
@@ -186,19 +197,17 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                           ),
                           child: Column(
                             children: [
-                              SizedBox(height: 15.v),
+                              SizedBox(height: 10.v),
                               CustomImageView(
                                 alignment: Alignment.center,
-                                imagePath: model.images,
+                                imagePath: imageUrl,
                                 height: 50,
                                 width: 50,
                               ),
                               SizedBox(height: 9.v),
-                              Text(
-                                model.name!,
-                                textAlign: TextAlign.center,
-                                style: CustomTextStyles.bodyMediumLight,
-                              ),
+                              Text(model.name!,
+                                  textAlign: TextAlign.center,
+                                  style: CustomTextStyles.titleSmallSemiBold)
                             ],
                           ),
                         ),
@@ -346,7 +355,8 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   DetailsProjetScreen(
-                                                      project: project),
+                                                project: project,
+                                              ),
                                             ),
                                           );
                                         },

@@ -488,18 +488,22 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     return null;
   }
 
-  String? validateBudget(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Le budget est requis';
-    }
-
-    final parsedValue = double.tryParse(value);
-    if (parsedValue == null || value.length < 3) {
-      return 'un montant de 3 chiffres';
-    }
-
-    return null;
+ String? validateBudget(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'Le budget est requis';
   }
+
+    if (value.contains('-')) {
+    return 'Le budget ne peut pas être un nombre négatif';
+  }
+
+  final parsedValue = double.tryParse(value);
+  if (parsedValue == null || value.length < 3) {
+    return 'Un montant de 3 chiffres est requis';
+  }
+
+  return null;
+}
 
   String? validateDate(String? value) {
     if (value == null || value.isEmpty) {
