@@ -29,7 +29,7 @@ class UserprofileItemWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: Icon(Icons.heart_broken_outlined, color: Colors.green),
+              icon: Icon(Icons.favorite, color: Colors.green),
               onPressed: () => provider.approveMember(
                 model.id ?? '',
                 communityId,
