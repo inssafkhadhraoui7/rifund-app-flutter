@@ -15,11 +15,11 @@ class AcceuilClientProvider extends ChangeNotifier {
   bool isLoading = false;
   String errorMessage = '';
   String userName = 'Utilisateur'; // Default value
-  String? profileImageUrl; 
+  String? profileImageUrl;
 
   AcceuilClientProvider() {
     searchController.addListener(_filterProjects);
-       fetchUserData(); // Call fetchUserData in the constructor
+    fetchUserData(); // Call fetchUserData in the constructor
   }
 
   Future<void> fetchUserData() async {
@@ -37,12 +37,11 @@ class AcceuilClientProvider extends ChangeNotifier {
 
         if (userDoc.exists) {
           userName = userDoc.get('nom') ?? 'Utilisateur';
-          profileImageUrl = userDoc.get('profileImageUrl');
+          profileImageUrl = userDoc.get('image_user');
 
           // Get the profile image from Firebase Storage if not available in Firestore
-          if (profileImageUrl == null) {
-            profileImageUrl = await _getProfileImageUrlFromStorage(currentUser.uid);
-          }
+          profileImageUrl ??=
+              await _getProfileImageUrlFromStorage(currentUser.uid);
         }
       }
       errorMessage = '';

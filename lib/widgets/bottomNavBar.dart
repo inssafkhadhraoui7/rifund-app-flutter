@@ -6,6 +6,8 @@ import 'package:rifund/screens/notification_page/notification_page.dart';
 import 'package:rifund/screens/profile_screen/profile_screen.dart';
 
 class BottomNavBar extends StatelessWidget {
+  const BottomNavBar({super.key});
+
   @override
   Widget build(BuildContext context) {
     return CurvedNavigationBar(

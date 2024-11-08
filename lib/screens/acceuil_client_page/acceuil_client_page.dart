@@ -5,7 +5,6 @@ import 'package:rifund/widgets/custom_search_view.dart';
 
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
-import '../../widgets/bottomNavBar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../financer_projet_screen/financer_projet_screen.dart';
 import 'models/listtext_item_model.dart';
@@ -40,7 +39,7 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: appTheme.whiteA700,
-      resizeToAvoidBottomInset: false,
+      //   resizeToAvoidBottomInset: true,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -73,79 +72,87 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
           SizedBox(height: 5.v),
         ],
       ),
-      bottomNavigationBar: BottomNavBar(),
     );
   }
 
-Widget _buildMaleUserOneRow(BuildContext context) {
-  return Align(
-    alignment: Alignment.centerRight,
-    child: Container(
-      width: double.maxFinite,
-      padding: EdgeInsets.symmetric(horizontal: 27.h, vertical: 13.v),
-      decoration: AppDecoration.fillLightGreen.copyWith(
-        borderRadius: BorderRadiusStyle.roundedBorder22,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(left: 4.h),
-            child: Row(
-              children: [
-                Consumer<AcceuilClientProvider>(
-                  builder: (context, provider, child) {
-                    // If profileImageUrl is not null, display the profile image
-                    return provider.profileImageUrl != null
-                        ? CircleAvatar(
-                            radius: 30,
-                            backgroundImage:
-                                NetworkImage(provider.profileImageUrl!),
-                          )
-                        // Otherwise, display the default user icon
-                        : Icon(Icons.account_circle, color: Colors.white, size: 60);
-                  },
-                ),
-                SizedBox(width: 11.h),
-                Container(
-                  width: 111.h,
-                  margin: EdgeInsets.only(left: 11.h, top: 12.v, bottom: 3.v),
-                  child: Consumer<AcceuilClientProvider>(
-                    builder: (context, provider, child) {
-                      return Text(
-                        provider.userName.isEmpty ? "Nom d'utilisateur" : provider.userName,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: CustomTextStyles.titleLargeWhiteA700,
-                      );
-                    },
+  Widget _buildMaleUserOneRow(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Container(
+        width: double.maxFinite,
+        padding: EdgeInsets.symmetric(horizontal: 27.h, vertical: 13.v),
+        decoration: AppDecoration.fillLightGreen.copyWith(
+          borderRadius: BorderRadiusStyle.roundedBorder22,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 4.h),
+              child: Row(
+                children: [
+                  Consumer<AcceuilClientProvider>(
+                 builder: (context, provider, child) {
+  // Check if profileImageUrl is not null and display the appropriate image
+  return provider.profileImageUrl != null
+      ? CircleAvatar(
+          radius: 30,
+          backgroundImage: NetworkImage(provider.profileImageUrl!),
+        )
+      : CircleAvatar(
+          radius: 30,
+          backgroundImage: AssetImage('assets/images/avatar.png'), // default icon
+        );
+},
+
                   ),
-                ),
-              ],
+                  SizedBox(width: 11.h),
+                  Container(
+                    width: 111.h,
+                    margin: EdgeInsets.only(left: 11.h, top: 12.v, bottom: 3.v),
+                    child: Consumer<AcceuilClientProvider>(
+                      builder: (context, provider, child) {
+                        return Text(
+                          provider.userName.isEmpty
+                              ? "Nom d'utilisateur"
+                              : provider.userName,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: CustomTextStyles.titleLargeWhiteA700,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          SizedBox(height: 9.v),
-          Selector<AcceuilClientProvider, TextEditingController?>( 
-            selector: (context, provider) => provider.searchController,
-            builder: (context, searchController, child) {
-              return CustomSearchView(
-                hintText: "Rechercher",
-                suffix: Container(
-                  margin: EdgeInsets.fromLTRB(30.h, 7.v, 10.h, 7.v),
-                  height: 17,
-                  width: 23,
-                ),
-                controller: searchController,
-              );
-            },
-          ),
-        ],
+            SizedBox(height: 9.v),
+            Selector<AcceuilClientProvider, TextEditingController?>(
+              selector: (context, provider) => provider.searchController,
+              builder: (context, searchController, child) {
+                // return CustomSearchView(
+                //   hintText: "Rechercher",
+                //   suffix: Container(
+                //     margin: EdgeInsets.fromLTRB(30.h, 7.v, 10.h, 7.v),
+                //     height: 17,
+                //     width: 23,
+                //   ),
+                //   controller: searchController,
+                // );
+
+                return TextField(
+                  controller: searchController,
+                );
+              },
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
- Widget _buildCategoriesColumn(BuildContext context) {
+    );
+  }
+
+  Widget _buildCategoriesColumn(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
       child: Column(
@@ -161,11 +168,11 @@ Widget _buildMaleUserOneRow(BuildContext context) {
                 final categoryItems = provider.listcategoryItemList;
 
                 if (provider.isLoading) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 if (categoryItems.isEmpty) {
-                  return Center(child: Text('Pas de catégories'));
+                  return const Center(child: Text('Pas de catégories'));
                 }
 
                 return ListView.separated(
@@ -184,7 +191,8 @@ Widget _buildMaleUserOneRow(BuildContext context) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => AffichageCategoriePage(),
+                            builder: (context) =>
+                                const AffichageCategoriePage(),
                           ),
                         );
                       },

@@ -1,32 +1,28 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:rifund/screens/profile_screen/profile_screen.dart';
-
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
-import '../../widgets/bottomNavBar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_text_form_field.dart';
-import 'provider/modifier_motdepasse_provider.dart';
 
 class ModifierMotdepasseScreen extends StatefulWidget {
-  const ModifierMotdepasseScreen({Key? key}) : super(key: key);
+  const ModifierMotdepasseScreen({super.key});
 
   @override
-  ModifierMotdepasseScreenState createState() => ModifierMotdepasseScreenState();
-  
+  ModifierMotdepasseScreenState createState() =>
+      ModifierMotdepasseScreenState();
+
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => ModifierMotdepasseProvider(),
-      child: ModifierMotdepasseScreen(),
+      child: const ModifierMotdepasseScreen(),
     );
   }
 }
 
 class ModifierMotdepasseScreenState extends State<ModifierMotdepasseScreen> {
-  final _formKey = GlobalKey<FormState>(); // Added GlobalKey for form validation
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -41,8 +37,8 @@ class ModifierMotdepasseScreenState extends State<ModifierMotdepasseScreen> {
         resizeToAvoidBottomInset: false,
         appBar: _buildAppBar(context),
         body: SingleChildScrollView(
-          child: Form( // Wrapped Column with Form
-            key: _formKey, // Added GlobalKey for form validation
+          child: Form(
+            key: _formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -87,7 +83,8 @@ class ModifierMotdepasseScreenState extends State<ModifierMotdepasseScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _buildModifier(context),
-                          SizedBox(width: 10.h), // Adjust spacing between buttons
+                          SizedBox(
+                              width: 10.h), // Adjust spacing between buttons
                           _buildAnnuler(context),
                         ],
                       ),
@@ -98,7 +95,7 @@ class ModifierMotdepasseScreenState extends State<ModifierMotdepasseScreen> {
             ),
           ),
         ),
-        bottomNavigationBar: BottomNavBar(),
+     //   bottomNavigationBar: BottomNavBar(),
       ),
     );
   }
@@ -109,7 +106,8 @@ class ModifierMotdepasseScreenState extends State<ModifierMotdepasseScreen> {
       title: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
+            icon:
+                const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
             onPressed: () {
               onTapArrowleftone(context);
             },
@@ -186,7 +184,11 @@ class ModifierMotdepasseScreenState extends State<ModifierMotdepasseScreen> {
               if (value == null || value.isEmpty) {
                 return 'Veuillez répéter le nouveau mot de passe';
               }
-              if (value != context.read<ModifierMotdepasseProvider>().enterPassword1Controller.text) {
+              if (value !=
+                  context
+                      .read<ModifierMotdepasseProvider>()
+                      .enterPassword1Controller
+                      .text) {
                 return 'Les mots de passe ne correspondent pas';
               }
               return null;
@@ -204,7 +206,8 @@ class ModifierMotdepasseScreenState extends State<ModifierMotdepasseScreen> {
       width: 117.h,
       text: "lbl_modifier".tr,
       margin: EdgeInsets.only(top: 1.v),
-      buttonTextStyle: CustomTextStyles.titleSmallPrimary.copyWith(color: Colors.white),
+      buttonTextStyle:
+          CustomTextStyles.titleSmallPrimary.copyWith(color: Colors.white),
       onPressed: () {
         if (_formKey.currentState?.validate() ?? false) {
           Navigator.push(

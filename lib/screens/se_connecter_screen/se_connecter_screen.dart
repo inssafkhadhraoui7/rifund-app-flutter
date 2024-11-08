@@ -11,12 +11,11 @@ import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_text_form_field.dart';
-import 'provider/se_connecter_provider.dart';
 import 'package:local_auth/error_codes.dart' as auth_error;
 
 
 class SeConnecterScreen extends StatefulWidget {
-  const SeConnecterScreen({Key? key}) : super(key: key);
+  const SeConnecterScreen({super.key});
 
   @override
   SeConnecterScreenState createState() => SeConnecterScreenState();
@@ -24,7 +23,7 @@ class SeConnecterScreen extends StatefulWidget {
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => SeConnecterProvider(),
-      child: SeConnecterScreen(),
+      child: const SeConnecterScreen(),
     );
   }
 }
@@ -50,7 +49,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
               children: [
                 SizedBox(height: 5.v),
                 Expanded(
-                  child: Container(
+                  child: SizedBox(
                     child: SizedBox(
                       width: double.maxFinite,
                       child: Stack(
@@ -126,7 +125,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
       title: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               onTapImage(context);
             },
@@ -167,9 +166,9 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                   hintText: "Nom d'utilisateur".tr,
                   suffix: Container(
                     margin: EdgeInsets.fromLTRB(30.h, 12.v, 13.h, 11.v),
-                    child: Icon(Icons.email),
                     height: 17,
                     width: 23,
+                    child: const Icon(Icons.email),
                   ),
                   suffixConstraints: BoxConstraints(maxHeight: 50.v),
                   contentPadding: EdgeInsets.only(left: 14.h, top: 17.v, bottom: 17.v),
@@ -204,9 +203,9 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                     },
                     child: Container(
                       margin: EdgeInsets.fromLTRB(30.h, 13.v, 13.h, 10.v),
-                      child: Icon(Icons.lock),
                       height: 17,
                       width: 23,
+                      child: const Icon(Icons.lock),
                     ),
                   ),
                   suffixConstraints: BoxConstraints(maxHeight: 50.v),
@@ -229,7 +228,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
             alignment: Alignment.center,
             width: 120.h,
             height: 40.v,
-            buttonTextStyle: TextStyle(color: Colors.white),
+            buttonTextStyle: const TextStyle(color: Colors.white),
             text: "lbl_se_connecter".tr,
             margin: EdgeInsets.only(left: 25.h, right: 20.h),
             onPressed: () {
@@ -259,7 +258,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                   alignment: Alignment.center,
                   child: SizedBox(
                     width: 264.h,
-                    child: Padding(
+                    child: const Padding(
                       padding: EdgeInsets.only(top: 25.0),
                       child: Divider(),
                     ),
@@ -280,7 +279,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                icon: Icon(Icons.facebook),
+                icon: const Icon(Icons.facebook),
                 color: Colors.blue,
                 splashColor: Colors.white,
                 iconSize: 35,
@@ -289,7 +288,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                 },
               ),
               IconButton(
-                icon: Icon(Icons.email),
+                icon: const Icon(Icons.email),
                 color: Colors.red,
                 iconSize: 35,
                 splashColor: Colors.white,
@@ -298,7 +297,7 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
                 },
               ),
               IconButton(
-                icon: Icon(Icons.fingerprint),
+                icon: const Icon(Icons.fingerprint),
                 color: Colors.black,
                 iconSize: 35,
                 splashColor: Colors.white,
@@ -385,31 +384,29 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     // } else
 
       if (userCredential.user != null) {
-      // Check if user document exists in Firestore
       DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).get();
 
        if (!userDoc.exists) {
-        // This shouldn't happen, but just in case handle it
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("L'utilisateur n'existe pas.")),
+          const SnackBar(content: Text("L'utilisateur n'existe pas.")),
         );
       } else {
         // Redirect to home page after successful login
-        NavigatorService.pushNamed(RoutePath.acceuilClientPage);
+        NavigatorService.pushNamed(RoutePath.mainPage);
       }
     }
   } on FirebaseAuthException catch (e) {
     if (e.code == 'user-not-found') {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Compte invalide")),
+        const SnackBar(content: Text("Compte invalide")),
       );
     } else if (e.code == 'wrong-password') {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Mot de passe incorrect")),
+        const SnackBar(content: Text("Mot de passe incorrect")),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erreur de connexion")),
+        const SnackBar(content: Text("Erreur de connexion")),
       );
     }
   }

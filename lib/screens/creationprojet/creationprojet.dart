@@ -6,7 +6,6 @@ import 'package:rifund/screens/listeprojets/listeprojets.dart';
 import '../../core/app_export.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
-import '../../widgets/bottomNavBar.dart';
 import '../../widgets/custom_drop_down.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_text_form_field.dart';
@@ -92,7 +91,6 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
             ),
           ),
         ),
-        bottomNavigationBar: BottomNavBar(),
       ),
     );
   }
@@ -100,18 +98,9 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return CustomAppBar(
       centerTitle: true,
-      title: Row(
-        children: [
-          IconButton(
-            icon:
-                const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          AppbarTitle(
-            text: "Créer projet".tr,
-            margin: EdgeInsets.only(left: 85.h, top: 2.v, right: 79.h),
-          ),
-        ],
+      title: AppbarTitle(
+        text: "Créer projet".tr,
+        margin: EdgeInsets.only(left: 85.h, top: 2.v, right: 79.h),
       ),
       styleType: Style.bgFill_1,
     );
@@ -295,13 +284,13 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
                 right: 10,
                 top: 0,
                 child: IconButton(
-                  icon: Icon(Icons.calendar_today),
+                  icon: const Icon(Icons.calendar_today),
                   onPressed: () async {
                     final pickedDate = await showDatePicker(
                       context: context,
                       initialDate: DateTime.now(),
                       firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(Duration(days: 365)),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
                     );
 
                     if (pickedDate != null) {
@@ -440,11 +429,11 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Connexion requise'),
-          content: Text('Vous devez être connecté pour créer un projet.'),
+          title: const Text('Connexion requise'),
+          content: const Text('Vous devez être connecté pour créer un projet.'),
           actions: [
             TextButton(
-              child: Text('Se connecter'),
+              child: const Text('Se connecter'),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -454,7 +443,7 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
               },
             ),
             TextButton(
-              child: Text('Annuler'),
+              child: const Text('Annuler'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -486,21 +475,23 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
     }
     return null;
   }
-String? validateBudget(String? value) {
-  if (value == null || value.isEmpty) {
-    return 'Le budget est requis';
-  }
+
+  String? validateBudget(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Le budget est requis';
+    }
 
     if (value.contains('-')) {
-    return 'Le budget ne peut pas être un nombre négatif';
+      return 'Le budget ne peut pas être un nombre négatif';
+    }
+
+    final parsedValue = double.tryParse(value);
+    if (parsedValue == null || value.length < 3) {
+      return 'Un montant de 3 chiffres est requis';
+    }
+    return null;
   }
 
-  final parsedValue = double.tryParse(value);
-  if (parsedValue == null || value.length < 3) {
-    return 'Un montant de 3 chiffres est requis';
-  }
-return null;
-}
   String? validateDate(String? value) {
     if (value == null || value.isEmpty) {
       return 'La date est requise';
@@ -509,7 +500,7 @@ return null;
     if (enteredDate == null) {
       return 'Format de date invalide. Utilisez un format comme dd/MM/yyyy.';
     }
-    if (enteredDate.isBefore(DateTime.now().add(Duration(days: 15)))) {
+    if (enteredDate.isBefore(DateTime.now().add(const Duration(days: 15)))) {
       return 'La date doit être au moins 15 jours après aujourd\'hui.';
     }
     return null;

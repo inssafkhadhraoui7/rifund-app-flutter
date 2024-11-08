@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../core/app_export.dart';
-import '../app_navigation_screen/provider/app_navigation_provider.dart';
 
 class AppNavigationScreen extends StatefulWidget {
-  const AppNavigationScreen({Key? key})
-      : super(
-          key: key,
-        );
+  const AppNavigationScreen({super.key});
 
   @override
   AppNavigationScreenState createState() => AppNavigationScreenState();

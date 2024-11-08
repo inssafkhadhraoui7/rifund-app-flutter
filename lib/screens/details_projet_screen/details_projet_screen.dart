@@ -10,7 +10,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
-import '../../widgets/bottomNavBar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import 'models/slider_item_model.dart';
 import 'widgets/slider_item_widget.dart';
@@ -192,7 +191,7 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
             ),
           ),
         ),
-        bottomNavigationBar: BottomNavBar(),
+       
       ),
     );
   }
@@ -469,6 +468,8 @@ Future<Map<String, String>> getUserData() async {
             .set({
           'joinedAt': Timestamp.now(),
           'nom': userData['nom'],
+          'userId':userId,
+          'projectId':projectId,
           'image': userData['image'],
           'status': 'En attend',
         });

@@ -61,4 +61,6 @@ class RoutePath {
   static const String appNavigationScreen = '/app_navigation_screen';
   static const String authWrapper = '/auth_wrapper';
   static const String initialRoute = '/initialRoute';
+
+  static const String mainPage = '/main_page';
 }

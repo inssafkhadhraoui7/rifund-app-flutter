@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:rifund/auth/providers/auth_provider.dart';
+import 'package:rifund/screens/auth/providers/auth_provider.dart';
 import 'package:rifund/core/app_export.dart';
+
+import '../welcome_screen/welcome_screen.dart';
 
 class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
@@ -31,10 +32,16 @@ class _AuthWrapperState extends State<AuthWrapper> {
               child: Text(
                   "Error while connecting to Firebase : ${snapshot.error}"),
             );
-          } else {
-            Navigator.pushNamed(context,  RoutePath.initialRoute);
+          } else if (snapshot.hasData) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.pushNamed(context, RoutePath.mainPage);
+            });
 
-            return const SizedBox.shrink();
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            return const WelcomeScreen();
           }
         });
   }

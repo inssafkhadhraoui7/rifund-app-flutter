@@ -1,17 +1,12 @@
-import 'package:flutter/material.dart';
-
 import '../../core/app_export.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
-import '../../widgets/bottomNavBar.dart';
 import '../../widgets/userprofile_item_widget.dart';
 import '../creationprojet/creationprojet.dart';
 import 'models/userprofile_item_model.dart';
-import 'provider/liste_des_projets_provider.dart';
 
-// ignore_for_file: must_be_immutable
 class ListeDesProjetsPage extends StatefulWidget {
-  const ListeDesProjetsPage({Key? key}) : super(key: key);
+  const ListeDesProjetsPage({super.key});
 
   @override
   ListeDesProjetsPageState createState() => ListeDesProjetsPageState();
@@ -63,7 +58,7 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => CrErProjetScreen()),
+                                builder: (context) => const CrErProjetScreen()),
                           );
                         },
                       ),
@@ -77,7 +72,6 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
             ),
           ),
         ),
-        bottomNavigationBar: BottomNavBar(),
       ),
     );
   }
@@ -89,7 +83,8 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
       title: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
+            icon:
+                const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
             onPressed: () {
               onTapArrowleftone(context);
             },
@@ -106,13 +101,13 @@ class ListeDesProjetsPageState extends State<ListeDesProjetsPage> {
 
   /// Section Widget
   Widget _buildUserProfile(BuildContext context) {
-    return Container(
+    return SizedBox(
       child: Padding(
         padding: EdgeInsets.only(right: 1.h),
         child: Consumer<ListeDesProjetsProvider>(
           builder: (context, provider, child) {
             if (provider.listeDesProjetsModelObj.userprofileItemList.isEmpty) {
-              return Center(child: Text("Pas des projets"));
+              return const Center(child: Text("Pas des projets"));
             }
             return ListView.separated(
               physics: const NeverScrollableScrollPhysics(),

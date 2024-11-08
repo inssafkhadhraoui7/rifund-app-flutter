@@ -7,14 +7,25 @@ import '../models/userprofile_item_model.dart';
 class MembreRejoindreProvider extends ChangeNotifier {
   MembreRejoindreModel membreRejoindreModelObj = MembreRejoindreModel();
 
- Future<void> fetchMembersByCommunity(String communityId) async {
+Future<void> fetchMembersByCommunity(String communityId, String userId, String projectId) async {
   try {
-    // Correct query structure
     final membersSnapshot = await FirebaseFirestore.instance
-        .collectionGroup('members') // Query the 'members' collection group
-        .where( communityId) // Query the communityId field
+        .collection('users') // Start at the 'users' collection
+        .doc(userId) // Specify the user document
+        .collection('projects') // Go to the 'projects' subcollection
+        .doc(projectId) // Specify the project document
+        .collection('communities') // Go to the 'communities' subcollection
+        .doc(communityId) // Specify the community document
+        .collection('members') // Query the 'members' collection
+        .where('status', isNotEqualTo: 'approved') // Exclude members with 'approved' status
         .get();
 
+    if (membersSnapshot.docs.isEmpty) {
+      print("No members found for this community.");
+      return;
+    }
+
+    // Clear the current list before adding new members
     membreRejoindreModelObj.userprofileItemList.clear();
 
     for (var memberDoc in membersSnapshot.docs) {
@@ -27,16 +38,30 @@ class MembreRejoindreProvider extends ChangeNotifier {
         ),
       );
     }
+
+    // Notify listeners to update the UI
     notifyListeners();
   } catch (e) {
     print("Error fetching members: $e");
   }
 }
 
+Future<void> approveMember(String memberId, String communityId, String userId, String projectId) async {
+  try {
+    DocumentSnapshot memberDoc = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .collection('projects')
+      .doc(projectId)
+      .collection('communities')
+      .doc(communityId)
+      .collection('members')
+      .doc(memberId)
+      .get();
 
-  Future<void> approveMember(String memberId, String communityId, String userId, String projectId) async {
-    try {
-      DocumentSnapshot memberDoc = await FirebaseFirestore.instance
+    if (memberDoc.exists) {
+      // Update member status to 'approved'
+      await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('projects')
@@ -45,28 +70,23 @@ class MembreRejoindreProvider extends ChangeNotifier {
         .doc(communityId)
         .collection('members')
         .doc(memberId)
-        .get();
+        .update({'status': 'approved'});
 
-      if (memberDoc.exists) {
-        await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('projects')
-          .doc(projectId)
-          .collection('communities')
-          .doc(communityId)
-          .collection('members')
-          .doc(memberId)
-          .update({'status': 'approved'});
-        print("Member approved successfully");
-      } else {
-        print("Member document not found.");
-      }
+      // Remove the approved member from the local list
+      membreRejoindreModelObj.userprofileItemList.removeWhere((member) => member.id == memberId);
+
+      // Notify listeners to update the UI
       notifyListeners();
-    } catch (e) {
-      print("Error approving member: $e");
+
+      print("Member approved and removed from list");
+    } else {
+      print("Member document not found.");
     }
+  } catch (e) {
+    print("Error approving member: $e");
   }
+}
+
 
 Future<void> rejectMember(String memberId, String communityId, String userId, String projectId) async {
   try {

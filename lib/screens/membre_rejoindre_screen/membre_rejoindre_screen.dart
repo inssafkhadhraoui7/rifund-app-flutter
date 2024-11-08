@@ -40,7 +40,7 @@ class MembreRejoindreScreenState extends State<MembreRejoindreScreen> {
   void initState() {
     super.initState();
     final provider = Provider.of<MembreRejoindreProvider>(context, listen: false);
-    provider.fetchMembersByCommunity(widget.communityId);
+    provider.fetchMembersByCommunity(widget.communityId,widget.userId,widget.projectId);
   }
 
   @override

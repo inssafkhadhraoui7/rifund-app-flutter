@@ -1,23 +1,16 @@
-import 'package:flutter/material.dart';
-
 import '../../core/app_export.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
-import '../../widgets/bottomNavBar.dart';
-import 'provider/notification_provider.dart'; // ignore_for_file: must_be_immutable
 
 class NotificationPage extends StatefulWidget {
-  const NotificationPage({Key? key})
-      : super(
-          key: key,
-        );
+  const NotificationPage({super.key});
 
   @override
   NotificationPageState createState() => NotificationPageState();
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => NotificationProvider(),
-      child: NotificationPage(),
+      child: const NotificationPage(),
     );
   }
 }
@@ -52,7 +45,7 @@ class NotificationPageState extends State<NotificationPage> {
                 SizedBox(height: 5.v),
                 ListView.builder(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount:
                       2, // Number of times _buildStackTaoufikKes should be repeated
                   itemBuilder: (context, index) {
@@ -71,7 +64,7 @@ class NotificationPageState extends State<NotificationPage> {
                 SizedBox(height: 5.v),
                 ListView.builder(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount:
                       7, // Number of times _buildStackTaoufikKes should be repeated
                   itemBuilder: (context, index) {
@@ -82,7 +75,6 @@ class NotificationPageState extends State<NotificationPage> {
             ),
           ),
         ),
-        bottomNavigationBar: BottomNavBar(),
       ),
     );
   }
@@ -91,23 +83,13 @@ class NotificationPageState extends State<NotificationPage> {
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return CustomAppBar(
       centerTitle: true,
-      title: Row(
-        children: [
-          IconButton(
-            icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
-            onPressed: () {
-              onTapArrowleftone(context);
-            },
-          ),
-          AppbarTitle(
-            text: "Notifications".tr,
-            margin: EdgeInsets.only(
-              left: 80.h,
-              top: 2.v,
-              right: 79.h,
-            ),
-          ),
-        ],
+      title: AppbarTitle(
+        text: "Notifications".tr,
+        margin: EdgeInsets.only(
+          left: 80.h,
+          top: 2.v,
+          right: 79.h,
+        ),
       ),
       styleType: Style.bgFill_1,
     );
@@ -146,7 +128,7 @@ class NotificationPageState extends State<NotificationPage> {
                         ),
                         Container(
                           alignment: Alignment.bottomCenter,
-                          child: Icon(
+                          child: const Icon(
                             Icons.comment,
                             size: 15,
                           ),
@@ -230,7 +212,7 @@ class NotificationPageState extends State<NotificationPage> {
                         ),
                         Container(
                           alignment: Alignment.bottomCenter,
-                          child: Icon(
+                          child: const Icon(
                             Icons.favorite,
                             color: Colors.red,
                             size: 15,

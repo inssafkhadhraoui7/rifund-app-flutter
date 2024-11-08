@@ -1,23 +1,20 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:rifund/screens/liste_de_communaut_page/liste_de_communaut_page.dart';
 import 'package:rifund/screens/listeprojets/listeprojets.dart';
 import 'package:rifund/screens/modifier_nom_screen/modifier_nom_screen.dart';
 import 'package:rifund/screens/modifier_motdepasse_screen/modifier_motdepasse_screen.dart';
 import '../../core/app_export.dart';
-import '../../widgets/BottomNavBar.dart';
 import '../../widgets/app_bar/appbar_subtitle.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
 import '../../widgets/custom_outlined_button.dart';
-import 'provider/profile_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   ProfileScreenState createState() => ProfileScreenState();
@@ -25,24 +22,25 @@ class ProfileScreen extends StatefulWidget {
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => ProfileProvider(),
-      child: ProfileScreen(),
+      child: const ProfileScreen(),
     );
   }
 }
 
 class ProfileScreenState extends State<ProfileScreen> {
   GlobalKey<NavigatorState> navigatorKey = GlobalKey();
-  TextEditingController _linkController = TextEditingController();
+  final TextEditingController _linkController = TextEditingController();
   List<String> links = [];
 
-@override
-void initState() {
-  super.initState();
-  // Fetch user profile data when the screen is initialized
-  final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
-  profileProvider.fetchUserProfileData(); // This should set the profileImageUrl
-}
-
+  @override
+  void initState() {
+    super.initState();
+    // Fetch user profile data when the screen is initialized
+    final profileProvider =
+        Provider.of<ProfileProvider>(context, listen: false);
+    profileProvider
+        .fetchUserProfileData(); // This should set the profileImageUrl
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +55,8 @@ void initState() {
               children: [
                 _buildColumnTelevision(context, profileProvider),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 15.h, vertical: 15.v),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 15.h, vertical: 15.v),
                   child: Column(
                     children: [
                       Text(
@@ -78,7 +77,9 @@ void initState() {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => ListeDesProjetsPage()),
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const ListeDesProjetsPage()),
                           );
                         },
                       ),
@@ -91,7 +92,8 @@ void initState() {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => ListeDeCommunautPage()),
+                            MaterialPageRoute(
+                                builder: (context) => ListeDeCommunautPage()),
                           );
                         },
                       ),
@@ -102,12 +104,12 @@ void initState() {
             ),
           ),
         ),
-        bottomNavigationBar: BottomNavBar(),
       ),
     );
   }
 
-  Widget _buildColumnTelevision(BuildContext context, ProfileProvider profileProvider) {
+  Widget _buildColumnTelevision(
+      BuildContext context, ProfileProvider profileProvider) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8.v),
       decoration: BoxDecoration(
@@ -122,18 +124,11 @@ void initState() {
         children: [
           CustomAppBar(
             leadingWidth: 68.h,
-            leading: GestureDetector(
-              onTap: () => onTapArrowLeftOne(context),
-              child: IconButton(
-                icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
-                onPressed: () => onTapArrowLeftOne(context),
-              ),
-            ),
             centerTitle: true,
             title: AppbarSubtitle(text: "lbl_profile".tr),
             styleType: Style.bgFill_1,
           ),
-          SizedBox(height: 25.v),
+          SizedBox(height: 10.v),
           GestureDetector(
             onTap: () async {
               FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -145,10 +140,8 @@ void initState() {
                 String filePath = result.files.single.path!;
                 String imageUrl = await uploadImageToFirebase(filePath);
 
-                // Update the profile image URL in the provider
                 profileProvider.updateProfileImage(imageUrl);
 
-                // Save the image URL to Firestore
                 await saveImageUrlToFirestore(imageUrl);
               }
             },
@@ -156,7 +149,8 @@ void initState() {
               radius: 50,
               backgroundImage: profileProvider.profileImageUrl.isNotEmpty
                   ? NetworkImage(profileProvider.profileImageUrl)
-                  : AssetImage('assets/images/avatar.png') as ImageProvider,
+                  : const AssetImage('assets/images/avatar.png')
+                      as ImageProvider,
             ),
           ),
           SizedBox(height: 16.v),
@@ -169,23 +163,23 @@ void initState() {
     );
   }
 
-
- Widget _buildProfileImage(ProfileProvider profileProvider) {
-  return CircleAvatar(
-    radius: 40,
-    backgroundImage: profileProvider.profileImageUrl.isNotEmpty
-        ? NetworkImage(profileProvider.profileImageUrl)
-        : AssetImage('assets/avatar.png') as ImageProvider, // Use a default image
-  );
-}
-
+  Widget _buildProfileImage(ProfileProvider profileProvider) {
+    return CircleAvatar(
+      radius: 40,
+      backgroundImage: profileProvider.profileImageUrl.isNotEmpty
+          ? NetworkImage(profileProvider.profileImageUrl)
+          : const AssetImage('assets/avatar.png')
+              as ImageProvider, // Use a default image
+    );
+  }
 
   Widget _buildName(BuildContext context) {
     return _buildInfoRow(
       label: "Nom :".tr,
       value: "imen missaoui".tr,
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ModifierNomScreen()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const ModifierNomScreen()));
       },
     );
   }
@@ -211,21 +205,24 @@ void initState() {
           Row(
             children: [
               Text("Liens :".tr, style: theme.textTheme.bodyLarge),
-              SizedBox(width: 55),
+              const SizedBox(width: 55),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: links.map((link) => Text(link, style: theme.textTheme.bodyLarge)).toList(),
+                  children: links
+                      .map((link) =>
+                          Text(link, style: theme.textTheme.bodyLarge))
+                      .toList(),
                 ),
               ),
             ],
           ),
           Row(
             children: [
-              SizedBox(width: 110),
+              const SizedBox(width: 110),
               Text("lbl_ajouter_lien".tr, style: theme.textTheme.bodyMedium),
               IconButton(
-                icon: Icon(Icons.add, color: Colors.black),
+                icon: const Icon(Icons.add, color: Colors.black),
                 onPressed: () {
                   _showAddLinkDialog(context);
                 },
@@ -242,12 +239,16 @@ void initState() {
       label: "lbl_mot_de_passe".tr,
       value: "••••••••••".tr,
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ModifierMotdepasseScreen()));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const ModifierMotdepasseScreen()));
       },
     );
   }
 
-  Widget _buildInfoRow({required String label, required String value, void Function()? onTap}) {
+  Widget _buildInfoRow(
+      {required String label, required String value, void Function()? onTap}) {
     return Container(
       margin: EdgeInsets.only(right: 3.h),
       padding: EdgeInsets.symmetric(horizontal: 15.h, vertical: 10.v),
@@ -259,11 +260,11 @@ void initState() {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: theme.textTheme.bodyLarge),
-          SizedBox(width: 20),
+          const SizedBox(width: 20),
           Text(value, style: theme.textTheme.bodyLarge),
           if (onTap != null)
             IconButton(
-              icon: Icon(Icons.chevron_right, color: Colors.black),
+              icon: const Icon(Icons.chevron_right, color: Colors.black),
               onPressed: onTap,
             ),
         ],
@@ -276,15 +277,15 @@ void initState() {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Ajouter un lien"),
+          title: const Text("Ajouter un lien"),
           content: TextField(
             controller: _linkController,
-            decoration: InputDecoration(hintText: "Entrez l'URL du lien"),
+            decoration: const InputDecoration(hintText: "Entrez l'URL du lien"),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text("Annuler"),
+              child: const Text("Annuler"),
             ),
             TextButton(
               onPressed: () {
@@ -297,14 +298,15 @@ void initState() {
                   Navigator.of(context).pop();
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Lien invalide. Veuillez entrer une URL valide."),
+                    const SnackBar(
+                      content: Text(
+                          "Lien invalide. Veuillez entrer une URL valide."),
                       backgroundColor: Colors.red,
                     ),
                   );
                 }
               },
-              child: Text("Ajouter"),
+              child: const Text("Ajouter"),
             ),
           ],
         );
@@ -319,38 +321,37 @@ void initState() {
 
   Future<String> uploadImageToFirebase(String filePath) async {
     File file = File(filePath);
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString()  ;
-    Reference ref = FirebaseStorage.instance.ref().child('users_images/$fileName');
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference ref =
+        FirebaseStorage.instance.ref().child('users_images/$fileName');
     UploadTask uploadTask = ref.putFile(file);
-    
+
     await uploadTask.whenComplete(() {});
 
     String imageUrl = await ref.getDownloadURL();
     return imageUrl;
   }
 
-Future<void> saveImageUrlToFirestore(String imageUrl) async {
-  // Get the current user
-  User? user = FirebaseAuth.instance.currentUser;
+  Future<void> saveImageUrlToFirestore(String imageUrl) async {
+    User? user = FirebaseAuth.instance.currentUser;
 
-  // Ensure the user is signed in
-  if (user != null) {
-    String uid = user.uid; // Get the user's ID
+    if (user != null) {
+      String uid = user.uid;
 
-    try {
-      await FirebaseFirestore.instance.collection('users').doc(uid).update({
-        'image_user': imageUrl,
-      });
-      print("Image utilisateur mise à jour avec succès dans Firestore.");
-    } catch (e) {
-      print("Erreur lors de la mise à jour de l'image utilisateur dans Firestore : $e");
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(uid).update({
+          'image_user': imageUrl,
+        });
+        log("Image utilisateur mise à jour avec succès dans Firestore.");
+      } catch (e) {
+        log("Erreur lors de la mise à jour de l'image utilisateur dans Firestore : $e");
+      }
+    } else {
+      log("Aucun utilisateur n'est actuellement connecté.");
     }
-  } else {
-    print("Aucun utilisateur n'est actuellement connecté.");
   }
-}
 
-    onTapArrowLeftOne(BuildContext context) {
+  onTapArrowLeftOne(BuildContext context) {
     Navigator.of(context).pop();
   }
 }

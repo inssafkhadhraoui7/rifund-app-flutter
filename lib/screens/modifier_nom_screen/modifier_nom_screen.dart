@@ -1,18 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:rifund/screens/profile_screen/profile_screen.dart';
-import 'package:provider/provider.dart';
-
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
-import '../../widgets/bottomNavBar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_text_form_field.dart';
-import 'provider/modifier_nom_provider.dart';
 
 class ModifierNomScreen extends StatefulWidget {
-  const ModifierNomScreen({Key? key}) : super(key: key);
+  const ModifierNomScreen({super.key});
 
   @override
   ModifierNomScreenState createState() => ModifierNomScreenState();
@@ -20,7 +15,7 @@ class ModifierNomScreen extends StatefulWidget {
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => ModifierNomProvider(),
-      child: ModifierNomScreen(),
+      child: const ModifierNomScreen(),
     );
   }
 }
@@ -52,7 +47,6 @@ class ModifierNomScreenState extends State<ModifierNomScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavBar(),
       ),
     );
   }
@@ -63,7 +57,8 @@ class ModifierNomScreenState extends State<ModifierNomScreen> {
       title: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
+            icon:
+                const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
             onPressed: () {
               NavigatorService.goBack();
             },
@@ -98,7 +93,8 @@ class ModifierNomScreenState extends State<ModifierNomScreen> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 9.h),
               child: Selector<ModifierNomProvider, TextEditingController?>(
-                selector: (context, provider) => provider.enternewusernamController,
+                selector: (context, provider) =>
+                    provider.enternewusernamController,
                 builder: (context, enternewusernamController, child) {
                   return CustomTextFormField(
                     controller: enternewusernamController,
@@ -127,12 +123,14 @@ class ModifierNomScreenState extends State<ModifierNomScreen> {
                   width: 117.h,
                   text: "lbl_modifier".tr,
                   margin: EdgeInsets.only(top: 1.v),
-                  buttonTextStyle: CustomTextStyles.titleSmallPrimary.copyWith(color: Colors.white),
+                  buttonTextStyle: CustomTextStyles.titleSmallPrimary
+                      .copyWith(color: Colors.white),
                   onPressed: () {
                     if (_formKey.currentState?.validate() ?? false) {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ProfileScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const ProfileScreen()),
                       );
                     }
                   },

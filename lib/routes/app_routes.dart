@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:rifund/auth/auth_wrapper.dart';
 import 'package:rifund/screens/admin/admin_communaut_screen/admin_communaut_screen.dart';
 import 'package:rifund/screens/admin/admin_projet_screen/admin_projet_screen/admin_projet_screen.dart';
 import 'package:rifund/screens/admin/admin_utlisa_page/admin_utlisa_page.dart';
 import 'package:rifund/screens/admin/admin_cat_gorie_screen/admin_cat_gorie_screen.dart';
 import 'package:rifund/screens/affichage_par_categorie/affichagecategorie.dart';
+import 'package:rifund/screens/auth/auth_wrapper.dart';
+import 'package:rifund/screens/main_page/main_page.dart';
 import '../screens/acceuil_client_page/acceuil_client_page.dart';
 import '../screens/admin/ajout_cat_gorie_page/ajout_cat_gorie_page.dart';
 import '../screens/admin/profile_admin_page/profile_admin_page.dart';
@@ -65,6 +66,8 @@ class AppRoutes {
         RoutePath.profileAdminPage: ProfileAdminPage.builder,
         RoutePath.initialRoute: WelcomeScreen.builder,
         RoutePath.appNavigationScreen: AppNavigationScreen.builder,
+
+        RoutePath.mainPage: MainPage.builder,
       };
 }
 

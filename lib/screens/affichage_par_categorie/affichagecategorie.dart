@@ -1,22 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:rifund/screens/affichage_par_categorie/provider/affichagecategorie_provider.dart';
 
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
-import '../../widgets/bottomNavBar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_search_view.dart';
-import '../details_projet_screen/details_projet_screen.dart';
 import '../financer_projet_screen/financer_projet_screen.dart';
 
 class AffichageCategoriePage extends StatefulWidget {
-  const AffichageCategoriePage({Key? key}) : super(key: key);
+  const AffichageCategoriePage({super.key});
 
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => AffichageCategorieProvider(),
-      child: AffichageCategoriePage(),
+      child: const AffichageCategoriePage(),
     );
   }
 
@@ -34,8 +29,8 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
     Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: appTheme.whiteA700,
-      resizeToAvoidBottomInset: false,
-      body: Container(
+    //  resizeToAvoidBottomInset: false,
+      body: SizedBox(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -64,7 +59,7 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavBar(),
+     // bottomNavigationBar: const BottomNavBar(),
     );
   }
 
@@ -90,7 +85,7 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
               padding: EdgeInsets.only(left: 4.h),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.account_circle,
                     color: Colors.white,
                     size: 60,
@@ -120,14 +115,16 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
                   Selector<AffichageCategorieProvider, TextEditingController?>(
                 selector: (context, provider) => provider.searchController,
                 builder: (context, searchController, child) {
-                  return CustomSearchView(
-                    hintText: "Rechercher",
-                    suffix: Container(
-                      margin: EdgeInsets.fromLTRB(30.h, 7.v, 10.h, 7.v),
-                      height: 17,
-                      width: 23,
-                    ),
-                  );
+                  // return CustomSearchView(
+                  //   hintText: "Rechercher",
+                  //   suffix: Container(
+                  //     margin: EdgeInsets.fromLTRB(30.h, 7.v, 10.h, 7.v),
+                  //     height: 17,
+                  //     width: 23,
+                  //   ),
+                  // );
+
+                  return TextField(controller: searchController,);
                 },
               ),
             )
@@ -139,14 +136,16 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
 
   Widget _buildRowListedeOneSection(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15.h),
-          child: Text(
-            "Liste des projets".tr,
-            style: theme.textTheme.headlineSmall,
-          ),
+        IconButton(
+          iconSize: 18,
+          splashRadius: 16,
+          onPressed: (){
+          Navigator.pop(context);
+        }, icon: const Icon(Icons.arrow_back_ios)),
+        Text(
+          "Liste des projets".tr,
+          style: theme.textTheme.headlineSmall,
         ),
       ],
     );
@@ -159,7 +158,7 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
         Card(
           clipBehavior: Clip.antiAlias,
           elevation: 0,
-          margin: EdgeInsets.all(0),
+          margin: const EdgeInsets.all(0),
           shape: RoundedRectangleBorder(
             side: BorderSide(
               color: appTheme.lightGreen600,
@@ -278,7 +277,7 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            FinancerProjetScreen()),
+                                            const FinancerProjetScreen()),
                                   );
                                 },
                               ),
