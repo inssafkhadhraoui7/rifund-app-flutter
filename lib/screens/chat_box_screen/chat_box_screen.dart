@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rifund/screens/affichage_communaut_page/affichage_communaut_page.dart';
-import 'package:rifund/screens/affichage_communaut_page/provider/affichage_communaut_provider.dart';
 import '../../theme/theme_helper.dart';
 import 'provider/chat_box_provider.dart';
 
@@ -139,7 +138,7 @@ class ChatBoxScreen extends StatelessWidget {
                         isReceived: message.isReceived,
                         avatar: message.userImage.isNotEmpty
                             ? message.userImage
-                            : 'assets/images/avatar.png', // Default avatar
+                            : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmRLRMXynnc7D6-xfdpeaoEUeon2FaU0XtPg&s', // Default avatar
                         messageId: message.id,
                         senderName: message.userName,
                       );
@@ -254,18 +253,15 @@ class ChatBoxScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.info_outline, color: Colors.white),
             onPressed: () {
-              // Navigate to community details page
+              log('userId : $userId , projectId : $projectId , communityId: $communityId');
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ChangeNotifierProvider(
-                    create: (_) => AffichageCommunautProvider(provider.userId,
-                        provider.projectId, provider.communityId),
-                    child: AffichageCommunautPage(
-                      userId: provider.userId,
-                      projectId: provider.projectId,
-                      communityId: provider.communityId,
-                    ),
+                  builder: (context) => AffichageCommunautPage.builder(
+                    context,
+                    userId: userId,
+                    projectId: projectId,
+                    communityId: communityId,
                   ),
                 ),
               );
@@ -371,7 +367,7 @@ class ChatBoxScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(dialogContext).pop(); 
+                Navigator.of(dialogContext).pop();
               },
               child: const Text("Annuler"),
             ),
@@ -391,7 +387,6 @@ class ChatBoxScreen extends StatelessWidget {
                           content: Text("Message mis à jour avec succès")),
                     );
                   }
-
                 } catch (e) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(

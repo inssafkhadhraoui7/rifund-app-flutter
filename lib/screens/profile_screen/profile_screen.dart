@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -31,15 +30,14 @@ class ProfileScreenState extends State<ProfileScreen> {
   GlobalKey<NavigatorState> navigatorKey = GlobalKey();
   final TextEditingController _linkController = TextEditingController();
   List<String> links = [];
+  var name = '';
+  var email = '';
+  var image = '';
 
   @override
   void initState() {
     super.initState();
-    // Fetch user profile data when the screen is initialized
-    final profileProvider =
-        Provider.of<ProfileProvider>(context, listen: false);
-    profileProvider
-        .fetchUserProfileData(); // This should set the profileImageUrl
+    user_Active();
   }
 
   @override
@@ -97,6 +95,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                           );
                         },
                       ),
+                      
                     ],
                   ),
                 ),
@@ -124,11 +123,19 @@ class ProfileScreenState extends State<ProfileScreen> {
         children: [
           CustomAppBar(
             leadingWidth: 68.h,
+            leading: GestureDetector(
+              onTap: () => onTapArrowLeftOne(context),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_outlined,
+                    color: Colors.white),
+                onPressed: () => onTapArrowLeftOne(context),
+              ),
+            ),
             centerTitle: true,
             title: AppbarSubtitle(text: "lbl_profile".tr),
             styleType: Style.bgFill_1,
           ),
-          SizedBox(height: 10.v),
+          SizedBox(height: 25.v),
           GestureDetector(
             onTap: () async {
               FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -140,15 +147,17 @@ class ProfileScreenState extends State<ProfileScreen> {
                 String filePath = result.files.single.path!;
                 String imageUrl = await uploadImageToFirebase(filePath);
 
+                // Update the profile image URL in the provider
                 profileProvider.updateProfileImage(imageUrl);
 
+                // Save the image URL to Firestore
                 await saveImageUrlToFirestore(imageUrl);
               }
             },
             child: CircleAvatar(
               radius: 50,
-              backgroundImage: profileProvider.profileImageUrl.isNotEmpty
-                  ? NetworkImage(profileProvider.profileImageUrl)
+              backgroundImage: image.isNotEmpty
+                  ? NetworkImage(image)
                   : const AssetImage('assets/images/avatar.png')
                       as ImageProvider,
             ),
@@ -163,23 +172,31 @@ class ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildProfileImage(ProfileProvider profileProvider) {
-    return CircleAvatar(
-      radius: 40,
-      backgroundImage: profileProvider.profileImageUrl.isNotEmpty
-          ? NetworkImage(profileProvider.profileImageUrl)
-          : const AssetImage('assets/avatar.png')
-              as ImageProvider, // Use a default image
-    );
+  // ignore: non_constant_identifier_names
+  user_Active() async {
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    FirebaseAuth auth = FirebaseAuth.instance;
+
+    await firebaseFirestore
+        .collection("users")
+        .doc(auth.currentUser!.uid)
+        .get()
+        .then((val) async {
+      name = val.data()!['username'].toString();
+      email = val.data()!['email'].toString();
+      image = val.data()!['image_user'].toString();
+    });
+    setState(() {});
   }
 
   Widget _buildName(BuildContext context) {
     return _buildInfoRow(
       label: "Nom :".tr,
-      value: "imen missaoui".tr,
-      onTap: () {
-        Navigator.push(context,
+      value: name.isEmpty ? 'Nom' : name,
+      onTap: () async {
+        await Navigator.push(context,
             MaterialPageRoute(builder: (context) => const ModifierNomScreen()));
+        user_Active();
       },
     );
   }
@@ -187,7 +204,7 @@ class ProfileScreenState extends State<ProfileScreen> {
   Widget _buildEmail(BuildContext context) {
     return _buildInfoRow(
       label: "Email:".tr,
-      value: "imenmissaoui08@gmail.com".tr,
+      value: email.isEmpty ? 'xxxxx@gmail.com' : email,
     );
   }
 
@@ -289,22 +306,13 @@ class ProfileScreenState extends State<ProfileScreen> {
             ),
             TextButton(
               onPressed: () {
-                String link = _linkController.text;
-                if (_isValidUrl(link)) {
+                String link = _linkController.text.trim();
+                if (link.isNotEmpty) {
                   setState(() {
                     links.add(link);
                   });
-                  _linkController.clear();
-                  Navigator.of(context).pop();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                          "Lien invalide. Veuillez entrer une URL valide."),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
                 }
+                Navigator.of(context).pop();
               },
               child: const Text("Ajouter"),
             ),
@@ -314,44 +322,31 @@ class ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  bool _isValidUrl(String url) {
-    final Uri? uri = Uri.tryParse(url);
-    return uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
-  }
-
   Future<String> uploadImageToFirebase(String filePath) async {
     File file = File(filePath);
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference ref =
-        FirebaseStorage.instance.ref().child('users_images/$fileName');
-    UploadTask uploadTask = ref.putFile(file);
-
-    await uploadTask.whenComplete(() {});
-
-    String imageUrl = await ref.getDownloadURL();
-    return imageUrl;
-  }
-
-  Future<void> saveImageUrlToFirestore(String imageUrl) async {
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      String uid = user.uid;
-
-      try {
-        await FirebaseFirestore.instance.collection('users').doc(uid).update({
-          'image_user': imageUrl,
-        });
-        log("Image utilisateur mise à jour avec succès dans Firestore.");
-      } catch (e) {
-        log("Erreur lors de la mise à jour de l'image utilisateur dans Firestore : $e");
-      }
-    } else {
-      log("Aucun utilisateur n'est actuellement connecté.");
+    try {
+      Reference ref = FirebaseStorage.instance
+          .ref()
+          .child('profile_images/${DateTime.now().millisecondsSinceEpoch}.jpg');
+      UploadTask uploadTask = ref.putFile(file);
+      TaskSnapshot taskSnapshot = await uploadTask;
+      String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      throw Exception("Error uploading image: $e");
     }
   }
 
-  onTapArrowLeftOne(BuildContext context) {
-    Navigator.of(context).pop();
+  Future<void> saveImageUrlToFirestore(String imageUrl) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    FirebaseAuth auth = FirebaseAuth.instance;
+
+    await firestore.collection('users').doc(auth.currentUser!.uid).update({
+      'image_user': imageUrl,
+    });
+  }
+
+  void onTapArrowLeftOne(BuildContext context) {
+    Navigator.pop(context);
   }
 }

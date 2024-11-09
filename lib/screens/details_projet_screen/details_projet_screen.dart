@@ -46,7 +46,7 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
 
     userId = widget.project.userId;
     projectId = widget.project.id;
-
+    print('hhhhhhh $userId');
     if (userId != null && projectId != null) {
       fetchCommunityId(userId!, projectId!);
     }
@@ -191,7 +191,6 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
             ),
           ),
         ),
-       
       ),
     );
   }
@@ -329,7 +328,7 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
               SizedBox(height: 21.v),
               Padding(
                 padding: EdgeInsets.only(left: 2.h),
-               child: Text("TND ${widget.project.budget.toString()}",
+                child: Text("TND ${widget.project.budget.toString()}",
                     style: CustomTextStyles.titleLargeInterPrimary),
               ),
             ],
@@ -380,131 +379,239 @@ class DetailsProjetScreenState extends State<DetailsProjetScreen> {
       ),
     );
   }
-
-  void _showJoinCommunityDialog() {
-    if (communityId == null || userId == null || projectId == null) {
-      log("Missing required fields for joining community.");
-      return;
-    }
-Future<Map<String, String>> getUserData() async {
-  try {
-    // Get the current user's UID from Firebase Auth
-    String? userId = FirebaseAuth.instance.currentUser?.uid;
-
-    if (userId == null) {
-      log("No user is currently signed in");
-      return {'nom': 'Unknown', 'image': ''};
-    }
-
-    // Fetch the user's document from Firestore using the UID
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .get();
-
-    if (userDoc.exists) {
-      // Retrieve nom and image fields, defaulting to empty strings if not found
-      String nom = userDoc['nom'] ?? 'Unknown';
-      String image = userDoc['image_user'] ?? '';
-      return {'nom': nom, 'image': image};
-    } else {
-      log("User document does not exist");
-      return {'nom': 'Unknown', 'image': ''};
-    }
-  } catch (e) {
-    log("Error fetching user data: $e");
-    return {'nom': 'Unknown', 'image': ''};
+void _showJoinCommunityDialog() {
+  if (communityId == null || userId == null || projectId == null) {
+    log("Missing required fields for joining community.");
+    return;
   }
-}
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Rejoindre la communauté"),
-          content: const Text("Souhaitez-vous rejoindre cette communauté ?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Annuler"),
-            ),
-            TextButton(
-  onPressed: () async {
-    if (communityId == null) {
-      // Display an alert dialog to inform the user
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Avis"),
-            content: const Text("Ce projet n'a pas de communauté."),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text("OK"),
-              ),
-            ],
-          );
-        },
-      );
-    } else if (userId != null && projectId != null) {
-      try {
-        log("Joining community with ID: $communityId");
-        Map<String, String> userData = await getUserData();
 
-        // Add user to community members
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .collection('projects')
-            .doc(projectId)
-            .collection('communities')
-            .doc(communityId)
-            .collection('members')
-            .doc(FirebaseAuth.instance.currentUser?.uid)
-            .set({
-          'joinedAt': Timestamp.now(),
-          'nom': userData['nom'],
-          'userId':userId,
-          'projectId':projectId,
-          'image': userData['image'],
-          'status': 'En attend',
-        });
+  // Function to fetch user data from Firestore
+  Future<Map<String, String>> getUserData() async {
+    try {
+      String? userId = FirebaseAuth.instance.currentUser?.uid;
 
-        if (!context.mounted) return;
-
-        Navigator.of(context).pop();
-        log("userId: $userId , projectId: $projectId, communityId: $communityId");
-
-        if (!context.mounted) return;
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatBoxScreen.builder(
-              context,
-              userId: userId ?? '',
-              projectId: projectId ?? '',
-              communityId: communityId!,
-            ),
-          ),
-        );
-      } catch (e) {
-        log("Error joining community: $e");
+      if (userId == null) {
+        log("No user is currently signed in");
+        return {'nom': 'Unknown', 'image': ''};
       }
-    } else {
-      log("One or more required fields are empty");
-    }
-  },
-  child: const Text("Rejoindre"),
-),
 
-          ],
-        );
-      },
-    );
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (userDoc.exists) {
+        String nom = userDoc.get('nom') ?? 'Unknown';
+        String image = userDoc.get('image_user') ?? '';
+        return {'nom': nom, 'image': image};
+      } else {
+        log("User document does not exist");
+        return {'nom': 'Unknown', 'image': ''};
+      }
+    } catch (e) {
+      log("Error fetching user data: $e");
+      return {'nom': 'Unknown', 'image': ''};
+    }
   }
+
+  // Function to fetch community details
+  Future<DocumentSnapshot> fetchCommunityDetails(String userId, String projectId, String communityId) async {
+    try {
+      DocumentSnapshot communityDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('projects')
+          .doc(projectId)
+          .collection('communities')
+          .doc(communityId)
+          .get();
+      return communityDoc;
+    } catch (e) {
+      print("Error fetching community details: $e");
+      rethrow;
+    }
+  }
+
+  // Show join community dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Rejoindre la communauté"),
+        content: const Text("Souhaitez-vous rejoindre cette communauté ?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: const Text("Annuler"),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (communityId == null) {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text("Avis"),
+                      content: const Text("Ce projet n'a pas de communauté."),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: const Text("OK"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              } else if (userId != null && projectId != null) {
+                try {
+                  log("Checking community membership for userId: $userId");
+
+                  // Check if the user is already a member of this community
+                  DocumentSnapshot memberDoc = await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(userId)
+                      .collection('projects')
+                      .doc(projectId)
+                      .collection('communities')
+                      .doc(communityId)
+                      .collection('members')
+                      .doc(FirebaseAuth.instance.currentUser?.uid)
+                      .get();
+
+                  if (memberDoc.exists) {
+                    if (memberDoc['status'] != 'En attend') {
+                      // If the user is already a member, navigate to chat
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatBoxScreen.builder(
+                            context,
+                            userId: userId ?? '',
+                            projectId: projectId ?? '',
+                            communityId: communityId!,
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+                  }
+
+                  // Fetch user data to join the community
+                  Map<String, String> userData = await getUserData();
+
+                  // Add user to community members collection
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(userId)
+                      .collection('projects')
+                      .doc(projectId)
+                      .collection('communities')
+                      .doc(communityId)
+                      .collection('members')
+                      .doc(FirebaseAuth.instance.currentUser?.uid)
+                      .set({
+                    'joinedAt': Timestamp.now(),
+                    'nom': userData['nom'],
+                    'userId': userId,
+                    'projectId': projectId,
+                    'image': userData['image'],
+                    'status': 'En attend', // Pending status
+                    'admin': false,
+                  });
+
+                  log("User added to community members collection");
+
+                  // Show dialog informing the user that their membership is pending
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("En attente de validation"),
+                        content: const Text(
+                          "Votre demande d'adhésion est en attente d'approbation. Vous ne pouvez pas accéder au chat pour le moment."
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                            child: const Text("OK"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
+                  // Fetch the community details
+                  DocumentSnapshot communityDoc = await fetchCommunityDetails(userId!, projectId!, communityId!);
+
+                  // Check if the community document exists
+                  if (communityDoc.exists) {
+                    // Get the community details
+                    String communityName = communityDoc['name'] ?? '';
+                    String communityDescription = communityDoc['description'] ?? '';
+                    String communityImage = communityDoc['webUrl'] ?? '';
+
+                    // Push these details to the 'joinCommunities' collection under the user
+                    await FirebaseFirestore.instance
+                        .collection('users') // User collection
+                        .doc(FirebaseAuth.instance.currentUser?.uid)  // Use UID from Firebase Authentication
+                        .collection('joinCommunities') // Sub-collection where user joins communities
+                        .doc(communityId) // Document for this specific community
+                        .set({
+                      'communityId': communityId,
+                      'projectId': projectId,
+                      'name': communityName,
+                      'description': communityDescription,
+                      'image': communityImage,
+                      'status': 'En attend',  // Pending status
+                    });
+
+                    log("Successfully added to joinCommunities sub-collection!");
+                  } else {
+                    log("Community not found");
+                  }
+
+                  // If the user is approved, redirect them to the chat
+                  if (memberDoc['status'] != 'En attend') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatBoxScreen.builder(
+                          context,
+                          userId: userId ?? '',
+                          projectId: projectId ?? '',
+                          communityId: communityId!,
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (!context.mounted) return;
+
+                  Navigator.of(context).pop(); // Close the dialog
+
+                  log("userId: $userId , projectId: $projectId, communityId: $communityId");
+
+                } catch (e) {
+                  log("Error joining community: $e");
+                }
+              } else {
+                log("One or more required fields are empty");
+              }
+            },
+            child: const Text("Rejoindre"),
+          ),
+        ],
+      );
+    },
+  );
 }
+
+}
+
+

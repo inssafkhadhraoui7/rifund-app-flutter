@@ -1,3 +1,9 @@
+
+
+
+
+
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rifund/main.dart';
@@ -17,11 +23,11 @@ Future<void> fetchMembersByCommunity(String communityId, String userId, String p
         .collection('communities') // Go to the 'communities' subcollection
         .doc(communityId) // Specify the community document
         .collection('members') // Query the 'members' collection
-        .where('status', isNotEqualTo: 'approved') // Exclude members with 'approved' status
+        .where('status', isEqualTo: 'En attend') // Only fetch members with 'En attend' status
         .get();
 
     if (membersSnapshot.docs.isEmpty) {
-      print("No members found for this community.");
+      print("No members with 'En attend' status found for this community.");
       return;
     }
 
@@ -114,3 +120,4 @@ Future<void> rejectMember(String memberId, String communityId, String userId, St
 }
 
 }
+

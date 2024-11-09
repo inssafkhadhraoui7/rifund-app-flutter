@@ -3,8 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/app_export.dart';
+import '../../theme/custom_button_style.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
+import '../../widgets/custom_elevated_button.dart';
 import '../liste_de_communaut_page/provider/liste_de_communaut_provider.dart';
 import 'widgets/communitycardsection_item_widget.dart'; // ignore_for_file: must_be_immutable
 
@@ -81,20 +83,62 @@ class _ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
     );
   }
 
-  Widget _buildRowListedeOneSection(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5.h),
-          child: Text(
-            "Liste des Communautés".tr,
-            style: theme.textTheme.headlineSmall,
+
+Widget _buildRowListedeOneSection(BuildContext context) {
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 5.h),
+        child: Text(
+          "Liste des Communautés".tr,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold, // Emphasize the title with bold text
+            fontSize: 24, // Slightly larger font size for better readability
           ),
         ),
-      ],
-    );
-  }
+      ),
+      SizedBox(height: 20), // Add space between the text and the row of buttons
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center, // Center the buttons
+        children: [
+          // My Communities button
+            CustomElevatedButton(
+                              height: 20.v,
+                              text: "My communities".tr,
+                              margin: EdgeInsets.only(
+                                left: 35.h,
+                                right: 20.h,
+                              ),
+                              onPressed: () {
+                              
+                              },
+                              buttonStyle: CustomButtonStyles.fillWhiteA,
+                              buttonTextStyle:
+                                  CustomTextStyles.titleLargeSemiBold,
+                            ),
+          SizedBox(width: 15), // Add space between the buttons
+          // Join Communities button
+         CustomElevatedButton(
+                              height: 20.v,
+                              text: "My communities".tr,
+                              margin: EdgeInsets.only(
+                                left: 35.h,
+                                right: 20.h,
+                              ),
+                              onPressed: () {
+                              
+                              },
+                              buttonStyle: CustomButtonStyles.fillWhiteA,
+                              buttonTextStyle:
+                                  CustomTextStyles.titleLargeSemiBold,
+                            ),
+        ],
+      ),
+    ],
+  );
+}
 
  Widget _buildCommunityCardSection(BuildContext context) {
   final String idUser = FirebaseAuth.instance.currentUser?.uid ?? ''; // Get current user ID

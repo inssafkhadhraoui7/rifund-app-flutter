@@ -63,4 +63,5 @@ class RoutePath {
   static const String initialRoute = '/initialRoute';
 
   static const String mainPage = '/main_page';
+
 }

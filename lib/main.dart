@@ -49,9 +49,6 @@
 import 'core/app_export.dart';
 
 var globalMessengerKey = GlobalKey<ScaffoldMessengerState>();
-String userId = "";
-String projectId = "";
-String communityId = "";
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -125,8 +122,7 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider<AppNavigationProvider1>(
                 create: (_) => AppNavigationProvider1()),
             ChangeNotifierProvider<AffichageCommunautProvider>(
-                create: (_) =>
-                    AffichageCommunautProvider(userId, projectId, communityId)),
+                create: (_) => AffichageCommunautProvider()),
             ChangeNotifierProvider<AdminCommunautProvider>(
                 create: (_) => AdminCommunautProvider()),
             ChangeNotifierProvider<AdminCategoryProvider>(
@@ -153,7 +149,7 @@ class MyApp extends StatelessWidget {
                   GlobalCupertinoLocalizations.delegate
                 ],
                 supportedLocales: const [Locale('en', '')],
-                initialRoute: RoutePath.initialRoute,
+                initialRoute: RoutePath.authWrapper,
                 routes: AppRoutes.routes,
               );
             },

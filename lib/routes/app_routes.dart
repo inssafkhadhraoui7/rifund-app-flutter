@@ -50,12 +50,13 @@ class AppRoutes {
             CrErCommunautScreen.builder(context),
         RoutePath.listeDeCommunautPage: (context) =>
             ListeDeCommunautPage.builder(context),
-        RoutePath.membreRejoindreScreen:(context) => MembreRejoindreScreen.builder(
-          context,
-          userId: "",  // You will replace this with actual data
-          projectId: "",  // Replace with actual data
-          communityId: "",  // Replace with actual data
-        ),
+        RoutePath.membreRejoindreScreen: (context) =>
+            MembreRejoindreScreen.builder(
+              context,
+              userId: "", // You will replace this with actual data
+              projectId: "", // Replace with actual data
+              communityId: "", // Replace with actual data
+            ),
         RoutePath.modifierNomScreen: ModifierNomScreen.builder,
         RoutePath.profileScreen: ProfileScreen.builder,
         RoutePath.modifierMotdepasseScreen: ModifierMotdepasseScreen.builder,
@@ -66,8 +67,6 @@ class AppRoutes {
         RoutePath.profileAdminPage: ProfileAdminPage.builder,
         RoutePath.initialRoute: WelcomeScreen.builder,
         RoutePath.appNavigationScreen: AppNavigationScreen.builder,
-
         RoutePath.mainPage: MainPage.builder,
       };
 }
-

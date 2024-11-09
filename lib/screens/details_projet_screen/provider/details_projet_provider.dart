@@ -1,8 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
-
-
-import '../models/slider_item_model.dart';
 
 class DetailsProjetProvider extends ChangeNotifier {
   TextEditingController searchController = TextEditingController();

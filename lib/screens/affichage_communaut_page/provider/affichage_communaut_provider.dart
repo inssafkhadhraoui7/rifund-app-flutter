@@ -1,16 +1,24 @@
-import 'dart:io';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AffichageCommunautProvider with ChangeNotifier {
-  final String communityId;
-  final String projectId;
-  final String userId;
+  String communityId = '';
+  String projectId = '';
+  String userId = '';
 
-  AffichageCommunautProvider(this.userId, this.projectId, this.communityId) {
-    // Print the communityId to the terminal for debugging
-    print("AffichageCommunautProvider initialized with communityId: $userId, $projectId, $communityId");
+  void setup(String userId, String projectId, String communityId) {
+    if (projectId.isEmpty || communityId.isEmpty) {
+      log('Error:  projectId, or communityId is empty.');
+      throw Exception(
+          'Required parameters ( projectId, communityId) are missing.');
+    }
+    this.projectId = projectId;
+    this.communityId = communityId;
+    this.userId = userId;
+    notifyListeners();
   }
 
   String _communityName = '';
@@ -29,58 +37,89 @@ class AffichageCommunautProvider with ChangeNotifier {
   bool get hasError => _hasError;
   String get errorMessage => _errorMessage;
 
+  String get getProjectId => projectId;
+  String get getCommunityId => communityId;
+
   Future<void> fetchCommunityDetails() async {
+    log('projectId: $projectId, communityId: $communityId');
+    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    if (projectId.isEmpty || communityId.isEmpty) {
+      _hasError = true;
+      _errorMessage = 'Invalid community information';
+      notifyListeners();
+      return;
+    }
+
     _isLoading = true;
     notifyListeners();
 
     try {
-      print("Attempting to fetch community with ID: $userId $projectId  $communityId");
-
-      // Use a document reference to get the specific community document
-      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+      final documentSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
           .collection('projects')
           .doc(projectId)
           .collection('communities')
-          .doc(communityId) // Use communityId here
+          .doc(communityId)
           .get();
 
       if (documentSnapshot.exists) {
-        // Cast the snapshot to Map<String, dynamic>
-        var snapshot = documentSnapshot.data() as Map<String, dynamic>;
+        final snapshot = documentSnapshot.data() as Map<String, dynamic>;
         _communityName = snapshot['name'] ?? 'No name provided';
-        _communityDescription = snapshot['description'] ?? 'No description available';
+        _communityDescription =
+            snapshot['description'] ?? 'No description available';
         _creationDate = snapshot['createdAt']?.toDate().toString() ?? '';
-        String imageUrl = snapshot['webUrl'] ?? '';
-
-        if (imageUrl.isEmpty) {
-          try {
-            final storageRef = FirebaseStorage.instance
-                .ref()
-                .child('community_img/${documentSnapshot.id}.jpg'); // Use documentSnapshot.id here
-            imageUrl = await storageRef.getDownloadURL();
-          } catch (e) {
-            print('Error fetching image for community $_communityName: $e');
-            imageUrl = 'default_image_url'; // Use a default image URL
-          }
-        }
-
-        _communityImage = imageUrl; // Update the community image
+        _communityImage = snapshot['webUrl'] ?? '';
       } else {
         _hasError = true;
         _errorMessage = 'Community not found';
-        print(_errorMessage);
       }
     } catch (e) {
       _hasError = true;
       _errorMessage = 'Error fetching community details: ${e.toString()}';
-      print(_errorMessage);
     } finally {
-      _isLoading = false; // Ensure loading is set to false
+      _isLoading = false;
       notifyListeners();
     }
   }
 
-  // New method to upload an image
+  Future<void> quitCommunity() async {
+    final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
+
+    if (currentUserUid == null || projectId.isEmpty || communityId.isEmpty) {
+      _hasError = true;
+      _errorMessage = 'Invalid user or community information';
+      notifyListeners();
+      return;
+    }
+
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      // Reference to the "membres" collection in Firestore
+      final communityRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('projects')
+          .doc(projectId)
+          .collection('communities')
+          .doc(communityId)
+          .collection('membres');
+
+      // Delete the document with the currentUserUid in the "membres" collection
+      await communityRef.doc(currentUserUid).delete();
+
+      _hasError = false;
+      _errorMessage = '';
+      log('User successfully removed from the community');
+    } catch (e) {
+      _hasError = true;
+      _errorMessage = 'Error quitting the community: ${e.toString()}';
+      log(_errorMessage);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

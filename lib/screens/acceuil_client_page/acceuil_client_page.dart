@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rifund/screens/affichage_par_categorie/affichagecategorie.dart';
 import 'package:rifund/screens/details_projet_screen/details_projet_screen.dart';
 import 'package:rifund/widgets/custom_search_view.dart';
@@ -76,82 +77,95 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
   }
 
   Widget _buildMaleUserOneRow(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Container(
-        width: double.maxFinite,
-        padding: EdgeInsets.symmetric(horizontal: 27.h, vertical: 13.v),
-        decoration: AppDecoration.fillLightGreen.copyWith(
-          borderRadius: BorderRadiusStyle.roundedBorder22,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(left: 4.h),
-              child: Row(
-                children: [
-                  Consumer<AcceuilClientProvider>(
-                 builder: (context, provider, child) {
-  // Check if profileImageUrl is not null and display the appropriate image
-  return provider.profileImageUrl != null
-      ? CircleAvatar(
-          radius: 30,
-          backgroundImage: NetworkImage(provider.profileImageUrl!),
-        )
-      : CircleAvatar(
-          radius: 30,
-          backgroundImage: AssetImage('assets/images/avatar.png'), // default icon
-        );
-},
-
-                  ),
-                  SizedBox(width: 11.h),
-                  Container(
-                    width: 111.h,
-                    margin: EdgeInsets.only(left: 11.h, top: 12.v, bottom: 3.v),
-                    child: Consumer<AcceuilClientProvider>(
-                      builder: (context, provider, child) {
-                        return Text(
-                          provider.userName.isEmpty
-                              ? "Nom d'utilisateur"
-                              : provider.userName,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: CustomTextStyles.titleLargeWhiteA700,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 9.v),
-            Selector<AcceuilClientProvider, TextEditingController?>(
-              selector: (context, provider) => provider.searchController,
-              builder: (context, searchController, child) {
-                // return CustomSearchView(
-                //   hintText: "Rechercher",
-                //   suffix: Container(
-                //     margin: EdgeInsets.fromLTRB(30.h, 7.v, 10.h, 7.v),
-                //     height: 17,
-                //     width: 23,
-                //   ),
-                //   controller: searchController,
-                // );
-
-                return TextField(
-                  controller: searchController,
-                );
-              },
-            ),
-          ],
-        ),
+  return Align(
+    alignment: Alignment.centerRight,
+    child: Container(
+      width: double.maxFinite,
+      padding: EdgeInsets.symmetric(horizontal: 27, vertical: 13),
+      decoration: AppDecoration.fillLightGreen.copyWith(
+        borderRadius: BorderRadius.circular(22),
       ),
-    );
-  }
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(left: 4),
+            child: Row(
+              children: [
+                Consumer<AcceuilClientProvider>(
+                  builder: (context, provider, child) {
+                    return PopupMenuButton(
+                      onSelected: (value) async {
+                        if (value == 'logout') {
+                          await FirebaseAuth.instance.signOut();
+                          NavigatorService.pushNamedAndRemoveUntil(RoutePath.welcomeScreen);
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'logout',
+                          child: Row(
+                            children: [
+                              Icon(Icons.logout, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text('Deconnexion'),
+                            ],
+                          ),
+                        ),
+                      ],
+                child: CircleAvatar(
+  radius: 30,
+  backgroundImage: provider.profileImageUrl != null
+      ? NetworkImage(provider.profileImageUrl! as String)
+      : const AssetImage('assets/images/avatar.png') as ImageProvider,
+),
 
+                    );
+                  },
+                ),
+                SizedBox(width: 11),
+                Container(
+                  width: 111,
+                  margin: EdgeInsets.only(left: 11, top: 12, bottom: 3),
+                  child: Consumer<AcceuilClientProvider>(
+                    builder: (context, provider, child) {
+                      return Text(
+                        provider.userName.isEmpty
+                            ? "Nom d'utilisateur"
+                            : provider.userName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: CustomTextStyles.titleLargeWhiteA700,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 9),
+          Selector<AcceuilClientProvider, TextEditingController?>(
+            selector: (context, provider) => provider.searchController,
+            builder: (context, searchController, child) {
+              return TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: "Rechercher",
+                  suffixIcon: Icon(Icons.search),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    ),
+  );
+}
   Widget _buildCategoriesColumn(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,

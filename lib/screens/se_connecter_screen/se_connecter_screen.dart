@@ -359,15 +359,13 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     NavigatorService.pushNamed(RoutePath.welcomeScreen);
   }
 
- void onTapSeconnecter(BuildContext context) async {
+void onTapSeconnecter(BuildContext context) async {
   final provider = Provider.of<SeConnecterProvider>(context, listen: false);
   final String email = provider.emailController.text.trim();
   final String password = provider.passwordoneController.text.trim();
 
-  if(email == 'adminimen01@gmail.com'){
-
-  return  NavigatorService.pushNamed(RoutePath.profileAdminPage);
-
+  if (email == 'admin01@gmail.com') {
+    return NavigatorService.pushNamed(RoutePath.profileAdminPage);
   }
 
   try {
@@ -377,22 +375,56 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
       password: password,
     );
 
-    // if(email == 'adminimen01@gmail.com'){
-    //
-    //   NavigatorService.pushNamed(AppRoutes.profileAdminPage);
-    //
-    // } else
-
-      if (userCredential.user != null) {
+    if (userCredential.user != null) {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).get();
 
-       if (!userDoc.exists) {
+      if (!userDoc.exists) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("L'utilisateur n'existe pas.")),
         );
       } else {
-        // Redirect to home page after successful login
-        NavigatorService.pushNamed(RoutePath.mainPage);
+        // Cast the document data to a Map<String, dynamic> before accessing fields
+        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+
+        // Check if the 'isAccepted' field exists and handle accordingly
+        bool isAccepted = userData.containsKey('isAccepted') ? userData['isAccepted'] : false;
+
+        // Prevent deletion or modification of 'nom' during the first login
+        bool isFirstLogin = !userData.containsKey('nom');  // Assuming 'nom' is required on the first login
+        
+        if (isFirstLogin) {
+          // Handle first login, ensure 'nom' field is not deleted
+          if (!userData.containsKey('nom')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Veuillez remplir votre nom.")),
+            );
+            return;  // Stop further actions
+          }
+        }
+
+        if (isAccepted) {
+          // Redirect to home page after successful login
+          NavigatorService.pushNamed(RoutePath.mainPage);
+        } else {
+          // Show a dialog if the user is not accepted
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text("Accès refusé"),
+                content: const Text("Votre compte n'a pas été accepté. Veuillez contacter l'administration."),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                    child: const Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
+        }
       }
     }
   } on FirebaseAuthException catch (e) {
@@ -420,26 +452,41 @@ class SeConnecterScreenState extends State<SeConnecterScreen> {
     // Logique de connexion avec Facebook
   }
 
-  void _handleGoogleLogin() async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    FirebaseFirestore  firebaseFirestore =  FirebaseFirestore.instance ;
-    final GoogleSignInAccount? googleUser = await GoogleSignIn(scopes: <String>['email']).signIn();
+ void _handleGoogleLogin() async {
+  try {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    if (googleUser == null) {
+      // User canceled the sign-in
+      return;
+    }
 
-    GoogleSignInAuthentication googlAuthentication  = await googleUser!.authentication;
-
-    final  credential = GoogleAuthProvider.credential(
-        accessToken: googlAuthentication.accessToken,
-        idToken: googlAuthentication.idToken
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
     );
-    await auth.signInWithCredential(credential).then((value) async {
-      auth.currentUser!.updateDisplayName(googleUser.displayName);
-      var _email = googleUser.email;
 
-      NavigatorService.pushNamed(RoutePath.acceuilClientPage);
+    UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
 
-    });
+    if (userCredential.user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).get();
 
+      if (!userDoc.exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("L'utilisateur n'existe pas.")),
+        );
+      } else {
+        NavigatorService.pushNamed(RoutePath.mainPage);
+      }
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Erreur de connexion avec Google")),
+    );
   }
+}
+
 
   @override
   void initState() {
