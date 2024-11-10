@@ -1,8 +1,8 @@
 import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rifund/screens/affichage_par_categorie/affichagecategorie.dart';
 import 'package:rifund/screens/details_projet_screen/details_projet_screen.dart';
-import 'package:rifund/widgets/custom_search_view.dart';
 
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
@@ -77,95 +77,99 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
   }
 
   Widget _buildMaleUserOneRow(BuildContext context) {
-  return Align(
-    alignment: Alignment.centerRight,
-    child: Container(
-      width: double.maxFinite,
-      padding: EdgeInsets.symmetric(horizontal: 27, vertical: 13),
-      decoration: AppDecoration.fillLightGreen.copyWith(
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(left: 4),
-            child: Row(
-              children: [
-                Consumer<AcceuilClientProvider>(
-                  builder: (context, provider, child) {
-                    return PopupMenuButton(
-                      onSelected: (value) async {
-                        if (value == 'logout') {
-                          await FirebaseAuth.instance.signOut();
-                          NavigatorService.pushNamedAndRemoveUntil(RoutePath.welcomeScreen);
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'logout',
-                          child: Row(
-                            children: [
-                              Icon(Icons.logout, color: Colors.red),
-                              SizedBox(width: 8),
-                              Text('Deconnexion'),
-                            ],
-                          ),
-                        ),
-                      ],
-                child: CircleAvatar(
-  radius: 30,
-  backgroundImage: provider.profileImageUrl != null
-      ? NetworkImage(provider.profileImageUrl! as String)
-      : const AssetImage('assets/images/avatar.png') as ImageProvider,
-),
-
-                    );
-                  },
-                ),
-                SizedBox(width: 11),
-                Container(
-                  width: 111,
-                  margin: EdgeInsets.only(left: 11, top: 12, bottom: 3),
-                  child: Consumer<AcceuilClientProvider>(
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Container(
+        width: double.maxFinite,
+        padding: EdgeInsets.symmetric(horizontal: 27, vertical: 13),
+        decoration: AppDecoration.fillLightGreen.copyWith(
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 4),
+              child: Row(
+                children: [
+                  Consumer<AcceuilClientProvider>(
                     builder: (context, provider, child) {
-                      return Text(
-                        provider.userName.isEmpty
-                            ? "Nom d'utilisateur"
-                            : provider.userName,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: CustomTextStyles.titleLargeWhiteA700,
+                      return PopupMenuButton(
+                        onSelected: (value) async {
+                          if (value == 'logout') {
+                            await FirebaseAuth.instance.signOut();
+                            NavigatorService.pushNamedAndRemoveUntil(
+                                RoutePath.welcomeScreen);
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: 'logout',
+                            child: Row(
+                              children: [
+                                Icon(Icons.logout, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text('Deconnexion'),
+                              ],
+                            ),
+                          ),
+                        ],
+                        child: CircleAvatar(
+                          radius: 30,
+                          backgroundImage: provider.profileImageUrl != null
+                              ? NetworkImage(
+                                  provider.profileImageUrl! as String)
+                              : const AssetImage('assets/images/avatar.png')
+                                  as ImageProvider,
+                        ),
                       );
                     },
                   ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 9),
-          Selector<AcceuilClientProvider, TextEditingController?>(
-            selector: (context, provider) => provider.searchController,
-            builder: (context, searchController, child) {
-              return TextField(
-                controller: searchController,
-                decoration: InputDecoration(
-                  hintText: "Rechercher",
-                  suffixIcon: Icon(Icons.search),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                  SizedBox(width: 11),
+                  Container(
+                    width: 111,
+                    margin: EdgeInsets.only(left: 11, top: 12, bottom: 3),
+                    child: Consumer<AcceuilClientProvider>(
+                      builder: (context, provider, child) {
+                        return Text(
+                          provider.userName.isEmpty
+                              ? "Nom d'utilisateur"
+                              : provider.userName,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: CustomTextStyles.titleLargeWhiteA700,
+                        );
+                      },
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-        ],
+                ],
+              ),
+            ),
+            SizedBox(height: 9),
+            Selector<AcceuilClientProvider, TextEditingController?>(
+              selector: (context, provider) => provider.searchController,
+              builder: (context, searchController, child) {
+                return TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    hintText: "Rechercher",
+                    suffixIcon: Icon(Icons.search),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
   Widget _buildCategoriesColumn(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
@@ -315,15 +319,14 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                                   padding: EdgeInsets.only(left: 27.h),
                                   child: Text(
                                     project.budget != null
-                                        ? project.budget.toString()
+                                        ? "TND ${project.budget.toString()}"
                                         : "Pas de budget",
                                     style: CustomTextStyles
                                         .titleLargeLightgreen600,
                                   ),
                                 ),
-                                SizedBox(height: 9.v),
+                                SizedBox(height: 7.v),
                                 Container(
-                                  height: 14.v,
                                   width: 177.h,
                                   margin: EdgeInsets.only(left: 27.h),
                                   child: Stack(
@@ -332,13 +335,28 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                                       Align(
                                         alignment: Alignment.center,
                                         child: Container(
-                                          height: 14.v,
-                                          width: 176.h,
+                                          height: 16.v,
+                                          width: 181.h,
                                           decoration: BoxDecoration(
                                             color: theme.colorScheme
                                                 .onSecondaryContainer,
                                             borderRadius:
-                                                BorderRadius.circular(7.h),
+                                                BorderRadius.circular(8.h),
+                                          ),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              // SizedBox(height: 0.v),
+                                              Text(
+                                                "0 %",
+                                                style:
+                                                    theme.textTheme.labelMedium,
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),

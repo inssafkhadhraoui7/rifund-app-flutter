@@ -8,7 +8,9 @@ import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../liste_de_communaut_page/provider/liste_de_communaut_provider.dart';
-import 'widgets/communitycardsection_item_widget.dart'; // ignore_for_file: must_be_immutable
+import 'models/CommunityjoincardsectionItemModel.dart';
+import 'widgets/communitycardsection_item_widget.dart';
+import 'widgets/joinCommunities.dart'; // ignore_for_file: must_be_immutable
 
 class ListeDeCommunautPage extends StatefulWidget {
   @override
@@ -18,13 +20,34 @@ class ListeDeCommunautPage extends StatefulWidget {
 }
 
 class _ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
+  bool _showCommunitySection = false; // For "Mes Communautés"
+  bool _showJoinCommunitySection = false; // For "Autres"
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider =
           Provider.of<ListeDeCommunautProvider>(context, listen: false);
-      provider.fetchAllCommunities(); // Call to fetch communities
+      provider.fetchAllCommunities(); // Call to fetch the communities
+      provider.fetchAllJoinCommunities();
+    });
+    
+  }
+
+  void _toggleCommunitySection() {
+    setState(() {
+      _showCommunitySection = true;
+      _showJoinCommunitySection =
+          false; // Hide "Autres" when "Mes Communautés" is clicked
+    });
+  }
+
+  void _toggleJoinCommunitySection() {
+    setState(() {
+      _showCommunitySection =
+          false; // Hide "Mes Communautés" when "Autres" is clicked
+      _showJoinCommunitySection = true;
     });
   }
 
@@ -70,10 +93,19 @@ class _ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
               padding: EdgeInsets.symmetric(horizontal: 26.h),
               child: Column(
                 children: [
-                  SizedBox(height: 48.v),
+                  SizedBox(height: 20.v),
                   _buildRowListedeOneSection(context),
-                  SizedBox(height: 17.v),
-                  _buildCommunityCardSection(context),
+                  SizedBox(height: 30.v),
+                  if (_showCommunitySection) // Show "Mes Communautés" section conditionally
+                    SizedBox(
+                      height: 300, // Adjust the height as needed
+                      child: _buildCommunityCardSection(context),
+                    ),
+                  if (_showJoinCommunitySection) // Show "Autres" section conditionally
+                    SizedBox(
+                      height: 300, // Adjust the height as needed
+                      child: _buildJoinCommunityCardSection(context),
+                    ),
                 ],
               ),
             ),
@@ -83,68 +115,62 @@ class _ListeDeCommunautPageState extends State<ListeDeCommunautPage> {
     );
   }
 
-
-Widget _buildRowListedeOneSection(BuildContext context) {
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 5.h),
-        child: Text(
-          "Liste des Communautés".tr,
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold, // Emphasize the title with bold text
-            fontSize: 24, // Slightly larger font size for better readability
+  Widget _buildRowListedeOneSection(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(height: 3),
+        Container(
+          padding: EdgeInsets.all(8.0),
+          height: 100,
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed:
+                        _toggleCommunitySection, // Show "Mes Communautés"
+                    style: ElevatedButton.styleFrom(),
+                    child: Text(
+                      "Mes Communautés",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8.0),
+              Expanded(
+                child: Container(
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _toggleJoinCommunitySection, // Show "Autres"
+                    style: ElevatedButton.styleFrom(),
+                    child: Text(
+                      "Autres",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      ),
-      SizedBox(height: 20), // Add space between the text and the row of buttons
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center, // Center the buttons
-        children: [
-          // My Communities button
-            CustomElevatedButton(
-                              height: 20.v,
-                              text: "My communities".tr,
-                              margin: EdgeInsets.only(
-                                left: 35.h,
-                                right: 20.h,
-                              ),
-                              onPressed: () {
-                              
-                              },
-                              buttonStyle: CustomButtonStyles.fillWhiteA,
-                              buttonTextStyle:
-                                  CustomTextStyles.titleLargeSemiBold,
-                            ),
-          SizedBox(width: 15), // Add space between the buttons
-          // Join Communities button
-         CustomElevatedButton(
-                              height: 20.v,
-                              text: "My communities".tr,
-                              margin: EdgeInsets.only(
-                                left: 35.h,
-                                right: 20.h,
-                              ),
-                              onPressed: () {
-                              
-                              },
-                              buttonStyle: CustomButtonStyles.fillWhiteA,
-                              buttonTextStyle:
-                                  CustomTextStyles.titleLargeSemiBold,
-                            ),
-        ],
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
- Widget _buildCommunityCardSection(BuildContext context) {
-  final String idUser = FirebaseAuth.instance.currentUser?.uid ?? ''; // Get current user ID
+  Widget _buildCommunityCardSection(BuildContext context) {
+    final String idUser = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-  return Expanded(
-    child: Padding(
+    return Padding(
       padding: EdgeInsets.only(left: 3.h, right: 5.h),
       child: Consumer<ListeDeCommunautProvider>(
         builder: (context, provider, child) {
@@ -165,22 +191,53 @@ Widget _buildRowListedeOneSection(BuildContext context) {
             itemBuilder: (context, index) {
               final community = provider.communities[index];
               final communityId = community.communityId;
-              final projectId = community.projectId ?? ''; // Retrieve projectId if available in model
+              final projectId = community.projectId ?? '';
 
               return CommunitycardsectionItemWidget(
                 model: community,
                 communityId: communityId,
-                projectId: projectId, // Pass the project ID
-                userId: idUser,       // Pass the user ID
+                projectId: projectId,
+                userId: idUser,
               );
             },
           );
         },
       ),
-    ),
-  );
-}
+    );
+  }
 
+  Widget _buildJoinCommunityCardSection(BuildContext context) {
+    final String idUser = FirebaseAuth.instance.currentUser?.uid ?? '';
+    return Padding(
+      padding: EdgeInsets.only(left: 3.h, right: 5.h),
+      child: Consumer<ListeDeCommunautProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (provider.errorMessage.isNotEmpty) {
+            return Center(child: Text(provider.errorMessage));
+          }
+          if (provider.joinedCommunities.isEmpty) {
+            return Center(child: Text("Pas de communautés jointes"));
+          }
 
-
+          return ListView.separated(
+            padding: EdgeInsets.zero,
+            separatorBuilder: (context, index) => SizedBox(height: 18.h),
+            itemCount: provider.joinedCommunities.length,
+            itemBuilder: (context, index) {
+              final joinCommunity = provider.joinedCommunities[index];
+              final communityModel = joinCommunity; // Directly use the model
+              return JoinCommunityCardItemWidget(
+                model: communityModel,
+                communityId: communityModel.communityId,
+                userId: idUser,
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
 }

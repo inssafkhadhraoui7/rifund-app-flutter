@@ -101,43 +101,53 @@ class ChatBoxProvider extends ChangeNotifier {
   }
 
   Future<void> sendMessage(String message) async {
-    if (message.isEmpty) {
-      return;
-    }
-
-    if (userId.isEmpty || projectId.isEmpty || communityId.isEmpty) {
-      log("Error: userId, projectId, or communityId is empty.");
-      return;
-    }
-
-    _isSendingMessage = true;
-    notifyListeners();
-
-    try {
-      await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('projects')
-          .doc(projectId)
-          .collection('communities')
-          .doc(communityId)
-          .collection('chat_messages')
-          .add({
-        'message': message,
-        'isReceived': false,
-        'userName': userName,
-        'image_user': userImage,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-
-      messageController.clear();
-    } catch (e) {
-      log("Error sending message: $e");
-    } finally {
-      _isSendingMessage = false;
-      notifyListeners();
-    }
+  if (message.isEmpty) {
+    return;
   }
+
+  if (userId.isEmpty || projectId.isEmpty || communityId.isEmpty) {
+    log("Error: userId, projectId, or communityId is empty.");
+    return;
+  }
+
+  _isSendingMessage = true;
+  notifyListeners();
+
+  try {
+    // Send message to the chat
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('projects')
+        .doc(projectId)
+        .collection('communities')
+        .doc(communityId)
+        .collection('chat_messages')
+        .add({
+      'message': message,
+      'isReceived': false,
+      'userName': userName,
+      'image_user': userImage,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+
+    // Create a notification for the community
+    await _firestore.collection('notifications').add({
+      'communityId': communityId,
+      'message': '$userName sent a message on $communityName community',
+      'senderName': userName,
+      'senderImage': userImage,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+
+    messageController.clear();
+  } catch (e) {
+    log("Error sending message: $e");
+  } finally {
+    _isSendingMessage = false;
+    notifyListeners();
+  }
+}
 
 }
 

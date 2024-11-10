@@ -448,13 +448,98 @@ void _showJoinCommunityDialog() {
           ),
           TextButton(
             onPressed: () async {
-              if (communityId == null) {
+              if (communityId == null || userId == null || projectId == null) {
+                log("One or more required fields are empty");
+                return;
+              }
+
+              try {
+                log("Checking community membership for userId: $userId");
+
+                // Retrieve current user's UID
+                String? currentUid = FirebaseAuth.instance.currentUser?.uid;
+
+                // Check if the user is the owner/admin of the community
+                if (userId == currentUid) {
+                  // If the user is the same as the community owner, set admin and navigate directly
+                  log("User is the community admin. Granting immediate access.");
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatBoxScreen.builder(
+                        context,
+                        userId: userId ?? '',
+                        projectId: projectId ?? '',
+                        communityId: communityId!,
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
+                // Check if the user is already a member of this community
+                DocumentSnapshot memberDoc = await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(userId)
+                    .collection('projects')
+                    .doc(projectId)
+                    .collection('communities')
+                    .doc(communityId)
+                    .collection('members')
+                    .doc(currentUid)
+                    .get();
+
+                if (memberDoc.exists && memberDoc['status'] != 'En attend') {
+                  // If the user is already a member, navigate to chat
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatBoxScreen.builder(
+                        context,
+                        userId: userId ?? '',
+                        projectId: projectId ?? '',
+                        communityId: communityId!,
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
+                // Fetch user data to join the community
+                Map<String, String> userData = await getUserData();
+
+                // Add user to community members collection with admin status if the user is the owner
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(userId)
+                    .collection('projects')
+                    .doc(projectId)
+                    .collection('communities')
+                    .doc(communityId)
+                    .collection('members')
+                    .doc(currentUid)
+                    .set({
+                  'joinedAt': Timestamp.now(),
+                  'nom': userData['nom'],
+                  'userId': userId,
+                  'projectId': projectId,
+                  'image': userData['image'],
+                  'status': 'En attend', // Pending status
+                  'admin': userId == currentUid, // Set admin to true if userId matches currentUid
+                });
+
+                log("User added to community members collection");
+
+                // Show dialog informing the user that their membership is pending
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: const Text("Avis"),
-                      content: const Text("Ce projet n'a pas de communauté."),
+                      title: const Text("En attente de validation"),
+                      content: const Text(
+                        "Votre demande d'adhésion est en attente d'approbation. Vous ne pouvez pas accéder au chat pour le moment."
+                      ),
                       actions: <Widget>[
                         TextButton(
                           onPressed: () {
@@ -466,97 +551,19 @@ void _showJoinCommunityDialog() {
                     );
                   },
                 );
-              } else if (userId != null && projectId != null) {
-                try {
-                  log("Checking community membership for userId: $userId");
 
-                  // Check if the user is already a member of this community
-                  DocumentSnapshot memberDoc = await FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(userId)
-                      .collection('projects')
-                      .doc(projectId)
-                      .collection('communities')
-                      .doc(communityId)
-                      .collection('members')
-                      .doc(FirebaseAuth.instance.currentUser?.uid)
-                      .get();
+                // Fetch the community details
+                DocumentSnapshot communityDoc = await fetchCommunityDetails(userId!, projectId!, communityId!);
 
-                  if (memberDoc.exists) {
-                    if (memberDoc['status'] != 'En attend') {
-                      // If the user is already a member, navigate to chat
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatBoxScreen.builder(
-                            context,
-                            userId: userId ?? '',
-                            projectId: projectId ?? '',
-                            communityId: communityId!,
-                          ),
-                        ),
-                      );
-                      return;
-                    }
-                  }
+                // Check if the community document exists
+                if (communityDoc.exists) {
+                  // Get the community details
+                  String communityName = communityDoc['name'] ?? '';
+                  String communityDescription = communityDoc['description'] ?? '';
+                  String communityImage = communityDoc['webUrl'] ?? '';
 
-                  // Fetch user data to join the community
-                  Map<String, String> userData = await getUserData();
-
-                  // Add user to community members collection
-                  await FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(userId)
-                      .collection('projects')
-                      .doc(projectId)
-                      .collection('communities')
-                      .doc(communityId)
-                      .collection('members')
-                      .doc(FirebaseAuth.instance.currentUser?.uid)
-                      .set({
-                    'joinedAt': Timestamp.now(),
-                    'nom': userData['nom'],
-                    'userId': userId,
-                    'projectId': projectId,
-                    'image': userData['image'],
-                    'status': 'En attend', // Pending status
-                    'admin': false,
-                  });
-
-                  log("User added to community members collection");
-
-                  // Show dialog informing the user that their membership is pending
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text("En attente de validation"),
-                        content: const Text(
-                          "Votre demande d'adhésion est en attente d'approbation. Vous ne pouvez pas accéder au chat pour le moment."
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(); // Close the dialog
-                            },
-                            child: const Text("OK"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-
-                  // Fetch the community details
-                  DocumentSnapshot communityDoc = await fetchCommunityDetails(userId!, projectId!, communityId!);
-
-                  // Check if the community document exists
-                  if (communityDoc.exists) {
-                    // Get the community details
-                    String communityName = communityDoc['name'] ?? '';
-                    String communityDescription = communityDoc['description'] ?? '';
-                    String communityImage = communityDoc['webUrl'] ?? '';
-
-                    // Push these details to the 'joinCommunities' collection under the user
+                  // If the user is approved, redirect them to the chat
+                  if (memberDoc['status'] == 'approved') {
                     await FirebaseFirestore.instance
                         .collection('users') // User collection
                         .doc(FirebaseAuth.instance.currentUser?.uid)  // Use UID from Firebase Authentication
@@ -565,43 +572,61 @@ void _showJoinCommunityDialog() {
                         .set({
                       'communityId': communityId,
                       'projectId': projectId,
+                      'userId': userId,
                       'name': communityName,
                       'description': communityDescription,
                       'image': communityImage,
-                      'status': 'En attend',  // Pending status
+                      'status': 'approved',  // Approved status
                     });
 
                     log("Successfully added to joinCommunities sub-collection!");
                   } else {
-                    log("Community not found");
+                    log("User is not approved yet, can't join the community.");
                   }
-
-                  // If the user is approved, redirect them to the chat
-                  if (memberDoc['status'] != 'En attend') {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChatBoxScreen.builder(
-                          context,
-                          userId: userId ?? '',
-                          projectId: projectId ?? '',
-                          communityId: communityId!,
-                        ),
-                      ),
-                    );
-                  }
-
-                  if (!context.mounted) return;
-
-                  Navigator.of(context).pop(); // Close the dialog
-
-                  log("userId: $userId , projectId: $projectId, communityId: $communityId");
-
-                } catch (e) {
-                  log("Error joining community: $e");
+                } else {
+                  log("Community not found");
                 }
-              } else {
-                log("One or more required fields are empty");
+
+                // If the user is approved, redirect them to the chat
+                if (memberDoc['status'] != 'En attend') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatBoxScreen.builder(
+                        context,
+                        userId: userId ?? '',
+                        projectId: projectId ?? '',
+                        communityId: communityId!,
+                      ),
+                    ),
+                  );
+                }
+
+                if (!context.mounted) return;
+
+                Navigator.of(context).pop(); // Close the dialog
+
+                log("userId: $userId , projectId: $projectId, communityId: $communityId");
+              } catch (e) {
+                log("Error joining community: $e");
+                // Handle error (e.g., show an error dialog)
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text("Erreur"),
+                      content: Text("Une erreur s'est produite : $e"),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: const Text("OK"),
+                        ),
+                      ],
+                    );
+                  },
+                );
               }
             },
             child: const Text("Rejoindre"),
@@ -611,6 +636,9 @@ void _showJoinCommunityDialog() {
     },
   );
 }
+
+
+
 
 }
 
