@@ -1,17 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter/material.dart';
 import 'package:rifund/screens/acceuil_client_page/acceuil_client_page.dart';
 import 'package:rifund/screens/creationprojet/creationprojet.dart';
 import 'package:rifund/screens/notification_page/notification_page.dart';
 import 'package:rifund/screens/profile_screen/profile_screen.dart';
 
 class BottomNavBar extends StatelessWidget {
-  final String userId;
-
-  const BottomNavBar({super.key, required this.userId});
-
+  late final String userId;
   Future<int> getUnreadNotificationsCount(String userId) async {
     final snapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -119,3 +115,4 @@ class BottomNavBar extends StatelessWidget {
     );
   }
 }
+

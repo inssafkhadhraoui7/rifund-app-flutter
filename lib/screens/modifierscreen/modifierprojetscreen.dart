@@ -178,7 +178,6 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavBar(userId: '',),
       ),
     );
   }

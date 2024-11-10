@@ -58,7 +58,6 @@ class MembreRejoindreScreenState extends State<MembreRejoindreScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavBar(userId: '',),
       ),
     );
   }

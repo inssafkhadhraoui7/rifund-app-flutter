@@ -64,7 +64,6 @@ class FinancerProjetScreenState extends State<FinancerProjetScreen> {
             ),
           ),
         ),
-        bottomNavigationBar: BottomNavBar(userId: '',),
       ),
     );
   }
