@@ -1,8 +1,5 @@
-import 'package:flutter/material.dart';
-
 import '../../../core/app_export.dart';
 import '../screens/listeprojets/models/userprofile_item_model.dart';
-import '../screens/listeprojets/provider/liste_des_projets_provider.dart';
 import '../screens/modifierscreen/modifierprojetscreen.dart';
 
 // ignore_for_file: must_be_immutable
@@ -36,8 +33,8 @@ class UserprofileItemWidget extends StatelessWidget {
             Align(
               alignment: Alignment.bottomRight,
               child: Container(
-                width: 60.h,
-                margin: EdgeInsets.only(left: 75.h, right: 45.h, bottom: 27.v),
+                width: 140.h,
+                margin: EdgeInsets.only(left: 75.h, right: 80.h, bottom: 27.v),
                 padding: EdgeInsets.symmetric(horizontal: 5.h),
                 decoration: AppDecoration.fillBlueGray.copyWith(
                   borderRadius: BorderRadiusStyle.circleBorder7,
@@ -53,18 +50,6 @@ class UserprofileItemWidget extends StatelessWidget {
                       style: theme.textTheme.labelMedium,
                     ),
                   ],
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: 14.v,
-                width: 141.h,
-                margin: EdgeInsets.only(bottom: 27.v),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
-                  borderRadius: BorderRadius.circular(7.h),
                 ),
               ),
             ),
@@ -97,7 +82,7 @@ class UserprofileItemWidget extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.only(bottom: 4.v),
+                                  padding: EdgeInsets.only(bottom: 1.v),
                                   child: Text(
                                     userprofileItemModelObj.titreduprojet ??
                                         "Titre du projet",
@@ -119,7 +104,7 @@ class UserprofileItemWidget extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 11.v),
+                            SizedBox(height: 8.v),
                             SizedBox(
                               height: 32.adaptSize,
                               width: 32.adaptSize,

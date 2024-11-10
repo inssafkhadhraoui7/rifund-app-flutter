@@ -118,7 +118,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   onTapFaireundon(BuildContext context) {
-    NavigatorService.pushNamed(RoutePath.seConnecterScreen);
+    NavigatorService.pushNamed(RoutePath.acceuilClientPage);
   }
 
   void onTapSeconnecter(BuildContext context) {
