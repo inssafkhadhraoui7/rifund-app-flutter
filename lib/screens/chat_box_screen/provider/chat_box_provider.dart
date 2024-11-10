@@ -132,9 +132,12 @@ class ChatBoxProvider extends ChangeNotifier {
     });
 
     // Create a notification for the community
-    await _firestore.collection('notifications').add({
+    await _firestore
+    .collection('users')
+    .doc(userId)
+    .collection('notifications').add({
       'communityId': communityId,
-      'message': '$userName sent a message on $communityName community',
+      'message': '$userName a envoyé un message sur la communauté de $communityName ',
       'senderName': userName,
       'senderImage': userImage,
       'timestamp': FieldValue.serverTimestamp(),

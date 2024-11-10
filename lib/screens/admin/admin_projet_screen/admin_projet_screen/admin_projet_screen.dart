@@ -59,7 +59,7 @@ class AdminProjetScreenState extends State<AdminProjetScreen> {
                           },
                         ),
         ),
-        bottomNavigationBar: BottomNavBar(),
+        bottomNavigationBar: BottomNavBar(userId: '',),
       ),
     );
   }

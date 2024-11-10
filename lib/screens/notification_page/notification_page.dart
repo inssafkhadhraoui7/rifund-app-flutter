@@ -1,19 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../../core/app_export.dart';
-import '../../widgets/app_bar/appbar_title.dart';
-import '../../widgets/app_bar/custom_app_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart'; // To format the timestamp
+import 'package:flutter/material.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
 
   @override
   NotificationPageState createState() => NotificationPageState();
+
   static Widget builder(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => NotificationProvider(),
-      child: const NotificationPage(),
-    );
+    return const NotificationPage();
   }
 }
 
@@ -25,12 +22,20 @@ class NotificationPageState extends State<NotificationPage> {
 
   @override
   Widget build(BuildContext context) {
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId == null) {
+      return Center(child: Text('User not logged in'));
+    }
+
     return SafeArea(
       child: Scaffold(
-        backgroundColor: appTheme.whiteA700,
+        backgroundColor: Colors.white,
         appBar: _buildAppBar(context),
         body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId) 
               .collection('notifications')
               .orderBy('timestamp', descending: true)
               .snapshots(),
@@ -44,6 +49,10 @@ class NotificationPageState extends State<NotificationPage> {
             }
 
             final notifications = snapshot.data?.docs ?? [];
+            
+            if (notifications.isEmpty) {
+              return Center(child: Text('No notifications available.'));
+            }
 
             return ListView.builder(
               itemCount: notifications.length,
@@ -52,10 +61,10 @@ class NotificationPageState extends State<NotificationPage> {
                 String senderName = notification['senderName'];
                 String senderImage = notification['senderImage'];
                 String message = notification['message'];
-                String time = 'Just now'; // You can format the timestamp if needed
+                Timestamp timestamp = notification['timestamp'];
+                String time = _formatTimestamp(timestamp);
 
-                return _buildNotificationCard(
-                    senderName, senderImage, message, time);
+                return _buildNotificationCard(senderName, senderImage, message, time, notification.id);
               },
             );
           },
@@ -64,99 +73,87 @@ class NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  /// Section Widget
   PreferredSizeWidget _buildAppBar(BuildContext context) {
-    return CustomAppBar(
+    return AppBar(
       centerTitle: true,
-      title: AppbarTitle(
-        text: "Notifications".tr,
-        margin: EdgeInsets.only(
-          left: 80.h,
-          top: 2.v,
-          right: 79.h,
-        ),
-      ),
-      styleType: Style.bgFill_1,
+      title: Text('Notifications'),
     );
   }
 
   Widget _buildNotificationCard(String senderName, String senderImage,
-      String message, String time) {
-    return Container(
-      height: 78.v,
-      width: 347.h,
-      margin: EdgeInsets.only(left: 2.h, right: 2.h, top: 8.v),
-      child: Stack(
-        alignment: Alignment.bottomRight,
-        children: [
-          Align(
-            alignment: Alignment.center,
-            child: Container(
-              padding: EdgeInsets.fromLTRB(6.h, 11.v, 6.h, 10.v),
-              decoration: AppDecoration.outlineBlueGray,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
+      String message, String time, String notificationId) {
+    return GestureDetector(
+      onTap: () => _markNotificationAsRead(notificationId),
+      child: Container(
+        margin: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              offset: Offset(0, 2),
+              blurRadius: 6,
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 60,
+                width: 40,
+                margin: const EdgeInsets.only(right: 12),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: NetworkImage(senderImage),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      senderName,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 4),
+                    Text(message),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Container(
-                    height: 39.v,
-                    width: 42.h,
-                    margin: EdgeInsets.only(bottom: 17.v),
-                    child: Stack(
-                      alignment: Alignment.bottomRight,
-                      children: [
-                        CustomImageView(
-                          imagePath: senderImage,
-                          height: 34.adaptSize,
-                          width: 34.adaptSize,
-                          alignment: Alignment.topLeft,
-                        ),
-                        Container(
-                          alignment: Alignment.bottomCenter,
-                          child: const Icon(
-                            Icons.comment,
-                            size: 15,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: 212.h,
-                    margin: EdgeInsets.only(
-                      left: 8.h,
-                      bottom: 9.v,
-                    ),
-                    child: Text(
-                      message,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleSmall!.copyWith(
-                        height: 1.40,
-                      ),
-                    ),
-                  ),
+                  Text(time, style: TextStyle(color: Colors.grey)),
                 ],
               ),
-            ),
+            ],
           ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: EdgeInsets.only(right: 65.h),
-              child: Text(
-                time,
-                style: theme.textTheme.titleSmall,
-              ),
-            ),
-          )
-        ],
+        ),
       ),
     );
   }
 
-  /// Navigates to the previous screen.
-  onTapArrowleftone(BuildContext context) {
-    NavigatorService.goBack();
+  String _formatTimestamp(Timestamp timestamp) {
+    DateTime dateTime = timestamp.toDate();
+    return DateFormat('MMM d, yyyy, h:mm a').format(dateTime);
+  }
+
+  Future<void> _markNotificationAsRead(String notificationId) async {
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .doc(notificationId)
+          .update({'read': true});
+    }
   }
 }

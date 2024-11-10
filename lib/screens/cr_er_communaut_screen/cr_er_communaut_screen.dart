@@ -104,7 +104,7 @@ class CrErCommunautScreenState extends State<CrErCommunautScreen> {
             ),
           ),
         ),
-        bottomNavigationBar: BottomNavBar(),
+        bottomNavigationBar: BottomNavBar(userId: '',),
       ),
     );
   }

@@ -14,8 +14,9 @@ import 'models/modifier_projet_model.dart';
 import 'provider/modifier_projet_provider.dart';
 
 class ModifierProjetScreen extends StatefulWidget {
+  
   const ModifierProjetScreen({super.key});
-
+  
   @override
   ModifierProjetScreenState createState() => ModifierProjetScreenState();
   static Widget builder(BuildContext context) {
@@ -177,7 +178,7 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavBar(),
+        bottomNavigationBar: BottomNavBar(userId: '',),
       ),
     );
   }

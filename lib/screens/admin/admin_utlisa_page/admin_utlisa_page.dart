@@ -45,34 +45,41 @@ class AdminUtlisaPageState extends State<AdminUtlisaPage> {
               itemCount: users.length,
               itemBuilder: (context, index) {
                 CustomUser user = users[index];
-                return ListTile(
-                  title: Text(user.email),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.block, color: Colors.red),
-                        onPressed: () => adminProvider.blockUser(user.uid, context),
-                        tooltip: "Bloquer l'utilisateur",
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () async {
-                          // Confirm deletion
-                          bool? confirm = await _showConfirmationDialog(context, "Confirmer la suppression", "Êtes-vous sûr de vouloir supprimer cet utilisateur ?");
-                          if (confirm == true) {
-                            await adminProvider.deleteUser(user.uid, context);
-                            setState(() {}); // Re-fetch users after deletion
-                          }
-                        },
-                        tooltip: "Supprimer un utilisateur",
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.check, color: Colors.green),
-                        onPressed: () => adminProvider.acceptUser(user.uid, context),
-                        tooltip: "Accepter l'utilisateur",
-                      ),
-                    ],
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.lightGreen[600]!), // Light green border
+                    borderRadius: BorderRadius.circular(10.0), // Optional rounded corners
+                  ),
+                  child: ListTile(
+                    title: Text(user.email),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.block, color: Colors.red),
+                          onPressed: () => adminProvider.blockUser(user.uid, context),
+                          tooltip: "Bloquer l'utilisateur",
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () async {
+                            // Confirm deletion
+                            bool? confirm = await _showConfirmationDialog(context, "Confirmer la suppression", "Êtes-vous sûr de vouloir supprimer cet utilisateur ?");
+                            if (confirm == true) {
+                              await adminProvider.deleteUser(user.uid, context);
+                              setState(() {}); // Re-fetch users after deletion
+                            }
+                          },
+                          tooltip: "Supprimer un utilisateur",
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.check, color: Colors.green),
+                          onPressed: () => adminProvider.acceptUser(user.uid, context),
+                          tooltip: "Accepter l'utilisateur",
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
