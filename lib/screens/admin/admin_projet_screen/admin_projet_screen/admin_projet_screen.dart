@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:rifund/core/app_export.dart';
 import 'package:rifund/theme/custom_button_style.dart';
@@ -9,7 +8,6 @@ import 'package:rifund/widgets/custom_elevated_button.dart';
 
 import '../../../../widgets/app_bar/appbar_title.dart';
 import 'models/admin_projet_model.dart';
-import 'provider/admin_projet_provider.dart';
 
 class AdminProjetScreen extends StatefulWidget {
   const AdminProjetScreen({super.key});
@@ -92,7 +90,8 @@ class AdminProjetScreenState extends State<AdminProjetScreen> {
                     ),
                   ),
                 ),
-                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                placeholder: (context, url) =>
+                    const Center(child: CircularProgressIndicator()),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
@@ -128,28 +127,42 @@ class AdminProjetScreenState extends State<AdminProjetScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CustomElevatedButton(
-                  width: 104.h,
-                  height: 45.v,
-                  text: "Valider".tr,
-                  buttonTextStyle: CustomTextStyles.bodyMediumBlack900!,
-                  onPressed: () async {
-                    await provider.approveProject(project);
-                    provider.fetchProjects(); // Refresh the project list
-                  },
-                ),
-                CustomElevatedButton(
-                  width: 104.h,
-                  height: 45.v,
-                  text: "Refuser".tr,
-                  margin: EdgeInsets.only(left: 8.h),
-                  buttonStyle: CustomButtonStyles.fillGray,
-                  buttonTextStyle: CustomTextStyles.bodyMediumBlack900,
-                  onPressed: () async {
-                    await provider.rejectProject(project);
-                    provider.fetchProjects(); // Refresh the project list
-                  },
-                ),
+                if (!project.isApproved) ...[
+                  CustomElevatedButton(
+                    width: 104.h,
+                    height: 45.v,
+                    text: "Valider".tr,
+                    buttonTextStyle: CustomTextStyles.bodyMediumBlack900!,
+                    onPressed: () async {
+                      await provider.approveProject(project);
+                      provider.fetchProjects();
+                    },
+                  ),
+                  CustomElevatedButton(
+                    width: 104.h,
+                    height: 45.v,
+                    text: "Refuser".tr,
+                    margin: EdgeInsets.only(left: 8.h),
+                    buttonStyle: CustomButtonStyles.fillGray,
+                    buttonTextStyle: CustomTextStyles.bodyMediumBlack900,
+                    onPressed: () async {
+                      _showDeleteDialog1(context, provider, project);
+                    },
+                  ),
+                ] else ...[
+                  CustomElevatedButton(
+                    width: 104.h,
+                    height: 45.v,
+                    text: "Supprimer".tr,
+                    buttonStyle: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.red),
+                    ),
+                    buttonTextStyle: CustomTextStyles.bodyMediumBlack900,
+                    onPressed: () async {
+                      _showDeleteDialog(context, provider, project);
+                    },
+                  ),
+                ],
               ],
             ),
           ),
@@ -159,6 +172,63 @@ class AdminProjetScreenState extends State<AdminProjetScreen> {
     );
   }
 
+  void _showDeleteDialog(BuildContext context, AdminProjetProvider provider,
+      AdminProjetModel project) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Êtes-vous sûr de vouloir supprimer ce projet ?'),
+          content: Text('Cette action va supprimer le projet definitivement'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await provider.rejectProject(project);
+                Navigator.pop(context);
+                provider.fetchProjects();
+              },
+              child: Text('Supprimer'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+void _showDeleteDialog1(BuildContext context, AdminProjetProvider provider,
+      AdminProjetModel project) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Êtes-vous sûr de vouloir refuser ce projet ?'),
+          content: Text('Cette action va supprimer le projet definitivement'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await provider.rejectProject(project);
+                Navigator.pop(context);
+                provider.fetchProjects();
+              },
+              child: Text('Refuser'),
+            ),
+          ],
+        );
+      },
+    );
+  }
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return CustomAppBar(
       centerTitle: true,
@@ -199,12 +269,11 @@ class AdminProjetScreenState extends State<AdminProjetScreen> {
           ),
           SizedBox(width: 8.h),
           Flexible(
-            // Wrap in Flexible to allow text to wrap
             child: Text(
               value.tr,
               style: theme.textTheme.titleSmall,
-              maxLines: 2, // Limit to 2 lines
-              overflow: TextOverflow.ellipsis, // Add ellipsis for overflow
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
