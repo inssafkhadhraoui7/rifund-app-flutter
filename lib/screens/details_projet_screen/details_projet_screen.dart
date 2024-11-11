@@ -427,7 +427,7 @@ void _showJoinCommunityDialog() async {
           .get();
       return communityDoc;
     } catch (e) {
-      print("Error fetching community details: $e");
+      log("Error fetching community details: $e");
       rethrow;
     }
   }
@@ -440,7 +440,6 @@ void _showJoinCommunityDialog() async {
 
     // Check if the user is the owner/admin of the community
     if (userId == currentUid) {
-      // If the user is the same as the community owner, grant immediate access to the chat
       log("User is the community admin. Granting immediate access.");
 
       Navigator.push(
@@ -454,7 +453,7 @@ void _showJoinCommunityDialog() async {
           ),
         ),
       );
-      return;  // Skip the rest of the code and prevent showing the dialog
+      return;
     }
 
     // Check if the user is already a member of this community
@@ -473,7 +472,6 @@ void _showJoinCommunityDialog() async {
       String status = memberDoc['status'];
 
       if (status == 'approved' || status == 'admin') {
-        // If the user is an approved member or admin, navigate directly to the chat
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -485,15 +483,32 @@ void _showJoinCommunityDialog() async {
             ),
           ),
         );
-        return; // Skip showing the dialog and proceed directly to the chat screen
+        return;
       } else if (status == 'En attend') {
-        // If the user's status is 'pending', show the dialog informing them of the pending status
         log("User's membership is pending.");
-        // Optionally, show another dialog here to inform the user they are waiting
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("En attente de validation"),
+              content: const Text(
+                "Votre demande d'adhésion est en attente d'approbation. Vous ne pouvez pas accéder au chat pour le moment.",
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+        return;
       }
     }
 
-    // If the user is neither an admin nor an approved member, proceed to show the join community dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -503,7 +518,7 @@ void _showJoinCommunityDialog() async {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: const Text("Annuler"),
             ),
@@ -517,7 +532,6 @@ void _showJoinCommunityDialog() async {
                 try {
                   Map<String, String> userData = await getUserData();
 
-                  // Add user to community members collection with pending status
                   await FirebaseFirestore.instance
                       .collection('users')
                       .doc(userId)
@@ -533,13 +547,12 @@ void _showJoinCommunityDialog() async {
                     'userId': userId,
                     'projectId': projectId,
                     'image': userData['image'],
-                    'status': 'En attend', // Pending status
-                    'admin': userId == currentUid, // Set admin to true if userId matches currentUid
+                    'status': 'En attend',
+                    'admin': userId == currentUid,
                   });
 
                   log("User added to community members collection");
 
-                  // Immediately add to joinCommunities sub-collection
                   DocumentSnapshot communityDoc = await fetchCommunityDetails(userId!, projectId!, communityId!);
 
                   if (communityDoc.exists) {
@@ -547,7 +560,6 @@ void _showJoinCommunityDialog() async {
                     String communityDescription = communityDoc['description'] ?? '';
                     String communityImage = communityDoc['webUrl'] ?? '';
 
-                    // Add the user to the joinCommunities sub-collection without waiting for approval
                     await FirebaseFirestore.instance
                         .collection('users')
                         .doc(FirebaseAuth.instance.currentUser?.uid)
@@ -560,43 +572,39 @@ void _showJoinCommunityDialog() async {
                       'name': communityName,
                       'description': communityDescription,
                       'image': communityImage,
-                      'status': 'En attend',  // Keep the status as 'pending'
+                      'status': 'En attend',
                     });
 
                     log("Successfully added to joinCommunities sub-collection!");
+
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("En attente de validation"),
+                          content: const Text(
+                            "Votre demande d'adhésion est en attente d'approbation. Vous ne pouvez pas accéder au chat pour le moment.",
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   } else {
                     log("Community not found");
                   }
 
-                  // Show dialog informing the user that their membership is pending
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text("En attente de validation"),
-                        content: const Text(
-                          "Votre demande d'adhésion est en attente d'approbation. Vous ne pouvez pas accéder au chat pour le moment."
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(); // Close the dialog
-                            },
-                            child: const Text("OK"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-
                   if (!context.mounted) return;
-
-                  Navigator.of(context).pop(); // Close the dialog
-
+                  Navigator.of(context).pop();
                   log("userId: $userId , projectId: $projectId, communityId: $communityId");
                 } catch (e) {
                   log("Error joining community: $e");
-                  // Handle error (e.g., show an error dialog)
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -606,7 +614,7 @@ void _showJoinCommunityDialog() async {
                         actions: <Widget>[
                           TextButton(
                             onPressed: () {
-                              Navigator.of(context).pop(); // Close the dialog
+                              Navigator.of(context).pop();
                             },
                             child: const Text("OK"),
                           ),
@@ -624,7 +632,6 @@ void _showJoinCommunityDialog() async {
     );
   } catch (e) {
     log("Error checking community membership: $e");
-    // Handle error (e.g., show an error dialog)
   }
 }
 

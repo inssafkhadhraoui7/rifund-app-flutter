@@ -65,7 +65,7 @@ class AppRoutes {
         RoutePath.adminProjetScreen: AdminProjetScreen.builder,
         RoutePath.adminUtlisaPage: AdminUtlisaPage.builder,
         RoutePath.profileAdminPage: ProfileAdminPage.builder,
-        RoutePath.initialRoute: WelcomeScreen.builder,
+        RoutePath.initialRoute:  SplashScreen.builder,
         RoutePath.appNavigationScreen: AppNavigationScreen.builder,
         RoutePath.mainPage: MainPage.builder,
       };
