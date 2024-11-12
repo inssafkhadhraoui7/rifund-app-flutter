@@ -3,7 +3,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:rifund/screens/listeprojets/listeprojets.dart';
+
 import '../../core/app_export.dart';
+import '../../data/models/selectionPopupModel/selection_popup_model.dart';
 import '../../widgets/app_bar/appbar_title.dart';
 import '../../widgets/app_bar/custom_app_bar.dart';
 import '../../widgets/custom_drop_down.dart';
@@ -29,6 +31,13 @@ class CrErProjetScreen extends StatefulWidget {
 class CrErProjetScreenState extends State<CrErProjetScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    context.read<CrErProjetProvider>().fetchCategories();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -310,9 +319,9 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
   Widget _buildCategoryDropdown(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 2.h),
-      child: Selector<CrErProjetProvider, CrErProjetModel>(
-        selector: (context, provider) => provider.crErProjetModelObj,
-        builder: (context, crErProjetModelObj, child) {
+      child: Selector<CrErProjetProvider, List<SelectionPopupModel>>(
+        selector: (context, provider) => provider.categoryDropdownItemList,
+        builder: (context, categoryList, child) {
           return CustomDropDown(
             icon: Container(
               child: CustomImageView(
@@ -324,12 +333,12 @@ class CrErProjetScreenState extends State<CrErProjetScreen> {
             hintText: "lbl_cat_gorie".tr,
             contentPadding:
                 EdgeInsets.symmetric(horizontal: 16.h, vertical: 11.v),
-            items: crErProjetModelObj.categoryDropdownItemList,
-            onChanged: (value) {
-              // ignore: unnecessary_null_comparison
+            items: categoryList, // Passing List<SelectionPopupModel> here
+            onChanged: (SelectionPopupModel? value) {
               if (value != null) {
-                // Provider.of<CrErProjetProvider>(context, listen: false).onSelectedCategoryItem(value);
-                // Provider.of<CrErProjetProvider>(context, listen: false).updateSelectedCategory(value.title);
+                context
+                    .read<CrErProjetProvider>()
+                    .updateSelectedCategory(value.title);
               }
             },
           );

@@ -206,11 +206,13 @@ class AcceuilClientPageState extends State<AcceuilClientPage> {
                         : '';
                     return GestureDetector(
                       onTap: () {
+                        // Pass the category name (or any unique identifier) to AffichageCategoriePage
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                const AffichageCategoriePage(),
+                            builder: (context) => AffichageCategoriePage(
+                              categoryName: model.name ?? '',
+                            ),
                           ),
                         );
                       },

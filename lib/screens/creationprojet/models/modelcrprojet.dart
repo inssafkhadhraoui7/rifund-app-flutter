@@ -21,16 +21,15 @@ class CrErProjetModel {
             ],
         categoryDropdownItemList = categoryDropdownItems ?? [];
 
- 
   Future<void> initCategoryDropdown() async {
     categoryDropdownItemList = await fetchCategories();
-    
+
     if (categoryDropdownItemList.isNotEmpty) {
       categoryDropdownItemList[0].isSelected = true;
     }
+    print(categoryDropdownItemList);
   }
 
- 
   Future<List<SelectionPopupModel>> fetchCategories() async {
     List<SelectionPopupModel> categoryList = [];
 
@@ -41,9 +40,10 @@ class CrErProjetModel {
       for (var doc in snapshot.docs) {
         categoryList.add(SelectionPopupModel(
           id: int.parse(doc.id),
-          title: doc['title'],
+          title: doc['name'],
           isSelected: false,
         ));
+        print(categoryList);
       }
     } catch (e) {
       print("Error fetching categories: $e");

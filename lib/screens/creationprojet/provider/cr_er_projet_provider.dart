@@ -21,12 +21,14 @@ class CrErProjetProvider extends ChangeNotifier {
   TextEditingController budgetValueController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   TextEditingController compteController = TextEditingController();
+  List<SelectionPopupModel> categoryDropdownItemList = [];
+
+  String selectedCategory = '';
 
   CrErProjetModel crErProjetModelObj = CrErProjetModel();
 
   List<String> selectedImagePaths = [];
   List<String> selectedImageNames = [];
-  String? selectedCategory;
 
   String get selectedCurrency {
     return crErProjetModelObj.dropdownItemList
@@ -168,6 +170,27 @@ class CrErProjetProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> fetchCategories() async {
+    if (categoryDropdownItemList.isNotEmpty) return;
+
+    try {
+      final snapshot = await _firestore.collection('categories').get();
+
+      categoryDropdownItemList = snapshot.docs.map((doc) {
+        return SelectionPopupModel(
+          id: int.tryParse(doc.id) ?? 0,
+          title: doc['name'] ?? 'Unknown Category',
+          value: doc,
+          isSelected: false,
+        );
+      }).toList();
+
+      notifyListeners();
+    } catch (e) {
+      print("Error fetching categories: $e");
+    }
+  }
+
   Future<List<String>> uploadImages(List<String> imagePaths) async {
     List<String> imageUrls = [];
     String? userId = _auth.currentUser?.uid;
@@ -209,8 +232,8 @@ class CrErProjetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateSelectedCategory(String? value) {
-    selectedCategory = value;
+  void updateSelectedCategory(String category) {
+    selectedCategory = category;
     notifyListeners();
   }
 

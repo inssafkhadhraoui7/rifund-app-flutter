@@ -1,8 +1,10 @@
 import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+
 import '../models/acceuil_client_model.dart';
 import '../models/listtext_item_model.dart';
 
@@ -14,12 +16,12 @@ class AcceuilClientProvider extends ChangeNotifier {
   List<CategoryItemModel> listcategoryItemList = [];
   bool isLoading = false;
   String errorMessage = '';
-  String userName = 'Utilisateur'; // Default value
+  String userName = 'Utilisateur';
   String? profileImageUrl;
 
   AcceuilClientProvider() {
     searchController.addListener(_filterProjects);
-    fetchUserData(); // Call fetchUserData in the constructor
+    fetchUserData();
   }
 
   Future<void> fetchUserData() async {
@@ -39,7 +41,6 @@ class AcceuilClientProvider extends ChangeNotifier {
           userName = userDoc.get('nom') ?? 'Utilisateur';
           profileImageUrl = userDoc.get('image_user');
 
-          // Get the profile image from Firebase Storage if not available in Firestore
           profileImageUrl ??=
               await _getProfileImageUrlFromStorage(currentUser.uid);
         }

@@ -1,17 +1,15 @@
-
-import '../../core/app_export.dart';
-import '../../theme/custom_button_style.dart';
-import '../../widgets/custom_elevated_button.dart';
-import '../../widgets/custom_search_view.dart';
-import '../financer_projet_screen/financer_projet_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:rifund/core/app_export.dart';
+import 'package:rifund/screens/affichage_par_categorie/models/listtext_item_model.dart';
 
 class AffichageCategoriePage extends StatefulWidget {
-  const AffichageCategoriePage({super.key});
+  const AffichageCategoriePage({super.key, required this.categoryName});
+  final String categoryName;
 
   static Widget builder(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => AffichageCategorieProvider(),
-      child: const AffichageCategoriePage(),
+      child: const AffichageCategoriePage(categoryName: ""),
     );
   }
 
@@ -23,13 +21,19 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
   @override
   void initState() {
     super.initState();
+    // Fetch the projects related to the category when the page is loaded.
+    Future.delayed(Duration.zero, () {
+      final provider =
+          Provider.of<AffichageCategorieProvider>(context, listen: false);
+      provider.fetchProjectsByCategory(
+          widget.categoryName); // Fetch projects by category
+    });
   }
 
   @override
-    Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: appTheme.whiteA700,
-    //  resizeToAvoidBottomInset: false,
       body: SizedBox(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,10 +50,35 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
                     _buildRowListedeOneSection(context),
                     SizedBox(height: 17.v),
                     Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: List.generate(5, (_) => _buildProjetNrgColumn(context)),
-                        ),
+                      child: Consumer<AffichageCategorieProvider>(
+                        builder: (context, provider, child) {
+                          // If projects are loading, show a loading indicator
+                          if (provider.isLoading) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+
+                          // If there was an error, display the error message
+                          if (provider.errorMessage.isNotEmpty) {
+                            return Center(child: Text(provider.errorMessage));
+                          }
+
+                          // If no projects available, show a message
+                          if (provider.filteredProjects.isEmpty) {
+                            return Center(child: Text("Aucun projet trouvé"));
+                          }
+
+                          // Display projects after applying the filter
+                          return SingleChildScrollView(
+                            child: Column(
+                              children: provider.filteredProjects.isNotEmpty
+                                  ? provider.filteredProjects.map((project) {
+                                      return _buildProjetNrgColumn(context,
+                                          project: project);
+                                    }).toList()
+                                  : [Text("Aucun projet trouvé")],
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -59,75 +88,97 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
           ],
         ),
       ),
-     // bottomNavigationBar: const BottomNavBar(),
     );
   }
-
 
   Widget _buildMaleUserOneRow(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
       child: Container(
         width: double.maxFinite,
-        padding: EdgeInsets.symmetric(
-          horizontal: 27.h,
-          vertical: 13.v,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 27, vertical: 13),
         decoration: AppDecoration.fillLightGreen.copyWith(
-          borderRadius: BorderRadiusStyle.roundedBorder22,
+          borderRadius: BorderRadius.circular(22),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
-              padding: EdgeInsets.only(left: 4.h),
+              padding: EdgeInsets.only(left: 4),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.account_circle,
-                    color: Colors.white,
-                    size: 60,
+                  Consumer<AcceuilClientProvider>(
+                    builder: (context, provider, child) {
+                      return PopupMenuButton(
+                        onSelected: (value) async {
+                          if (value == 'logout') {
+                            await FirebaseAuth.instance.signOut();
+                            NavigatorService.pushNamedAndRemoveUntil(
+                                RoutePath.welcomeScreen);
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: 'logout',
+                            child: Row(
+                              children: [
+                                Icon(Icons.logout, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text('Deconnexion'),
+                              ],
+                            ),
+                          ),
+                        ],
+                        child: CircleAvatar(
+                          radius: 30,
+                          backgroundImage: provider.profileImageUrl != null
+                              ? NetworkImage(
+                                  provider.profileImageUrl! as String)
+                              : const AssetImage('assets/images/avatar.png')
+                                  as ImageProvider,
+                        ),
+                      );
+                    },
                   ),
-                  SizedBox(width: 11.h),
+                  SizedBox(width: 11),
                   Container(
-                    width: 111.h,
-                    margin: EdgeInsets.only(
-                      left: 11.h,
-                      top: 12.v,
-                      bottom: 3.v,
+                    width: 111,
+                    margin: EdgeInsets.only(left: 11, top: 12, bottom: 3),
+                    child: Consumer<AcceuilClientProvider>(
+                      builder: (context, provider, child) {
+                        return Text(
+                          provider.userName.isEmpty
+                              ? "Nom d'utilisateur"
+                              : provider.userName,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: CustomTextStyles.titleLargeWhiteA700,
+                        );
+                      },
                     ),
-                    child: Text(
-                      "msg_nom_d_utilisateur2".tr,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: CustomTextStyles.titleLargeWhiteA700,
-                    ),
-                  )
+                  ),
                 ],
               ),
             ),
-            SizedBox(height: 9.v),
-            Padding(
-              padding: EdgeInsets.only(right: 11.h),
-              child:
-                  Selector<AffichageCategorieProvider, TextEditingController?>(
-                selector: (context, provider) => provider.searchController,
-                builder: (context, searchController, child) {
-                  // return CustomSearchView(
-                  //   hintText: "Rechercher",
-                  //   suffix: Container(
-                  //     margin: EdgeInsets.fromLTRB(30.h, 7.v, 10.h, 7.v),
-                  //     height: 17,
-                  //     width: 23,
-                  //   ),
-                  // );
-
-                  return TextField(controller: searchController,);
-                },
-              ),
-            )
+            SizedBox(height: 9),
+            Selector<AffichageCategorieProvider, TextEditingController?>(
+              selector: (context, provider) => provider.searchController,
+              builder: (context, searchController, child) {
+                return TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    hintText: "Rechercher",
+                    suffixIcon: Icon(Icons.search),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -140,9 +191,11 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
         IconButton(
           iconSize: 18,
           splashRadius: 16,
-          onPressed: (){
-          Navigator.pop(context);
-        }, icon: const Icon(Icons.arrow_back_ios)),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
         Text(
           "Liste des projets".tr,
           style: theme.textTheme.headlineSmall,
@@ -151,7 +204,8 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
     );
   }
 
-  Widget _buildProjetNrgColumn(BuildContext context) {
+  Widget _buildProjetNrgColumn(BuildContext context,
+      {required ListtextItemModel1 project}) {
     return Column(
       children: [
         SizedBox(height: 15.v),
@@ -160,10 +214,7 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
           elevation: 0,
           margin: const EdgeInsets.all(0),
           shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: appTheme.lightGreen600,
-              width: 5.h,
-            ),
+            side: BorderSide(color: appTheme.lightGreen600, width: 5.h),
             borderRadius: BorderRadiusStyle.roundedBorder20,
           ),
           child: Container(
@@ -174,21 +225,14 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
             ),
             child: Stack(
               children: [
-                _buildProjetAgricoleStack(
-                  context,
-                  imageFour: ImageConstant.imgRectangle117,
-                ),
+                _buildProjetAgricoleStack(context,
+                    imageFour: project.images.toString() ?? ""),
                 Align(
                   alignment: Alignment.center,
                   child: Container(
-                    margin: EdgeInsets.only(
-                      left: 32.h,
-                      right: 20.h,
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6.h,
-                      vertical: 8.v,
-                    ),
+                    margin: EdgeInsets.only(left: 32.h, right: 20.h),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 6.h, vertical: 8.v),
                     decoration: AppDecoration.outlineBlack9002.copyWith(
                       borderRadius: BorderRadiusStyle.roundedBorder20,
                     ),
@@ -199,7 +243,7 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
                         Padding(
                           padding: EdgeInsets.only(left: 27.h),
                           child: Text(
-                            "lbl_projet_n_rgie".tr,
+                            project.category ?? "lbl_projet_n_rgie".tr,
                             style: CustomTextStyles.titleLargeBold,
                           ),
                         ),
@@ -220,92 +264,10 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
                           ),
                         ),
                         SizedBox(height: 9.v),
-                        Container(
-                          height: 14.v,
-                          width: 177.h,
-                          margin: EdgeInsets.only(left: 27.h),
-                          child: Stack(
-                            alignment: Alignment.bottomRight,
-                            children: [
-                              Align(
-                                alignment: Alignment.center,
-                                child: Container(
-                                  height: 14.v,
-                                  width: 176.h,
-                                  decoration: BoxDecoration(
-                                    color:
-                                        theme.colorScheme.onSecondaryContainer,
-                                    borderRadius: BorderRadius.circular(7.h),
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(7.h),
-                                    child: LinearProgressIndicator(
-                                      value: 0.8,
-                                      backgroundColor: theme
-                                          .colorScheme.onSecondaryContainer,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        appTheme.lightGreen600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  "lbl_70".tr,
-                                  style: theme.textTheme.labelMedium,
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 8.v),
-                        Padding(
-                          padding: EdgeInsets.only(left: 2.h),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomElevatedButton(
-                                height: 45.v,
-                                width: 130.h,
-                                text: "lbl_faire_un_don".tr,
-                                buttonTextStyle:
-                                    CustomTextStyles.titleMediumWhiteA700,
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const FinancerProjetScreen()),
-                                  );
-                                },
-                              ),
-                              SizedBox(
-                                width: 5.h,
-                              ),
-                              CustomElevatedButton(
-                                height: 45.v,
-                                width: 75.h,
-                                text: "lbl_plus".tr,
-                                buttonStyle: CustomButtonStyles.fillGray,
-                                buttonTextStyle: theme.textTheme.titleMedium!,
-                                onPressed: () {
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //       builder: (context) =>
-                                  //          // DetailsProjetScreen(projectTitle: String,)),
-                                  //  ), );
-                                },
-                              )
-                            ],
-                          ),
-                        )
                       ],
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -314,10 +276,8 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
     );
   }
 
-   Widget _buildProjetAgricoleStack(
-    BuildContext context, {
-    required String imageFour,
-  }) {
+  Widget _buildProjetAgricoleStack(BuildContext context,
+      {required String imageFour}) {
     return SizedBox(
       height: 258.v,
       width: 193.h,
@@ -328,23 +288,18 @@ class AffichageCategoriePageState extends State<AffichageCategoriePage> {
             imagePath: ImageConstant.imgRectangle117,
             height: 258.v,
             width: 193.h,
-            radius: BorderRadius.horizontal(
-              left: Radius.circular(15.h),
-            ),
+            radius: BorderRadius.horizontal(left: Radius.circular(15.h)),
             alignment: Alignment.center,
           ),
           CustomImageView(
             imagePath: imageFour,
             height: 258.v,
             width: 193.h,
-            radius: BorderRadius.horizontal(
-              left: Radius.circular(20.h),
-            ),
+            radius: BorderRadius.horizontal(left: Radius.circular(20.h)),
             alignment: Alignment.center,
           )
         ],
       ),
     );
   }
-
 }
