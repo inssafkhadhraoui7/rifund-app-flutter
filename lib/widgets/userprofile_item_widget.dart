@@ -1,6 +1,7 @@
+import 'package:rifund/widgets/userprofile_edit_project.dart';
+
 import '../../../core/app_export.dart';
 import '../screens/listeprojets/models/userprofile_item_model.dart';
-import '../screens/modifierscreen/modifierprojetscreen.dart';
 
 // ignore_for_file: must_be_immutable
 class UserprofileItemWidget extends StatelessWidget {
@@ -109,19 +110,28 @@ class UserprofileItemWidget extends StatelessWidget {
                               height: 32.adaptSize,
                               width: 32.adaptSize,
                               child: IconButton(
-                                padding: EdgeInsets.zero,
-                                icon:
-                                    const Icon(Icons.edit, color: Colors.black),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ModifierProjetScreen(),
-                                    ),
-                                  );
-                                },
-                              ),
+                                  padding: EdgeInsets.zero,
+                                  icon: const Icon(Icons.edit,
+                                      color: Colors.black),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return EditProjectDialog(
+                                            projectId:
+                                                userprofileItemModelObj.id.toString());
+                                      },
+                                    );
+                                  }
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) =>
+                                  //         ModifierProjetScreen(project: project),
+                                  //   ),
+                                  // );
+
+                                  ),
                             ),
                             // SizedBox(
                             //   height: 32.adaptSize,

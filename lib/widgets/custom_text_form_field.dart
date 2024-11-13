@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import '../core/app_export.dart';
 
 extension TextFormFieldStyleHelper on CustomTextFormField {
@@ -13,32 +11,32 @@ extension TextFormFieldStyleHelper on CustomTextFormField {
 }
 
 class CustomTextFormField extends StatelessWidget {
-  CustomTextFormField(
-      {Key? key,
-      this.alignment,
-      this.width,
-      this.scrollPadding,
-      this.controller,
-      this.focusNode,
-      this.autofocus = false,
-      this.textStyle,
-      this.obscureText = false,
-      this.textInputAction = TextInputAction.next,
-      this.textInputType = TextInputType.text,
-      this.maxLines,
-      this.hintText,
-      this.hintStyle,
-      this.prefix,
-      this.prefixConstraints,
-      this.suffix,
-      this.suffixConstraints,
-      this.contentPadding,
-      this.borderDecoration,
-      this.fillColor,
-      this.filled = true,
-      this.readOnly = false,
-      this.validator})
-      : super(
+  CustomTextFormField({
+    Key? key,
+    this.alignment,
+    this.width,
+    this.scrollPadding,
+    this.controller,
+    this.focusNode,
+    this.autofocus = false,
+    this.textStyle,
+    this.obscureText = false,
+    this.textInputAction = TextInputAction.next,
+    this.textInputType = TextInputType.text,
+    this.maxLines,
+    this.hintText,
+    this.hintStyle,
+    this.prefix,
+    this.prefixConstraints,
+    this.suffix,
+    this.suffixConstraints,
+    this.contentPadding,
+    this.borderDecoration,
+    this.fillColor,
+    this.filled = true,
+    this.readOnly = false,
+    this.validator,
+  }) : super(
           key: key,
         );
 
@@ -82,7 +80,7 @@ class CustomTextFormField extends StatelessWidget {
 
   final Color? fillColor;
 
-  final bool? filled,readOnly;
+  final bool? filled, readOnly;
 
   final FormFieldValidator<String>? validator;
 

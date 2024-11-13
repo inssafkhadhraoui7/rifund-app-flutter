@@ -77,4 +77,26 @@ class ProjectService {
       return null;
     }
   }
+  Future<void> updateUserProject(String projectId, String title, String image) async {
+    String? userId = _auth.currentUser?.uid;
+
+    if (userId == null) {
+      throw Exception('User must be logged in');
+    }
+
+    // Reference to the specific project document
+    DocumentReference projectRef = _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('projects')
+        .doc(projectId);
+
+    // Update the project with the new values
+    await projectRef.update({
+      'title': title,
+      'images': [image], // You can handle multiple images as needed
+    });
+
+    print('Project updated: $projectId');
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:rifund/screens/details_projet_screen/details_projet_screen.dart';
+import 'package:rifund/screens/listeprojets/listeprojets.dart';
 
 import '../../core/app_export.dart';
 import '../../theme/custom_button_style.dart';
@@ -14,7 +15,6 @@ import 'models/modifier_projet_model.dart';
 import 'provider/modifier_projet_provider.dart';
 
 class ModifierProjetScreen extends StatefulWidget {
-  
   const ModifierProjetScreen({super.key});
   
   @override
@@ -34,6 +34,7 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
   @override
   void initState() {
     super.initState();
+    // Initialize any necessary data for project modification, if applicable.
   }
 
   @override
@@ -97,10 +98,8 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _buildBudgetValueOne(context),
-                          Selector<ModifierProjetProvider,
-                              ModifierProjetModel?>(
-                            selector: (context, provider) =>
-                                provider.modifierProjetModelObj,
+                          Selector<ModifierProjetProvider, ModifierProjetModel?>(
+                            selector: (context, provider) => provider.modifierProjetModelObj,
                             builder: (context, modifierProjetModelObj, child) {
                               return CustomDropDown(
                                 width: 116.h,
@@ -116,9 +115,7 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
                                   horizontal: 16.h,
                                   vertical: 11.v,
                                 ),
-                                items:
-                                    modifierProjetModelObj?.dropdownItemList ??
-                                        [],
+                                items: modifierProjetModelObj?.dropdownItemList ?? [],
                               );
                             },
                           )
@@ -130,10 +127,8 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
                     SizedBox(height: 12.v),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 6.h),
-                      child: Selector<ModifierProjetProvider,
-                          ModifierProjetModel?>(
-                        selector: (context, provider) =>
-                            provider.modifierProjetModelObj,
+                      child: Selector<ModifierProjetProvider, ModifierProjetModel?>(
+                        selector: (context, provider) => provider.modifierProjetModelObj,
                         builder: (context, modifierProjetModelObj, child) {
                           return CustomDropDown(
                             icon: Container(
@@ -148,15 +143,12 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
                               horizontal: 16.h,
                               vertical: 11.v,
                             ),
-                            items:
-                                modifierProjetModelObj?.dropdownItemList2 ?? [],
+                            items: modifierProjetModelObj?.categoryDropdownItemList ?? [],
                           );
                         },
                       ),
                     ),
-                    SizedBox(
-                      height: 12.v,
-                    ),
+                    SizedBox(height: 12.v),
                     _buildCompteOne(context),
                     SizedBox(height: 12.v),
                     Align(
@@ -207,7 +199,7 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
     );
   }
 
-  /// Section Widget
+  /// Section Widget for Project Title
   Widget _buildProjectTitle(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.h),
@@ -227,7 +219,7 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
     );
   }
 
-  /// Section Widget
+  /// Section Widget for Description
   Widget _buildDescriptionValue(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.h),
@@ -247,7 +239,7 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
     );
   }
 
-  /// Section Widget
+  /// Section Widget for Project Images
   Widget _buildProjectImages(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.h),
@@ -278,13 +270,10 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
                     if (result != null) {
                       List<String> paths =
                           result.paths.map((path) => path!).toList();
-                      // Handle the selected images here, you can save paths to use later
                       List<String> fileNames =
                           result.files.map((file) => file.name ?? '').toList();
                       print('Selected images: $paths');
-                      print(
-                          'Selected image names: $fileNames'); // Print the names of selected files
-                      // You can use fileNames to display the names in the UI
+                      print('Selected image names: $fileNames');
                     }
                   },
                   child: Container(
@@ -303,27 +292,28 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
     );
   }
 
-  /// Section Widget
+  /// Section Widget for Budget Value
   Widget _buildBudgetValueOne(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.h),
-        child: Selector<ModifierProjetProvider, TextEditingController?>(
-          selector: (context, provider) => provider.budgetValueOneController,
-          builder: (context, budgetValueOneController, child) {
-            return CustomTextFormField(
-              width: 140.h,
-              controller: budgetValueOneController,
-              hintText: "lbl_budget".tr,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16.h,
-                vertical: 11.v,
-              ),
-            );
-          },
-        ));
+      padding: EdgeInsets.symmetric(horizontal: 6.h),
+      child: Selector<ModifierProjetProvider, TextEditingController?>(
+        selector: (context, provider) => provider.budgetValueOneController,
+        builder: (context, budgetValueOneController, child) {
+          return CustomTextFormField(
+            width: 140.h,
+            controller: budgetValueOneController,
+            hintText: "lbl_budget".tr,
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 16.h,
+              vertical: 11.v,
+            ),
+          );
+        },
+      ),
+    );
   }
 
-  /// Section Widget
+  /// Section Widget for Duration
   Widget _buildDurationOne(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.h),
@@ -350,7 +340,7 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
     );
   }
 
-  /// Section Widget
+  /// Section Widget for Current Account Number
   Widget _buildCompteOne(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 2.h),
@@ -364,12 +354,6 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
               horizontal: 16.h,
               vertical: 11.v,
             ),
-            // suffix: Container(
-            //   padding: EdgeInsets.symmetric(vertical: 8.v, horizontal: 10.h),
-            //   child: Icon(
-            //     Icons.calendar_month,
-            //   ),
-            // ),
             textInputAction: TextInputAction.done,
           );
         },
@@ -377,7 +361,7 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
     );
   }
 
-  /// Section Widget
+  /// Handle Modify Project Action
   Widget _buildModifier(BuildContext context) {
     return Center(
       child: CustomElevatedButton(
@@ -387,15 +371,14 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
         buttonStyle: CustomButtonStyles.fillLightGreen,
         buttonTextStyle: CustomTextStyles.titleSmallOnPrimaryContainer,
         onPressed: () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => DetailsProjetScreen()),
-          // );
+          // Perform the modification logic here
+          _modifyProject(context);
         },
       ),
     );
   }
 
+  /// Handle Cancel Action
   Widget _buildAnnuler(BuildContext context) {
     return Center(
       child: CustomElevatedButton(
@@ -412,7 +395,17 @@ class ModifierProjetScreenState extends State<ModifierProjetScreen> {
     );
   }
 
-  /// Navigates to the previous screen.
+  /// Modify Project Logic
+  _modifyProject(BuildContext context) {
+ 
+    print("Modifying project...");
+    
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ListeDesProjetsPage()),
+    );
+  }
+
   onTapArrowleftone(BuildContext context) {
     NavigatorService.goBack();
   }
