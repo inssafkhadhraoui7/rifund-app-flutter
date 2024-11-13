@@ -33,7 +33,7 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
     final provider = Provider.of<CrErProjetProvider>(context);
 
     return AlertDialog(
-      title: Text("Edit Project"),
+      title: Text("Modifier projet"),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -60,11 +60,11 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text("Cancel"),
+          child: Text("Annuler"),
         ),
         TextButton(
           onPressed: _isLoading ? null : () => _updateProject(provider),
-          child: _isLoading ? Text("Saving...") : Text("Save"),
+          child: _isLoading ? Text("Enregistrer...") : Text("Enregistrer"),
         ),
       ],
     );
@@ -74,10 +74,10 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
   Widget _buildTitleField(CrErProjetProvider provider) {
     return CustomTextFormField(
       controller: provider.projectTitleController,
-      hintText: "Project Title",
+      hintText: "Titre du projet",
       validator: (value) {
         if (value!.isEmpty) {
-          return "Title cannot be empty";
+          return "Le titre est requis";
         }
         return null;
       },
@@ -91,7 +91,7 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
       hintText: "Description",
       validator: (value) {
         if (value!.isEmpty) {
-          return "Description cannot be empty";
+          return "Description est requis";
         }
         return null;
       },
@@ -105,7 +105,7 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
       hintText: "Budget",
       validator: (value) {
         if (value!.isEmpty) {
-          return "Budget cannot be empty";
+          return "Le budget est requis";
         }
         return null;
       },
@@ -119,7 +119,7 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
       hintText: "Date",
       validator: (value) {
         if (value!.isEmpty) {
-          return "Date cannot be empty";
+          return "la date est requis";
         }
         return null;
       },
@@ -130,10 +130,10 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
   Widget _buildAccountNumberField(CrErProjetProvider provider) {
     return CustomTextFormField(
       controller: provider.compteController,
-      hintText: "Account Number",
+      hintText: "Numéro du compte",
       validator: (value) {
         if (value!.isEmpty) {
-          return "Account number cannot be empty";
+          return "Le numéro de compte est requis";
         }
         return null;
       },
@@ -170,7 +170,7 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
         }
 
         if (snapshot.hasError) {
-          return Text('Error loading categories');
+          return Text('Erreur de telechargement des categories');
         }
 
         return DropdownButton<String>(
@@ -182,7 +182,7 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
               provider.updateSelectedCategory(newValue);
             }
           },
-          hint: Text('Select Category'),
+          hint: Text('Selectionner Category'),
           style: TextStyle(color: Colors.black), // Set text color to black
           items: provider.categoryDropdownItemList
               .map<DropdownMenuItem<String>>((item) {
@@ -200,7 +200,6 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
     );
   }
 
-  // Save project method
   Future<void> _updateProject(CrErProjetProvider provider) async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
