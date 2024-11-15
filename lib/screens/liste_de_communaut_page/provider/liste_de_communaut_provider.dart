@@ -56,12 +56,14 @@ class ListeDeCommunautProvider with ChangeNotifier {
       final projectId = projectDoc.id;
       final projectName = projectDoc.data()['title'] ?? 'Unnamed Project';
 
+      // Fetch communities with status 'validated'
       final communitiesSnapshot = await _firestore
           .collection('users')
           .doc(userId)
           .collection('projects')
           .doc(projectId)
           .collection('communities')
+          .where('status', isEqualTo: 'validated') // Filter communities by 'validated' status
           .get();
 
       for (var communityDoc in communitiesSnapshot.docs) {
@@ -93,7 +95,7 @@ class ListeDeCommunautProvider with ChangeNotifier {
       }
     }
 
-    print("Total communities fetched: ${_communities.length}");
+    print("Total validated communities fetched: ${_communities.length}");
   } catch (e) {
     _errorMessage = "Erreur lors de la récupération des communautés: ${e.toString()}";
     print("Error: $e");

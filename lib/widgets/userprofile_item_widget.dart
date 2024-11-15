@@ -118,8 +118,9 @@ class UserprofileItemWidget extends StatelessWidget {
                                       context: context,
                                       builder: (BuildContext context) {
                                         return EditProjectDialog(
-                                            projectId:
-                                                userprofileItemModelObj.id.toString());
+                                            projectId: userprofileItemModelObj
+                                                .id
+                                                .toString());
                                       },
                                     );
                                   }
@@ -133,32 +134,32 @@ class UserprofileItemWidget extends StatelessWidget {
 
                                   ),
                             ),
-                            // SizedBox(
-                            //   height: 32.adaptSize,
-                            //   width: 29.adaptSize,
-                            //   child: IconButton(
-                            //     padding: EdgeInsets.zero,
-                            //     icon: const Icon(Icons.people,
-                            //         color: Colors.black),
-                            //     onPressed: () async {
-                            //       final projectId = userprofileItemModelObj.id;
+                            SizedBox(
+                              height: 32.adaptSize,
+                              width: 29.adaptSize,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(Icons.people,
+                                    color: Colors.black),
+                                onPressed: () async {
+                                  final projectId = userprofileItemModelObj.id;
 
-                            //       print(
-                            //           'Project ID from UserProfile: $projectId');
+                                  print(
+                                      'Project ID from UserProfile: $projectId');
 
-                            //       if (projectId != null &&
-                            //           projectId.isNotEmpty) {
-                            //         Navigator.pushNamed(
-                            //           context,
-                            //           '/cr_er_communaut_screen',
-                            //           arguments: projectId,
-                            //         );
-                            //       } else {
-                            //         print('Project ID is null or empty!');
-                            //       }
-                            //     },
-                            //   ),
-                            // ),
+                                  if (projectId != null &&
+                                      projectId.isNotEmpty) {
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/cr_er_communaut_screen',
+                                      arguments: projectId,
+                                    );
+                                  } else {
+                                    print('Project ID is null or empty!');
+                                  }
+                                },
+                              ),
+                            ),
                           ],
                         ),
                       ),
